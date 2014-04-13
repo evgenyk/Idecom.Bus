@@ -21,7 +21,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
         public TransportMessage TransportMessage { get; set; }
 
-        public int Atempt { get; set; }
+        public int Attempt { get; set; }
         public int MaxAttempts { get; set; }
 
         public void DelayedSend(Action action)

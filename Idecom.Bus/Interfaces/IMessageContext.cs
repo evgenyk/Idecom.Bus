@@ -5,7 +5,7 @@ namespace Idecom.Bus.Interfaces
     public interface IMessageContext
     {
         TransportMessage TransportMessage { get; }
-        int Atempt { get; }
+        int Attempt { get; }
         int MaxAttempts { get; }
     }
 }

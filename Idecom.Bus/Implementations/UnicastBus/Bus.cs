@@ -105,7 +105,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
         {
             var currentMessageContext = _container.Resolve<CurrentMessageContext>();
             currentMessageContext.TransportMessage = e.TransportMessage;
-            currentMessageContext.Atempt = e.Attempt;
+            currentMessageContext.Attempt = e.Attempt;
             currentMessageContext.MaxAttempts = e.MaxRetries + 1; //as first message receive is not a retry and interface states "MaxAttempts", not MaxRetries
             MethodInfo handlerMethod = _handlerRoutingTable.ResolveRouteFor(e.TransportMessage.Message.GetType());
 
