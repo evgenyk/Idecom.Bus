@@ -6,5 +6,5 @@ for /f %%X IN ('dir /s /b idecom*.nuspec') do .nuget\nuget pack "%%~fX" -OutputD
 for /f %%X IN ('dir /s /b idecom*implementation*.nuspec') do .nuget\nuget pack "%%~fX" -OutputDirectory _GeneratedNuGetPackages -Verbosity detailed
 
 CD _GeneratedNuGetPackages
-rem for /f %%X IN ('dir /b *.nupkg') do ..\.nuget\NuGet.exe push "%%~fX"
+for /f %%X IN ('dir /b *.nupkg') do ..\.nuget\NuGet.exe push "%%~fX"
 CD ..
