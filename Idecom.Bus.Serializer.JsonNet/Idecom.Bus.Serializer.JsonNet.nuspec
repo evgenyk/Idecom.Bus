@@ -7,7 +7,7 @@
     <authors>Evgeny Komarevtsev</authors>
     <owners>Evgeny Komarevtsev</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Newtonsoft JsnoNet serializer for Idecom.Bus</description>
+    <description>Newtonsoft.Json serializer for Idecom.Bus</description>
     <dependencies>
       <dependency id="Idecom.Bus" />
       <dependency id="Newtonsoft.Json" />
