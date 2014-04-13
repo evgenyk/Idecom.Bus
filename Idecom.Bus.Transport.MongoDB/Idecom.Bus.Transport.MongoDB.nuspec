@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Idecom.Bus.Transport.MongoDB</id>
+    <version>1.0.0</version>
+    <title>Idecom.Bus.Transport.MongoDB</title>
+    <authors>Evgeny Komarevtsev</authors>
+    <owners>Evgeny Komarevtsev</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>MongoDB transport for Idecom.Bus</description>
+    <dependencies>
+      <dependency id="Idecom.Bus" />
+      <dependency id="mongocsharpdriver" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\debug\Idecom.Bus.Transport.MongoDB.dll" target="lib" />
+    <file src="bin\debug\Idecom.Bus.Transport.MongoDB.pdb" target="lib" />
+    <file src="**\*.cs" target="src" exclude="bin\**;obj\**;tools\**" />
+  </files>
+</package>

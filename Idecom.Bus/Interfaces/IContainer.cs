@@ -1,0 +1,27 @@
+﻿using System;
+using System.Linq.Expressions;
+
+namespace Idecom.Bus.Interfaces
+{
+    public interface IContainer
+    {
+        IContainer ParentContainer { get; }
+        void Configure(Type component, Lifecycle lifecycle);
+        void Configure<T>(Lifecycle lifecycle);
+        void ConfigureInstance<T>(T instance);
+        object Resolve(Type typeToBuild);
+        T Resolve<T>();
+        void Release(object instance);
+        IContainer CreateChildContainer();
+        void ConfigureUnitOfWork(Func<IDisposable> beginUnitOfWorkFunc = null);
+        IDisposable BeginUnitOfWork();
+        void ConfigureProperty<T>(Expression<Func<T, object>> property, object value);
+    }
+
+    public enum Lifecycle
+    {
+        Singleton,
+        PerWorkUnit,
+        Transient
+    }
+}

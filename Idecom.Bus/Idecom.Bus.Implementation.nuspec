@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Idecom.Bus.Implementation</id>
+    <version>1.0.0</version>
+    <authors>Evgeny Komarevtsev</authors>
+    <owners>Evgeny Komarevtsev</owners>
+    <description>Idecom message bus meta package with default Serializer, Container and Transport</description>
+    <releaseNotes></releaseNotes>
+    <dependencies>
+      <dependency id="Idecom.Bus.Transport.MongoDB" />
+      <dependency id="Idecom.Bus.Serializer.JsonNet" />
+      <dependency id="Idecom.Bus.IoC.CastleWindsor" />
+    </dependencies>
+  </metadata>
+ <files>
+ </files>
+</package>
