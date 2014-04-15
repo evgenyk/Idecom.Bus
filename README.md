@@ -2,6 +2,10 @@
 
 Service Bus with support of pluggable transports, serializers and containers
 
+###Roadmap###
+
+See trello board: https://trello.com/b/3hYLWydX/idecom-bus
+
 ###Installation###
 
 You can install Idecom.Bus into Idecom.Host or host it in your own application.
