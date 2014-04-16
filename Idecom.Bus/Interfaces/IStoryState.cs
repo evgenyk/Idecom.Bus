@@ -1,6 +1,6 @@
 ﻿namespace Idecom.Bus.Interfaces
 {
-    public interface ISagaState
+    public interface IStoryState
     {
     }
 }

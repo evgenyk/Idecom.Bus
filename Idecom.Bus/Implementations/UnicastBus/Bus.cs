@@ -66,16 +66,28 @@ namespace Idecom.Bus.Implementations.UnicastBus
             _transport.Stop();
         }
 
+        /// <summary>
+        /// TODO: if send from handler we need to senbd after handler finished processing to cater for exception
+        /// </summary>
+        /// <param name="message"></param>
         public void Send(object message)
         {
             ExecuteOnlyWhenStarted(() => _transport.Send(message, _localAddress, _mesageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send, CurrentMessageContextInternal()));
         }
 
+        /// <summary>
+        /// TODO: if send from handler we need to senbd after handler finished processing to cater for exception
+        /// </summary>
+        /// <param name="message"></param>
         public void SendLocal(object message)
         {
             ExecuteOnlyWhenStarted(() => _transport.Send(message, _localAddress, _localAddress, MessageIntent.Send, CurrentMessageContextInternal()));
         }
 
+        /// <summary>
+        /// TODO: if send from handler we need to senbd after handler finished processing to cater for exception
+        /// </summary>
+        /// <param name="message"></param>
         public void Reply(object message)
         {
             ExecuteOnlyWhenStarted(() =>

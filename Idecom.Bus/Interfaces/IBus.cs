@@ -1,4 +1,6 @@
-﻿namespace Idecom.Bus.Interfaces
+﻿using System;
+
+namespace Idecom.Bus.Interfaces
 {
     public interface IBus
     {
@@ -6,5 +8,9 @@
         void Send(object message);
         void SendLocal(object message);
         void Reply(object message);
+    }
+
+    public interface IStoryBus: IBus
+    {
     }
 }

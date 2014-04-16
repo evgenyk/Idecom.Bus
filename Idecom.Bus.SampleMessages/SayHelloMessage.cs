@@ -1,7 +1,8 @@
 ﻿namespace Idecom.Bus.SampleMessages
 {
-    public interface IMetAFriendEvent
+    public class MetAFriendMessage
     {
+        public string Name { get; set; }
     }
 
 
@@ -17,5 +18,12 @@
         }
 
         public string Hello { get; set; }
+    }
+
+    public class SayGoodByeMessage : SayHelloMessage
+    {
+        public SayGoodByeMessage(string hello) : base(hello)
+        {
+        }
     }
 }

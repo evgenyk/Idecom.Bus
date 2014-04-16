@@ -49,7 +49,7 @@
     <Compile Include="Implementations\ConfigureContainer.cs" />
     <Compile Include="Implementations\NestedConfigurationBase.cs" />
     <Compile Include="Implementations\RoutingTable.cs" />
-    <Compile Include="Implementations\Saga.cs" />
+    <Compile Include="Implementations\Story.cs" />
     <Compile Include="Implementations\UnicastBus\Bus.cs" />
     <Compile Include="Implementations\UnicastBus\CurrentMessageContext.cs" />
     <Compile Include="Interfaces\IBus.cs" />
@@ -58,9 +58,9 @@
     <Compile Include="Interfaces\IHandleMessage.cs" />
     <Compile Include="Interfaces\IMessageContext.cs" />
     <Compile Include="Interfaces\IMessageSerializer.cs" />
-    <Compile Include="Interfaces\ISaga.cs" />
-    <Compile Include="Interfaces\ISagaState.cs" />
-    <Compile Include="Interfaces\IStartThisSagaWhenReceive.cs" />
+    <Compile Include="Interfaces\IStory.cs" />
+    <Compile Include="Interfaces\IStoryState.cs" />
+    <Compile Include="Interfaces\IStartThisStoryWhenReceive.cs" />
     <Compile Include="Interfaces\ITransport.cs" />
     <Compile Include="Transport\TransportMessageFinishedEventArgs.cs" />
     <Compile Include="Transport\TransportMessageReceivedEventArgs.cs" />
