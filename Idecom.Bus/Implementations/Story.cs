@@ -4,8 +4,8 @@ namespace Idecom.Bus.Implementations
 {
     public abstract class Story<TState> : IStory<TState> where TState : IStoryState
     {
-        protected IStoryBus Bus { get; private set; }
-        public TState StoryState { get; private set; }
+        public IBus Bus { get; set; }
+        public TState StoryState { get; set; }
 
         public void CloseStory()
         {

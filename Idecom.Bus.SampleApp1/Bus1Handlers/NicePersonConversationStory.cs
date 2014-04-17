@@ -1,34 +1,35 @@
-﻿using System.ComponentModel;
-using System.Threading;
+﻿using System;
 using Idecom.Bus.Implementations;
 using Idecom.Bus.Interfaces;
 using Idecom.Bus.SampleMessages;
 
 namespace Idecom.Bus.SampleApp1.Bus1Handlers
 {
+    /// <summary>
+    ///            Bus.Expect<SayHeelloMessage>.For(10.Seconds)
+    //            .OtherwiseRaise<ITiredWaitingForAReply>();
+    //!!!!!!!!!!!!!!!!!!!! chaining sagas together for complex flows!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!! SAGAS MUST BE TRANBSPARENT TO USE.
+    /// </summary>
     public class NicePersonConversationStory : Story<NicePersonConversationState>,
         IStartThisStoryWhenReceive<MetAFriendMessage>,
         IHandleMessage<SayHelloMessage>,
         ITimeoutFor<ITiredWaitingForAReply>
     {
-        public void Handle(MetAFriendMessage message)
-        {
-            Bus.Send(new SayHelloMessage("Hi"));
-            Bus.Expect<SayHelloMessage>.For(10.Seconds)
-                .OtherwiseRaise<ITiredWaitingForAReply>();
-
-            //!!!!!!!!!!!!!!!!!!!! chaining sagas together for complex flows!!!!!!!!!!!!!!!!!
-        }
-
         public void Handle(SayHelloMessage message)
         {
             Bus.Reply(new SayGoodByeMessage("See you"));
             CloseStory();
         }
 
+        public void Handle(MetAFriendMessage message)
+        {
+            Bus.Send(new SayHelloMessage("Hi"));
+        }
+
         public void HandleTimeout(ITiredWaitingForAReply timeout)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 

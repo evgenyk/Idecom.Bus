@@ -93,7 +93,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
             ExecuteOnlyWhenStarted(() =>
             {
                 if (_localAddress.Equals(CurrentMessageContext.TransportMessage.SourceAddress))
-                    throw new Exception("Can not reply to the local queue.");
+                    throw new Exception("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: " + CurrentMessageContext.TransportMessage.SourceAddress);
                 _transport.Send(message, _localAddress, CurrentMessageContext.TransportMessage.SourceAddress, MessageIntent.Send, CurrentMessageContextInternal());
             });
         }

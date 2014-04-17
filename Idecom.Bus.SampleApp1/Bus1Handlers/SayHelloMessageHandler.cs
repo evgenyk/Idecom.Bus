@@ -4,7 +4,7 @@ using Idecom.Bus.SampleMessages;
 
 namespace Idecom.Bus.SampleApp1.Bus1Handlers
 {
-    public class SayHelloMessageHandler : IHandleMessage<SayHelloMessage>
+    public class SayHelloMessageHandler //: IHandleMessage<SayHelloMessage>
     {
         public IBus Bus { get; set; }
 

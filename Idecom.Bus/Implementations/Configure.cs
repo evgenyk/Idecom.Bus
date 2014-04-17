@@ -67,7 +67,20 @@ namespace Idecom.Bus.Implementations
 
         private void ApplyDefaultHandlerMapping()
         {
-            List<MethodInfo> methodInfos = AssemblyScanner.GetTypes().SelectMany(x => x.GetMethods().Where(method => method.ReflectedType != null && !method.IsAbstract && method.Name.Equals("Handle"))).ToList();
+            var methodInfos = AssemblyScanner.GetTypes().Where(x=>!x.IsInterface)
+                .SelectMany(type =>
+                {
+                    var types = type.GetInterfaces().ToList();
+                    var interfaces = types.Where(y => y.IsGenericType && y.GetGenericTypeDefinition() == typeof(IHandleMessage<>)).SelectMany(x=>x.GenericTypeArguments);
+                    
+
+                    //TODO: bind stories
+                    //TODO: bind story mappings
+                    //TODO: bind timeouts
+
+                    var info = type.GetMethods().Where(x => x.GetParameters().Select(parameter => parameter.ParameterType).Where(interfaces.Contains).Any());
+                    return info;
+                });
             MapHandlers(methodInfos);
         }
 

@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Castle.Windsor;
 using Idecom.Bus.Implementations;
 using Idecom.Bus.Interfaces;
@@ -7,33 +11,27 @@ using Idecom.Bus.SampleMessages;
 using Idecom.Bus.Serializer.JsonNet.JsonNetSerializer;
 using Idecom.Bus.Transport.MongoDB.MongoDbTransport;
 
-namespace Idecom.Bus.SampleApp1
+namespace Idecom.Bus.SampleApp2
 {
-    internal class Program
+    class Program
     {
-        private static void Main()
+        static void Main(string[] args)
         {
             var container = new WindsorContainer();
             IBusInstance busInstance = Configure.With()
                 .WindsorContainer(container)
                 .MongoDbTransport("mongodb://localhost", "messageHub")
                 .JsonNetSerializer()
-                .RouteMessagesFromNamespaceTo<SayHelloMessage>("app2")
-                .CreateBus("app1", 1, 2);
+                .RouteMessagesFromNamespaceTo<SayHelloMessage>("app1")
+                .CreateBus("app2", 1, 2);
 
-            IBusInstance bus1 = busInstance.Start();
+            IBusInstance bus = busInstance.Start();
+            bus.Send(new MetAFriendMessage());
 
-//            bus1.SendLocal(new SayHelloMessage("Hello local 1"));
-//            bus1.Send(new SayHelloMessage("Hello local 2"));
-//                        for (var i = 0; i < 1000000; i++)
-//            {
-//                PerfMetric.Received++;
-//                bus1.Send(new SayHelloMessage("Hello local: " + DateTime.Now));
-//            }
 
             Console.WriteLine("Bus configured. Press any key to close the app.");
             Console.ReadKey();
-            bus1.Stop();
+            bus.Stop();
         }
     }
 }
