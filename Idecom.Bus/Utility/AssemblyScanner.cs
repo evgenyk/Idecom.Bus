@@ -45,9 +45,10 @@ namespace Idecom.Bus.Utility
         [DebuggerNonUserCode]
         public static IEnumerable<Type> GetTypes()
         {
-            if (!_typesCache.Any())
-                lock (_typesCache)
-                    _typesCache = _typesCache.Any() ? _typesCache : GetScannableAssemblies().SelectMany(x => x.GetTypes()).ToList();
+            if (_typesCache.Any()) return _typesCache;
+
+            lock (_typesCache)
+                _typesCache = _typesCache.Any() ? _typesCache : GetScannableAssemblies().SelectMany(x => x.GetTypes()).ToList();
             return _typesCache;
         }
     }

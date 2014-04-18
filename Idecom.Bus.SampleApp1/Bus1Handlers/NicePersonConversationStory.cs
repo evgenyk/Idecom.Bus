@@ -18,12 +18,14 @@ namespace Idecom.Bus.SampleApp1.Bus1Handlers
     {
         public void Handle(SayHelloMessage message)
         {
+            Console.WriteLine("Said goodbuy");
             Bus.Reply(new SayGoodByeMessage("See you"));
             CloseStory();
         }
 
         public void Handle(MetAFriendMessage message)
         {
+            Console.WriteLine("Met a friend");
             Bus.Send(new SayHelloMessage("Hi"));
         }
 

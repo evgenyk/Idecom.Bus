@@ -67,24 +67,32 @@ namespace Idecom.Bus.Implementations
 
         private void ApplyDefaultHandlerMapping()
         {
-            var methodInfos = AssemblyScanner.GetTypes().Where(x=>!x.IsInterface)
-                .SelectMany(type =>
-                {
-                    var types = type.GetInterfaces().ToList();
-                    var interfaces = types.Where(y => y.IsGenericType && y.GetGenericTypeDefinition() == typeof(IHandleMessage<>)).SelectMany(x=>x.GenericTypeArguments);
-                    
+            Func<Type, Type, bool> implementsType = (y, compareType) => y.IsGenericType && y.GetGenericTypeDefinition() == compareType;
 
-                    //TODO: bind stories
-                    //TODO: bind story mappings
-                    //TODO: bind timeouts
+            IEnumerable<MethodInfo> messageToHandlerMapping = AssemblyScanner.GetTypes().Where(x => !x.IsInterface)
+                .SelectMany(type => type.GetMethods()
+                    .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
+                        .Where(type.GetInterfaces().Where(intface => implementsType(intface, typeof (IHandleMessage<>))).SelectMany(intfs => intfs.GenericTypeArguments).Contains).Any()));
+            MapMessageHandlers(messageToHandlerMapping);
 
-                    var info = type.GetMethods().Where(x => x.GetParameters().Select(parameter => parameter.ParameterType).Where(interfaces.Contains).Any());
-                    return info;
-                });
-            MapHandlers(methodInfos);
+
+            var messageToSagaMapping = AssemblyScanner.GetTypes().Where(x =>
+            {
+                Type[] interfaces = x.GetInterfaces();
+                bool any = interfaces.Any(intface => implementsType(intface, typeof(IStartThisStoryWhenReceive<>)));
+                return any;
+            }).SelectMany(type =>
+            {
+                var enumerable = type.GetInterfaces()
+                    .Where(intface => implementsType(intface, typeof(IStartThisStoryWhenReceive<>)))
+                    .Where(intf => intf.IsGenericType && intf.GetGenericArguments().Any())
+                    .Select(y => new {type, message = y.GenericTypeArguments.First()});
+                return enumerable;
+            }).ToList();
+
         }
 
-        private void MapHandlers(IEnumerable<MethodInfo> methodInfos)
+        private void MapMessageHandlers(IEnumerable<MethodInfo> methodInfos)
         {
             foreach (MethodInfo methodInfo in methodInfos)
             {
