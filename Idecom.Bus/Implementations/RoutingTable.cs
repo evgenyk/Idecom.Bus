@@ -4,14 +4,14 @@ using System.Linq;
 
 namespace Idecom.Bus.Implementations
 {
-    public interface IRoutingTable<TTarget>
+    public interface IRoutingTable<TTarget> where TTarget: class
     {
         void RouteTypes(IEnumerable<Type> types, TTarget routeTarget);
         TTarget ResolveRouteFor(Type type);
         IEnumerable<TTarget> GetDestinations();
     }
 
-    public class RoutingTable<TTarget> : IRoutingTable<TTarget>
+    public class RoutingTable<TTarget> : IRoutingTable<TTarget> where TTarget : class
     {
         private readonly Dictionary<Type, TTarget> _routes;
 
@@ -32,8 +32,10 @@ namespace Idecom.Bus.Implementations
 
         public TTarget ResolveRouteFor(Type type)
         {
-            TTarget resolveRouteFor = _routes.ContainsKey(type) ? _routes[type] : default(TTarget);
-            return resolveRouteFor;
+            TTarget route = _routes.ContainsKey(type) ? _routes[type] : default(TTarget);
+            if (route == null)
+                throw new Exception(string.Format("{0} couldn't be routed to any known '{1}'", type.AssemblyQualifiedName, typeof (TTarget)));
+            return route;
         }
 
         public IEnumerable<TTarget> GetDestinations()

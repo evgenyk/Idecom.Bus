@@ -2,9 +2,9 @@
 using Castle.Windsor;
 using Idecom.Bus.Implementations;
 
-namespace Idecom.Bus.IoC.CastleWindsor.WindsorContainer
+namespace Idecom.Bus.IoC.CastleWindsor
 {
-    public static class ConfigurationExtensions
+    public static class Bootstrap
     {
         public static Configure WindsorContainer(this ConfigureContainer configure, IWindsorContainer container = null, Func<IDisposable> beginUnitOfWorkFunc = null)
         {

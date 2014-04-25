@@ -1,18 +1,22 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
 using Idecom.Bus.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Idecom.Bus.Serializer.JsonNet.JsonNetSerializer
+namespace Idecom.Bus.Serializer.JsonNet
 {
     public class JsonNetMessageSerializer : IMessageSerializer
     {
+        private readonly IInstanceCreator _instanceCreator;
         private readonly JsonSerializerSettings _jsonSerializerSettings;
 
-        public JsonNetMessageSerializer()
+        public JsonNetMessageSerializer(IInstanceCreator instanceCreator)
         {
+            _instanceCreator = instanceCreator;
             _jsonSerializerSettings = new JsonSerializerSettings
             {
                 TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
@@ -24,7 +28,11 @@ namespace Idecom.Bus.Serializer.JsonNet.JsonNetSerializer
 
         public string Serialize(object message)
         {
-            string serialized = JsonConvert.SerializeObject(message, _jsonSerializerSettings);
+            var serializer = JsonSerializer.Create(_jsonSerializerSettings);
+            serializer.Binder = new InterfaceSupportingBinder(_instanceCreator);
+            var stringWriter = new StringWriter();
+            serializer.Serialize(stringWriter, message);
+            var serialized = stringWriter.ToString();
             return serialized;
         }
 
@@ -32,6 +40,21 @@ namespace Idecom.Bus.Serializer.JsonNet.JsonNetSerializer
         {
             object deserialized = JsonConvert.DeserializeObject(message, type);
             return deserialized;
+        }
+    }
+
+    public class InterfaceSupportingBinder : SerializationBinder
+    {
+        private readonly IInstanceCreator _instanceCreator;
+
+        public InterfaceSupportingBinder(IInstanceCreator instanceCreator)
+        {
+            _instanceCreator = instanceCreator;
+        }
+
+        public override Type BindToType(string assemblyName, string typeName)
+        {
+            return null;
         }
     }
 }

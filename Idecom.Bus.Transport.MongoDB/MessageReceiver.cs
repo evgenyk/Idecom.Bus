@@ -6,7 +6,7 @@ using Idecom.Bus.Utility;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace Idecom.Bus.Transport.MongoDB.MongoDbTransport
+namespace Idecom.Bus.Transport.MongoDB
 {
     internal class MessageReceiver
     {

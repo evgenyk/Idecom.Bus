@@ -63,6 +63,10 @@
       <Project>{ecf7264e-6522-4653-a47b-dcfff6df5efd}</Project>
       <Name>Idecom.Bus.IoC.CastleWindsor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Idecom.Bus.PubSub.MongoDB\Idecom.Bus.PubSub.MongoDB.csproj">
+      <Project>{9dd532af-0c9b-427e-9100-02b526707105}</Project>
+      <Name>Idecom.Bus.PubSub.MongoDB</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Idecom.Bus.SampleMessages\Idecom.Bus.SampleMessages.csproj">
       <Project>{e20aa1bc-93b3-44d1-9ff0-35dae236f1d7}</Project>
       <Name>Idecom.Bus.SampleMessages</Name>

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Idecom.Bus.Transport.MongoDB.MongoDbTransport
+namespace Idecom.Bus.Transport.MongoDB
 {
     internal class MaxWorkersTaskScheduler : TaskScheduler, IDisposable
     {

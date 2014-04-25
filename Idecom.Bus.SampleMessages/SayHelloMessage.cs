@@ -1,8 +1,8 @@
 ﻿namespace Idecom.Bus.SampleMessages
 {
-    public class MetAFriendMessage
+    public interface IMetAFriendEvent
     {
-        public string Name { get; set; }
+        string Name { get; set; }
     }
 
 

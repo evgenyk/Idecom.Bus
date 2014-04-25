@@ -4,7 +4,7 @@ namespace Idecom.Bus.Implementations
 {
     public abstract class NestedConfigurationBase
     {
-        protected Configure _rootConfiguration;
+        private readonly Configure _rootConfiguration;
 
         protected NestedConfigurationBase(Configure rootConfiguration)
         {

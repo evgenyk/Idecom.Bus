@@ -52,14 +52,14 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="MongoDbTransport\ConfigureExtensions.cs" />
-    <Compile Include="MongoDbTransport\MaxWorkersTaskScheduler.cs" />
-    <Compile Include="MongoDbTransport\MessageProcessingStatus.cs" />
-    <Compile Include="MongoDbTransport\MessageReceiver.cs" />
-    <Compile Include="MongoDbTransport\MessageSender.cs" />
-    <Compile Include="MongoDbTransport\MongoDbTransport.cs" />
-    <Compile Include="MongoDbTransport\MongoExtensions.cs" />
-    <Compile Include="MongoDbTransport\MongoTransportMessage.cs" />
+    <Compile Include="BootstrapMongoDbTransport.cs" />
+    <Compile Include="MaxWorkersTaskScheduler.cs" />
+    <Compile Include="MessageProcessingStatus.cs" />
+    <Compile Include="MessageReceiver.cs" />
+    <Compile Include="MessageSender.cs" />
+    <Compile Include="MongoDbTransport.cs" />
+    <Compile Include="MongoExtensions.cs" />
+    <Compile Include="MongoTransportMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Idecom.Bus\Idecom.Bus.csproj">

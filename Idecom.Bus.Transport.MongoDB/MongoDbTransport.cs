@@ -8,7 +8,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace Idecom.Bus.Transport.MongoDB.MongoDbTransport
+namespace Idecom.Bus.Transport.MongoDB
 {
     public class MongoDbTransport : ITransport
     {

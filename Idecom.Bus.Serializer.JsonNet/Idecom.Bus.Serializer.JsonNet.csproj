@@ -48,8 +48,8 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="JsonNetSerializer\ConfigureExtensions.cs" />
-    <Compile Include="JsonNetSerializer\JsonNetMessageSerializer.cs" />
+    <Compile Include="Bootstrap.cs" />
+    <Compile Include="JsonNetMessageSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Idecom.Bus\Idecom.Bus.csproj">

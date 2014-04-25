@@ -8,9 +8,6 @@ namespace Idecom.Bus.Interfaces
         void Send(object message);
         void SendLocal(object message);
         void Reply(object message);
-    }
-
-    public interface IStoryBus: IBus
-    {
+        void Raise<T>(Action<T> action);
     }
 }

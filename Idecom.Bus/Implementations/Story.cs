@@ -1,4 +1,5 @@
 ﻿using Idecom.Bus.Interfaces;
+using Idecom.Bus.Interfaces.Addons.Stories;
 
 namespace Idecom.Bus.Implementations
 {

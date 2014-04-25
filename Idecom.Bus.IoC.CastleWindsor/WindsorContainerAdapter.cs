@@ -10,7 +10,7 @@ using Castle.Windsor;
 using Idecom.Bus.Interfaces;
 using Idecom.Bus.Utility;
 
-namespace Idecom.Bus.IoC.CastleWindsor.WindsorContainer
+namespace Idecom.Bus.IoC.CastleWindsor
 {
     public class WindsorContainerAdapter : IContainer
     {
@@ -23,16 +23,16 @@ namespace Idecom.Bus.IoC.CastleWindsor.WindsorContainer
             _beginScopeFunction = () => _container.BeginScope();
         }
 
-        public void Configure(Type component, Lifecycle lifecycle)
+        public void Configure(Type component, ComponentLifecycle componentLifecycle)
         {
-            LifestyleType lifestyleTypeFrom = GetLifestyleTypeFrom(lifecycle);
+            LifestyleType lifestyleTypeFrom = GetLifestyleTypeFrom(componentLifecycle);
             IEnumerable<Type> services = component.GetInterfaces().Where(x => !x.FullName.StartsWith("System.")).Concat(new[] {component});
             _container.Register(Component.For(services).ImplementedBy(component).LifeStyle.Is(lifestyleTypeFrom).NamedAutomatically(Guid.NewGuid().ToString()));
         }
 
-        public void Configure<T>(Lifecycle lifecycle)
+        public void Configure<T>(ComponentLifecycle componentLifecycle)
         {
-            Configure(typeof (T), lifecycle);
+            Configure(typeof (T), componentLifecycle);
         }
 
         public void ConfigureInstance<T>(T instance)
@@ -110,18 +110,18 @@ namespace Idecom.Bus.IoC.CastleWindsor.WindsorContainer
                     new DependencyModel(property, value.GetType(), false, true, value)));
         }
 
-        private LifestyleType GetLifestyleTypeFrom(Lifecycle lifecycle)
+        private LifestyleType GetLifestyleTypeFrom(ComponentLifecycle componentLifecycle)
         {
-            switch (lifecycle)
+            switch (componentLifecycle)
             {
-                case Lifecycle.Singleton:
+                case ComponentLifecycle.Singleton:
                     return LifestyleType.Singleton;
-                case Lifecycle.PerWorkUnit:
+                case ComponentLifecycle.PerUnitOfWork:
                     return LifestyleType.Scoped;
-                case Lifecycle.Transient:
+                case ComponentLifecycle.Transient:
                     return LifestyleType.Transient;
                 default:
-                    throw new ArgumentOutOfRangeException("lifecycle", string.Format("Unknown lifestype {0}, please check what's going on", lifecycle));
+                    throw new ArgumentOutOfRangeException("componentLifecycle", string.Format("Unknown lifestype {0}, please check what's going on", componentLifecycle));
             }
         }
     }

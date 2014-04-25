@@ -2,10 +2,11 @@
 using Castle.Windsor;
 using Idecom.Bus.Implementations;
 using Idecom.Bus.Interfaces;
-using Idecom.Bus.IoC.CastleWindsor.WindsorContainer;
+using Idecom.Bus.IoC.CastleWindsor;
+using Idecom.Bus.PubSub.MongoDB;
 using Idecom.Bus.SampleMessages;
-using Idecom.Bus.Serializer.JsonNet.JsonNetSerializer;
-using Idecom.Bus.Transport.MongoDB.MongoDbTransport;
+using Idecom.Bus.Serializer.JsonNet;
+using Idecom.Bus.Transport.MongoDB;
 
 namespace Idecom.Bus.SampleApp1
 {
@@ -19,6 +20,7 @@ namespace Idecom.Bus.SampleApp1
                 .MongoDbTransport("mongodb://localhost", "messageHub")
                 .JsonNetSerializer()
                 .RouteMessagesFromNamespaceTo<SayHelloMessage>("app2")
+                .PubSub("mongodb://localhost", "messageHub")
                 .CreateBus("app1", 1, 2);
 
             IBusInstance bus1 = busInstance.Start();

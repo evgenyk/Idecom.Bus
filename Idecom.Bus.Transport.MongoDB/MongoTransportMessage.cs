@@ -5,7 +5,7 @@ using Idecom.Bus.Utility;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Idecom.Bus.Transport.MongoDB.MongoDbTransport
+namespace Idecom.Bus.Transport.MongoDB
 {
     public class MongoTransportMessage
     {

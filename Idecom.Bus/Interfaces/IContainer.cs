@@ -6,8 +6,8 @@ namespace Idecom.Bus.Interfaces
     public interface IContainer
     {
         IContainer ParentContainer { get; }
-        void Configure(Type component, Lifecycle lifecycle);
-        void Configure<T>(Lifecycle lifecycle);
+        void Configure(Type component, ComponentLifecycle componentLifecycle);
+        void Configure<T>(ComponentLifecycle componentLifecycle);
         void ConfigureInstance<T>(T instance);
         object Resolve(Type typeToBuild);
         T Resolve<T>();
@@ -18,10 +18,10 @@ namespace Idecom.Bus.Interfaces
         void ConfigureProperty<T>(Expression<Func<T, object>> property, object value);
     }
 
-    public enum Lifecycle
+    public enum ComponentLifecycle
     {
         Singleton,
-        PerWorkUnit,
+        PerUnitOfWork,
         Transient
     }
 }

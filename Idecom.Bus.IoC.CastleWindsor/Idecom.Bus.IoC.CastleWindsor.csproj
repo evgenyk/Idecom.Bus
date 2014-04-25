@@ -52,8 +52,8 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="WindsorContainer\ConfigurationExtensions.cs" />
-    <Compile Include="WindsorContainer\WindsorContainerAdapter.cs" />
+    <Compile Include="Bootstrap.cs" />
+    <Compile Include="WindsorContainerAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Idecom.Bus\Idecom.Bus.csproj">

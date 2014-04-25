@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Idecom.Bus.Addressing;
+using Idecom.Bus.Implementations.Addons.PubSub;
 using Idecom.Bus.Interfaces;
+using Idecom.Bus.Interfaces.Addons.PubSub;
 using Idecom.Bus.Utility;
 
 namespace Idecom.Bus.Implementations
@@ -36,8 +38,7 @@ namespace Idecom.Bus.Implementations
 
         public static ConfigureContainer With()
         {
-            var instance = new ConfigureContainer(new Configure());
-            return instance;
+            return new ConfigureContainer(new Configure());
         }
 
         public IBusInstance CreateBus(string queueName = null, int workersCount = 1, int retries = 1)
@@ -45,10 +46,14 @@ namespace Idecom.Bus.Implementations
             if (!_handlersMapped)
                 ApplyDefaultHandlerMapping();
 
-            Container.Configure<UnicastBus.Bus>(Lifecycle.Singleton);
+            Container.Configure<InstanceCreator>(ComponentLifecycle.Singleton);
+            Container.Configure<UnicastBus.Bus>(ComponentLifecycle.Singleton);
             Container.ConfigureProperty<UnicastBus.Bus>(x => x.QueueName, queueName);
             Container.ConfigureProperty<UnicastBus.Bus>(x => x.WorkersCount, workersCount);
             Container.ConfigureProperty<UnicastBus.Bus>(x => x.Retries, retries);
+
+            Container.Configure<SubscriptionDistributor>(ComponentLifecycle.Singleton);
+
             var bus = Container.Resolve<IBusInstance>();
             Container.ParentContainer.ConfigureInstance(bus);
             return bus;
@@ -76,7 +81,7 @@ namespace Idecom.Bus.Implementations
             MapMessageHandlers(messageToHandlerMapping);
 
 
-            var messageToSagaMapping = AssemblyScanner.GetTypes().Where(x =>
+            var messageToStoryMapping = AssemblyScanner.GetTypes().Where(x =>
             {
                 Type[] interfaces = x.GetInterfaces();
                 bool any = interfaces.Any(intface => implementsType(intface, typeof(IStartThisStoryWhenReceive<>)));
@@ -85,7 +90,7 @@ namespace Idecom.Bus.Implementations
             {
                 var enumerable = type.GetInterfaces()
                     .Where(intface => implementsType(intface, typeof(IStartThisStoryWhenReceive<>)))
-                    .Where(intf => intf.IsGenericType && intf.GetGenericArguments().Any())
+                    .Where(intfs => intfs.IsGenericType && intfs.GetGenericArguments().Any())
                     .Select(y => new {type, message = y.GenericTypeArguments.First()});
                 return enumerable;
             }).ToList();
@@ -101,7 +106,7 @@ namespace Idecom.Bus.Implementations
 
                 _handlerRoutingTable.RouteTypes(new[] {firstParameter.ParameterType}, methodInfo);
                 MethodInfo method = _handlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
-                Container.Configure(method.DeclaringType, Lifecycle.PerWorkUnit);
+                Container.Configure(method.DeclaringType, ComponentLifecycle.PerUnitOfWork);
                 _handlersMapped = true;
             }
         }

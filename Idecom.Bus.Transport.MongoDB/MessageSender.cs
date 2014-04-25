@@ -3,7 +3,7 @@ using Idecom.Bus.Addressing;
 using Idecom.Bus.Interfaces;
 using MongoDB.Driver;
 
-namespace Idecom.Bus.Transport.MongoDB.MongoDbTransport
+namespace Idecom.Bus.Transport.MongoDB
 {
     internal class MessageSender
     {

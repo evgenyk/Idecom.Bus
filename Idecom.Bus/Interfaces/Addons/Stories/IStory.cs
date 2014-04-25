@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Idecom.Bus.Interfaces
+namespace Idecom.Bus.Interfaces.Addons.Stories
 {
     public interface IStory<out TState> where TState : IStoryState
     {

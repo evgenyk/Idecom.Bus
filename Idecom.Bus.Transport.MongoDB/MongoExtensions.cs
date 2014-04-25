@@ -1,6 +1,6 @@
 using Idecom.Bus.Addressing;
 
-namespace Idecom.Bus.Transport.MongoDB.MongoDbTransport
+namespace Idecom.Bus.Transport.MongoDB
 {
     public static class MongoExtensions
     {

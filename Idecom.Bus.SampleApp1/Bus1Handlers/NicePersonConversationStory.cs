@@ -1,6 +1,7 @@
 ﻿using System;
 using Idecom.Bus.Implementations;
 using Idecom.Bus.Interfaces;
+using Idecom.Bus.Interfaces.Addons.Stories;
 using Idecom.Bus.SampleMessages;
 
 namespace Idecom.Bus.SampleApp1.Bus1Handlers
@@ -12,7 +13,7 @@ namespace Idecom.Bus.SampleApp1.Bus1Handlers
     //!!!!!!!!!!!!!!!!!!!! SAGAS MUST BE TRANBSPARENT TO USE.
     /// </summary>
     public class NicePersonConversationStory : Story<NicePersonConversationState>,
-        IStartThisStoryWhenReceive<MetAFriendMessage>,
+        IStartThisStoryWhenReceive<IMetAFriendEvent>,
         IHandleMessage<SayHelloMessage>,
         ITimeoutFor<ITiredWaitingForAReply>
     {
@@ -23,7 +24,7 @@ namespace Idecom.Bus.SampleApp1.Bus1Handlers
             CloseStory();
         }
 
-        public void Handle(MetAFriendMessage message)
+        public void Handle(IMetAFriendEvent message)
         {
             Console.WriteLine("Met a friend");
             Bus.Send(new SayHelloMessage("Hi"));

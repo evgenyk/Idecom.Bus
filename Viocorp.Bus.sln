@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Idecom.Bus.Tests", "Idecom.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Idecom.Bus.SampleApp2", "Idecom.Bus.SampleApp2\Idecom.Bus.SampleApp2.csproj", "{85E12375-3A63-4FB6-AE15-EDDAB755E2AE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Idecom.Bus.PubSub.MongoDB", "Idecom.Bus.PubSub.MongoDB\Idecom.Bus.PubSub.MongoDB.csproj", "{9DD532AF-0C9B-427E-9100-02B526707105}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,10 @@ Global
 		{85E12375-3A63-4FB6-AE15-EDDAB755E2AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{85E12375-3A63-4FB6-AE15-EDDAB755E2AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{85E12375-3A63-4FB6-AE15-EDDAB755E2AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DD532AF-0C9B-427E-9100-02B526707105}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DD532AF-0C9B-427E-9100-02B526707105}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DD532AF-0C9B-427E-9100-02B526707105}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DD532AF-0C9B-427E-9100-02B526707105}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,5 +87,6 @@ Global
 		{ECF7264E-6522-4653-A47B-DCFFF6DF5EFD} = {6E87FB2A-FCC6-4B0B-BD1C-85DC0744C90D}
 		{33461395-4EE4-4A46-802C-0AF8EA8F72D8} = {6E87FB2A-FCC6-4B0B-BD1C-85DC0744C90D}
 		{85E12375-3A63-4FB6-AE15-EDDAB755E2AE} = {D695A140-3121-4E7E-96EA-53C24CD19CDF}
+		{9DD532AF-0C9B-427E-9100-02B526707105} = {6E87FB2A-FCC6-4B0B-BD1C-85DC0744C90D}
 	EndGlobalSection
 EndGlobal

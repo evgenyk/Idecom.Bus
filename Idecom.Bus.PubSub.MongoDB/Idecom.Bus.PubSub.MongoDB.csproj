@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EE090F5D-3B56-4773-8B22-28EEEC9D18E2}</ProjectGuid>
+    <ProjectGuid>{9DD532AF-0C9B-427E-9100-02B526707105}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Idecom.Bus</RootNamespace>
-    <AssemblyName>Idecom.Bus</AssemblyName>
+    <RootNamespace>Idecom.Bus.PubSub.MongoDB</RootNamespace>
+    <AssemblyName>Idecom.Bus.PubSub.MongoDB</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -32,6 +32,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MongoDB.Bson">
+      <HintPath>..\packages\mongocsharpdriver.1.9.0\lib\net35\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver">
+      <HintPath>..\packages\mongocsharpdriver.1.9.0\lib\net35\MongoDB.Driver.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -41,45 +47,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\CommonAssemblyInfo.cs">
-      <Link>Properties\CommonAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="Addressing\Address.cs" />
-    <Compile Include="Implementations\Addons\PubSub\SubscriptionDistributor.cs" />
-    <Compile Include="Implementations\Configure.cs" />
-    <Compile Include="Implementations\ConfigureContainer.cs" />
-    <Compile Include="Implementations\InstanceCreator.cs" />
-    <Compile Include="Implementations\NestedConfigurationBase.cs" />
-    <Compile Include="Implementations\RoutingTable.cs" />
-    <Compile Include="Implementations\Story.cs" />
-    <Compile Include="Implementations\UnicastBus\Bus.cs" />
-    <Compile Include="Implementations\UnicastBus\CurrentMessageContext.cs" />
-    <Compile Include="Interfaces\Addons\PubSub\ISubscriptionDistributor.cs" />
-    <Compile Include="Interfaces\Addons\PubSub\ISubscriptionStorage.cs" />
-    <Compile Include="Interfaces\Addons\Stories\IStory.cs" />
-    <Compile Include="Interfaces\Addons\Stories\IStoryManager.cs" />
-    <Compile Include="Interfaces\Addons\Stories\IStoryState.cs" />
-    <Compile Include="Interfaces\IBus.cs" />
-    <Compile Include="Interfaces\IBusInstance.cs" />
-    <Compile Include="Interfaces\IContainer.cs" />
-    <Compile Include="Interfaces\IHandleMessage.cs" />
-    <Compile Include="Interfaces\IInstanceCreator.cs" />
-    <Compile Include="Interfaces\IMessageContext.cs" />
-    <Compile Include="Interfaces\IMessageSerializer.cs" />
-    <Compile Include="Interfaces\IStartThisStoryWhenReceive.cs" />
-    <Compile Include="Interfaces\ITransport.cs" />
-    <Compile Include="Transport\TransportMessageFinishedEventArgs.cs" />
-    <Compile Include="Transport\TransportMessageReceivedEventArgs.cs" />
-    <Compile Include="Transport\MessageIntent.cs" />
-    <Compile Include="Transport\TransportMessage.cs" />
-    <Compile Include="Utility\AssemblyScanner.cs" />
-    <Compile Include="Utility\ApplicationIdGenerator.cs" />
-    <Compile Include="Utility\Reflect.cs" />
-    <Compile Include="Utility\TypeResolver.cs" />
+    <Compile Include="BootstrapPubSub.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SubscriptionStorage.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Idecom.Bus\Idecom.Bus.csproj">
+      <Project>{ee090f5d-3b56-4773-8b22-28eeec9d18e2}</Project>
+      <Name>Idecom.Bus</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -1,0 +1,17 @@
+﻿using System.Collections.Generic;
+using Idecom.Bus.Addressing;
+using Idecom.Bus.Interfaces.Addons.PubSub;
+
+namespace Idecom.Bus.PubSub.MongoDB
+{
+    public class SubscriptionStorage: ISubscriptionStorage
+    {
+        public string ConnectionString { get; set; }
+        public string DatabaseName { get; set; }
+
+        public IEnumerable<Address> GetSubscribersFor(object message)
+        {
+            return new List<Address>();
+        }
+    }
+}
