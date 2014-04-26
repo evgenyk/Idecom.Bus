@@ -22,7 +22,7 @@ namespace Idecom.Bus.SampleApp2
                 .JsonNetSerializer()
                 .RouteMessagesFromNamespaceTo<SayHelloMessage>("app1")
                 .PubSub("mongodb://localhost", "messageHub")
-                .CreateBus("app2", 1, 2);
+                .CreateBus("app2");
 
             IBusInstance bus = busInstance.Start();
             bus.Raise<IMetAFriendEvent>(x => { x.Name = "sdfsdfs"; });

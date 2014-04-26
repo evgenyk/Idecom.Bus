@@ -5,7 +5,6 @@ using System.Reflection;
 using Idecom.Bus.Addressing;
 using Idecom.Bus.Implementations.Addons.PubSub;
 using Idecom.Bus.Interfaces;
-using Idecom.Bus.Interfaces.Addons.PubSub;
 using Idecom.Bus.Utility;
 
 namespace Idecom.Bus.Implementations
@@ -41,21 +40,21 @@ namespace Idecom.Bus.Implementations
             return new ConfigureContainer(new Configure());
         }
 
-        public IBusInstance CreateBus(string queueName = null, int workersCount = 1, int retries = 1)
+        public IBusInstance CreateBus(string queueName = null)
         {
             if (!_handlersMapped)
                 ApplyDefaultHandlerMapping();
 
             Container.Configure<InstanceCreator>(ComponentLifecycle.Singleton);
             Container.Configure<UnicastBus.Bus>(ComponentLifecycle.Singleton);
-            Container.ConfigureProperty<UnicastBus.Bus>(x => x.QueueName, queueName);
-            Container.ConfigureProperty<UnicastBus.Bus>(x => x.WorkersCount, workersCount);
-            Container.ConfigureProperty<UnicastBus.Bus>(x => x.Retries, retries);
+
+            Container.ConfigureInstance(new Address(queueName));
 
             Container.Configure<SubscriptionDistributor>(ComponentLifecycle.Singleton);
 
             var bus = Container.Resolve<IBusInstance>();
             Container.ParentContainer.ConfigureInstance(bus);
+            Container.Release(bus);
             return bus;
         }
 
@@ -84,17 +83,16 @@ namespace Idecom.Bus.Implementations
             var messageToStoryMapping = AssemblyScanner.GetTypes().Where(x =>
             {
                 Type[] interfaces = x.GetInterfaces();
-                bool any = interfaces.Any(intface => implementsType(intface, typeof(IStartThisStoryWhenReceive<>)));
+                bool any = interfaces.Any(intface => implementsType(intface, typeof (IStartThisStoryWhenReceive<>)));
                 return any;
             }).SelectMany(type =>
             {
                 var enumerable = type.GetInterfaces()
-                    .Where(intface => implementsType(intface, typeof(IStartThisStoryWhenReceive<>)))
+                    .Where(intface => implementsType(intface, typeof (IStartThisStoryWhenReceive<>)))
                     .Where(intfs => intfs.IsGenericType && intfs.GetGenericArguments().Any())
                     .Select(y => new {type, message = y.GenericTypeArguments.First()});
                 return enumerable;
             }).ToList();
-
         }
 
         private void MapMessageHandlers(IEnumerable<MethodInfo> methodInfos)

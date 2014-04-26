@@ -64,6 +64,11 @@ namespace Idecom.Bus.IoC.CastleWindsor
             }
         }
 
+        public IEnumerable<T> ResolveAll<T>()
+        {
+            return _container.ResolveAll<T>();
+        }
+
         public void Release(object instance)
         {
             _container.Release(instance);

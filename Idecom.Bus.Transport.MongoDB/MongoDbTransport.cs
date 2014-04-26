@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Idecom.Bus.Addressing;
+using Idecom.Bus.Implementations;
 using Idecom.Bus.Implementations.UnicastBus;
 using Idecom.Bus.Interfaces;
 using MongoDB.Bson;
@@ -10,7 +11,7 @@ using MongoDB.Driver.Builders;
 
 namespace Idecom.Bus.Transport.MongoDB
 {
-    public class MongoDbTransport : ITransport
+    public class MongoDbTransport : ITransport, IBeforeBusStarted, IBeforeBusStopped
     {
         private MongoDatabase _database;
         private MessageReceiver _receiver;
@@ -18,41 +19,24 @@ namespace Idecom.Bus.Transport.MongoDB
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }
         public IContainer Container { get; set; }
+        public IRoutingTable<Address> MesageRoutingTable { get; set; }
+        public IMessageSerializer MessageSerializer { get; set; }
+        public Address LocalAddress { get; set; }
 
-        public int WorkersCount
-        {
-            get { return _receiver.WorkersCount; }
-        }
-
-        public void Start(Address localAddress, IEnumerable<Address> targetQueues, int workersCount, int retries, IMessageSerializer serializer)
-        {
-            _database = new MongoClient(ConnectionString).GetServer().GetDatabase(DatabaseName);
-            CreateQueues(targetQueues.Union(new[] {localAddress}));
-            MongoCollection<MongoTransportMessage> localCollection = _database.GetCollection<MongoTransportMessage>(localAddress.ToString());
-
-            _sender = new MessageSender(_database, serializer);
-            _receiver = new MessageReceiver(this, localCollection, workersCount, retries, serializer, Container);
-        }
-
-        public void Stop()
-        {
-            _receiver.Stop();
-            _sender.Stop();
-            _database.Server.Disconnect();
-        }
-
+        public int WorkersCount { get; set; }
+        public int Retries { get; set; }
 
         public void ChangeWorkerCount(int workers)
         {
             _receiver.ChangeWorkersCount(workers);
         }
 
-        public void Send(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, CurrentMessageContext currentMessageContext)
+        public void Send(object message, Address targetAddress, MessageIntent intent, CurrentMessageContext currentMessageContext)
         {
             if (currentMessageContext == null)
-                _sender.Send(message, sourceAddress, targetAddress, intent);
+                _sender.Send(message, LocalAddress, targetAddress, intent);
             else
-                currentMessageContext.DelayedSend(() => _sender.Send(message, sourceAddress, targetAddress, intent));
+                currentMessageContext.DelayedSend(() => _sender.Send(message, LocalAddress, targetAddress, intent));
         }
 
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
@@ -79,6 +63,28 @@ namespace Idecom.Bus.Transport.MongoDB
         public void ProcessMessageFinishedEvent(TransportMessage transportMessage)
         {
             TransportMessageFinished(this, new TransportMessageFinishedEventArgs(transportMessage));
+        }
+
+        public void BeforeBusStarted()
+        {
+            _database = new MongoClient(ConnectionString).GetServer().GetDatabase(DatabaseName);
+            CreateQueues(MesageRoutingTable.GetDestinations().Union(new[] { LocalAddress }));
+            MongoCollection<MongoTransportMessage> localCollection = _database.GetCollection<MongoTransportMessage>(LocalAddress.ToString());
+
+            _sender = new MessageSender(_database, MessageSerializer);
+            _receiver = new MessageReceiver(this, localCollection, WorkersCount, Retries, MessageSerializer, Container);
+        }
+
+        public void AfterBusStopped()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void BeforeBusStopped()
+        {
+            _receiver.Stop();
+            _sender.Stop();
+            _database.Server.Disconnect();
         }
     }
 }

@@ -59,6 +59,8 @@
     <Compile Include="Interfaces\Addons\Stories\IStory.cs" />
     <Compile Include="Interfaces\Addons\Stories\IStoryManager.cs" />
     <Compile Include="Interfaces\Addons\Stories\IStoryState.cs" />
+    <Compile Include="Interfaces\IBeforeBusStarted.cs" />
+    <Compile Include="Interfaces\IBeforeBusStopped.cs" />
     <Compile Include="Interfaces\IBus.cs" />
     <Compile Include="Interfaces\IBusInstance.cs" />
     <Compile Include="Interfaces\IContainer.cs" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Idecom.Bus.Interfaces
@@ -11,6 +12,7 @@ namespace Idecom.Bus.Interfaces
         void ConfigureInstance<T>(T instance);
         object Resolve(Type typeToBuild);
         T Resolve<T>();
+        IEnumerable<T> ResolveAll<T>();
         void Release(object instance);
         IContainer CreateChildContainer();
         void ConfigureUnitOfWork(Func<IDisposable> beginUnitOfWorkFunc = null);

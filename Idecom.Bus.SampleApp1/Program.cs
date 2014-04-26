@@ -21,9 +21,8 @@ namespace Idecom.Bus.SampleApp1
                 .JsonNetSerializer()
                 .RouteMessagesFromNamespaceTo<SayHelloMessage>("app2")
                 .PubSub("mongodb://localhost", "messageHub")
-                .CreateBus("app1", 1, 2);
-
-            IBusInstance bus1 = busInstance.Start();
+                .CreateBus("app1")
+                .Start();
 
 //            bus1.SendLocal(new SayHelloMessage("Hello local 1"));
 //            bus1.Send(new SayHelloMessage("Hello local 2"));
@@ -35,7 +34,7 @@ namespace Idecom.Bus.SampleApp1
 
             Console.WriteLine("Bus configured. Press any key to close the app.");
             Console.ReadKey();
-            bus1.Stop();
+            busInstance.Stop();
         }
     }
 }
