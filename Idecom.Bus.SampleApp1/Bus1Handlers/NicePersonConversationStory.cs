@@ -14,20 +14,20 @@ namespace Idecom.Bus.SampleApp1.Bus1Handlers
     /// </summary>
     public class NicePersonConversationStory : Story<NicePersonConversationState>,
         IStartThisStoryWhenReceive<IMetAFriendEvent>,
-        IHandleMessage<SayHelloMessage>,
+        IHandle<SayHelloCommand>,
         ITimeoutFor<ITiredWaitingForAReply>
     {
-        public void Handle(SayHelloMessage message)
+        public void Handle(SayHelloCommand command)
         {
             Console.WriteLine("Said goodbuy");
-            Bus.Reply(new SayGoodByeMessage("See you"));
+            Bus.Reply(new SayGoodByeCommand("See you"));
             CloseStory();
         }
 
-        public void Handle(IMetAFriendEvent message)
+        public void Handle(IMetAFriendEvent command)
         {
             Console.WriteLine("Met a friend");
-            Bus.Send(new SayHelloMessage("Hi"));
+            Bus.Send(new SayHelloCommand("Hi"));
         }
 
         public void HandleTimeout(ITiredWaitingForAReply timeout)

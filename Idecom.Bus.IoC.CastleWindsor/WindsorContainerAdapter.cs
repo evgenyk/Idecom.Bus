@@ -76,7 +76,7 @@ namespace Idecom.Bus.IoC.CastleWindsor
 
         public IContainer CreateChildContainer()
         {
-            var childContainer = new Castle.Windsor.WindsorContainer();
+            var childContainer = new WindsorContainer();
             _container.AddChildContainer(childContainer);
             return new WindsorContainerAdapter(childContainer) {ParentContainer = this};
         }

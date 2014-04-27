@@ -6,5 +6,7 @@ namespace Idecom.Bus.Interfaces.Addons.PubSub
     public interface ISubscriptionStorage
     {
         IEnumerable<Address> GetSubscribersFor(object message);
+        void Subscribe(Address subscriber, object message);
+        void Unsubscribe(Address subscriber, object message);
     }
 }

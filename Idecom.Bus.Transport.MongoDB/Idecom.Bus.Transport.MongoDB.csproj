@@ -59,7 +59,7 @@
     <Compile Include="MessageSender.cs" />
     <Compile Include="MongoDbTransport.cs" />
     <Compile Include="MongoExtensions.cs" />
-    <Compile Include="MongoTransportMessage.cs" />
+    <Compile Include="MongoTransportMessageEntity.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Idecom.Bus\Idecom.Bus.csproj">

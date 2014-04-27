@@ -20,7 +20,7 @@ namespace Idecom.Bus.SampleApp2
                 .WindsorContainer(container)
                 .MongoDbTransport("mongodb://localhost", "messageHub")
                 .JsonNetSerializer()
-                .RouteMessagesFromNamespaceTo<SayHelloMessage>("app1")
+                .RouteMessagesFromNamespaceTo<SayHelloCommand>("app1")
                 .PubSub("mongodb://localhost", "messageHub")
                 .CreateBus("app2");
 

@@ -51,7 +51,7 @@ namespace Idecom.Bus.Transport.MongoDB
                 MongoCollection<BsonDocument> mongoCollection = _database.GetCollection(collectionName);
                 const string dequeueIndexName = "Stataus_Id";
                 if (!mongoCollection.IndexExists(dequeueIndexName))
-                    mongoCollection.EnsureIndex(IndexKeys<MongoTransportMessage>.Ascending(x => x.Id).Ascending(x => x.Status), IndexOptions.SetName(dequeueIndexName));
+                    mongoCollection.EnsureIndex(IndexKeys<MongoTransportMessageEntity>.Ascending(x => x.Id).Ascending(x => x.Status), IndexOptions.SetName(dequeueIndexName));
             }
         }
 
@@ -69,7 +69,7 @@ namespace Idecom.Bus.Transport.MongoDB
         {
             _database = new MongoClient(ConnectionString).GetServer().GetDatabase(DatabaseName);
             CreateQueues(MesageRoutingTable.GetDestinations().Union(new[] { LocalAddress }));
-            MongoCollection<MongoTransportMessage> localCollection = _database.GetCollection<MongoTransportMessage>(LocalAddress.ToString());
+            MongoCollection<MongoTransportMessageEntity> localCollection = _database.GetCollection<MongoTransportMessageEntity>(LocalAddress.ToString());
 
             _sender = new MessageSender(_database, MessageSerializer);
             _receiver = new MessageReceiver(this, localCollection, WorkersCount, Retries, MessageSerializer, Container);

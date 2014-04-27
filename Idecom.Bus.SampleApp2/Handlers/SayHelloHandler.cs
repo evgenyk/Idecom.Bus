@@ -4,19 +4,19 @@ using Idecom.Bus.SampleMessages;
 
 namespace Idecom.Bus.SampleApp2.Handlers
 {
-    public class SayHelloHandler: IHandleMessage<SayHelloMessage>, IHandleMessage<SayGoodByeMessage>
+    public class SayHelloHandler: IHandle<SayHelloCommand>, IHandle<SayGoodByeCommand>
     {
         public IBus Bus { get; set; }
-        public void Handle(SayHelloMessage message)
+        public void Handle(SayHelloCommand command)
         {
-            Console.WriteLine("SayHelloMessage");
+            Console.WriteLine("SayHelloCommand");
 
-            Bus.Reply(new SayHelloMessage("Hello back to you!!"));
+            Bus.Reply(new SayHelloCommand("Hello back to you!!"));
         }
 
-        public void Handle(SayGoodByeMessage message)
+        public void Handle(SayGoodByeCommand command)
         {
-            Console.WriteLine("SayGoodByeMessage");
+            Console.WriteLine("SayGoodByeCommand");
         }
     }
 }

@@ -7,14 +7,14 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Idecom.Bus.Transport.MongoDB
 {
-    public class MongoTransportMessage
+    internal class MongoTransportMessageEntity
     {
-        protected MongoTransportMessage()
+        protected MongoTransportMessageEntity()
         {
             Status = MessageProcessingStatus.AwaitingDispatch;
         }
 
-        public MongoTransportMessage(Address sourceAddress, Address targetAddress, MessageIntent intent, string serializedMessage, Type messageType)
+        public MongoTransportMessageEntity(Address sourceAddress, Address targetAddress, MessageIntent intent, string serializedMessage, Type messageType)
         {
             SourceAddress = sourceAddress.ToMongoAddress();
             TargetAddress = targetAddress.ToMongoAddress();

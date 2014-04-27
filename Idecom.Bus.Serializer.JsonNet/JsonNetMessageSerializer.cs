@@ -38,8 +38,8 @@ namespace Idecom.Bus.Serializer.JsonNet
 
         public object DeSerialize(string message, Type type)
         {
-            object deserialized = JsonConvert.DeserializeObject(message, type);
-            return deserialized;
+            var result = JsonConvert.DeserializeObject(message, type);
+            return result;
         }
     }
 

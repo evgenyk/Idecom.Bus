@@ -28,8 +28,8 @@ namespace Idecom.Bus.Transport.MongoDB
             if (!_isStarted)
                 throw new Exception("Can not send messages while sender stopped.");
 
-            MongoCollection<MongoTransportMessage> targetCollection = _database.GetCollection<MongoTransportMessage>(targetAddress.ToString());
-            var mongoMessage = new MongoTransportMessage(sourceAddress, targetAddress, intent, _serializer.Serialize(message), message.GetType());
+            MongoCollection<MongoTransportMessageEntity> targetCollection = _database.GetCollection<MongoTransportMessageEntity>(targetAddress.ToString());
+            var mongoMessage = new MongoTransportMessageEntity(sourceAddress, targetAddress, intent, _serializer.Serialize(message), message.GetType());
             targetCollection.Insert(mongoMessage, WriteConcern.Acknowledged);
         }
 

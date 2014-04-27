@@ -48,7 +48,10 @@
     <Compile Include="Implementations\Addons\PubSub\SubscriptionDistributor.cs" />
     <Compile Include="Implementations\Configure.cs" />
     <Compile Include="Implementations\ConfigureContainer.cs" />
+    <Compile Include="Implementations\Internal\DefaultConfiguration.cs" />
+    <Compile Include="Implementations\Internal\EffectiveConfiguration.cs" />
     <Compile Include="Implementations\InstanceCreator.cs" />
+    <Compile Include="Implementations\Internal\NamespaceToEndpointMapping.cs" />
     <Compile Include="Implementations\NestedConfigurationBase.cs" />
     <Compile Include="Implementations\RoutingTable.cs" />
     <Compile Include="Implementations\Story.cs" />
@@ -64,7 +67,7 @@
     <Compile Include="Interfaces\IBus.cs" />
     <Compile Include="Interfaces\IBusInstance.cs" />
     <Compile Include="Interfaces\IContainer.cs" />
-    <Compile Include="Interfaces\IHandleMessage.cs" />
+    <Compile Include="Interfaces\IHandle.cs" />
     <Compile Include="Interfaces\IInstanceCreator.cs" />
     <Compile Include="Interfaces\IMessageContext.cs" />
     <Compile Include="Interfaces\IMessageSerializer.cs" />

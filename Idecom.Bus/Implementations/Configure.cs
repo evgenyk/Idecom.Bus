@@ -1,26 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using Idecom.Bus.Addressing;
 using Idecom.Bus.Implementations.Addons.PubSub;
+using Idecom.Bus.Implementations.Internal;
 using Idecom.Bus.Interfaces;
-using Idecom.Bus.Utility;
 
 namespace Idecom.Bus.Implementations
 {
     public class Configure
     {
-        private readonly RoutingTable<MethodInfo> _handlerRoutingTable;
-        private readonly RoutingTable<Address> _messageRoutingTable;
+        private readonly List<NamespaceToEndpointMapping> _namespaceToEndpoints;
+
         private IContainer _container;
-        private bool _handlersMapped;
 
         protected Configure()
         {
-            _messageRoutingTable = new RoutingTable<Address>();
-            _handlerRoutingTable = new RoutingTable<MethodInfo>();
-            _handlersMapped = false;
+            _namespaceToEndpoints = new List<NamespaceToEndpointMapping>();
         }
 
         public IContainer Container
@@ -28,9 +23,19 @@ namespace Idecom.Bus.Implementations
             get { return _container; }
             internal set
             {
+                value.ConfigureInstance(new RoutingTable<Address>());
+                value.ConfigureInstance(new RoutingTable<MethodInfo>());
+
+                value.Configure<EffectiveConfiguration>(ComponentLifecycle.Singleton);
+
+                value.ConfigureProperty<EffectiveConfiguration>(x => x.IsEvent, DefaultConfiguration.DefaultEventNamingConvention);
+                value.ConfigureProperty<EffectiveConfiguration>(x => x.IsCommand, DefaultConfiguration.DefaultCommandNamingConvention);
+                value.ConfigureProperty<EffectiveConfiguration>(x => x.MessageMappings, _namespaceToEndpoints);
+
+                value.Configure<InstanceCreator>(ComponentLifecycle.Singleton);
+                value.Configure<UnicastBus.Bus>(ComponentLifecycle.Singleton);
+                value.Configure<SubscriptionDistributor>(ComponentLifecycle.Singleton);
                 _container = value;
-                _container.ConfigureInstance(_messageRoutingTable);
-                _container.ConfigureInstance(_handlerRoutingTable);
             }
         }
 
@@ -42,15 +47,7 @@ namespace Idecom.Bus.Implementations
 
         public IBusInstance CreateBus(string queueName = null)
         {
-            if (!_handlersMapped)
-                ApplyDefaultHandlerMapping();
-
-            Container.Configure<InstanceCreator>(ComponentLifecycle.Singleton);
-            Container.Configure<UnicastBus.Bus>(ComponentLifecycle.Singleton);
-
             Container.ConfigureInstance(new Address(queueName));
-
-            Container.Configure<SubscriptionDistributor>(ComponentLifecycle.Singleton);
 
             var bus = Container.Resolve<IBusInstance>();
             Container.ParentContainer.ConfigureInstance(bus);
@@ -60,53 +57,8 @@ namespace Idecom.Bus.Implementations
 
         public Configure RouteMessagesFromNamespaceTo<T>(string address)
         {
-            Address targetAddress = Address.Parse(address);
-            string ns = typeof (T).Namespace;
-            IEnumerable<Type> types = AssemblyScanner.GetScannableAssemblies()
-                .SelectMany(x => x.GetTypes())
-                .Where(type => type.Namespace != null && type.Namespace.Equals(ns, StringComparison.InvariantCultureIgnoreCase));
-            _messageRoutingTable.RouteTypes(types, targetAddress);
+            _namespaceToEndpoints.Add(new NamespaceToEndpointMapping(typeof (T).Namespace, new Address(address)));
             return this;
-        }
-
-        private void ApplyDefaultHandlerMapping()
-        {
-            Func<Type, Type, bool> implementsType = (y, compareType) => y.IsGenericType && y.GetGenericTypeDefinition() == compareType;
-
-            IEnumerable<MethodInfo> messageToHandlerMapping = AssemblyScanner.GetTypes().Where(x => !x.IsInterface)
-                .SelectMany(type => type.GetMethods()
-                    .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
-                        .Where(type.GetInterfaces().Where(intface => implementsType(intface, typeof (IHandleMessage<>))).SelectMany(intfs => intfs.GenericTypeArguments).Contains).Any()));
-            MapMessageHandlers(messageToHandlerMapping);
-
-
-            var messageToStoryMapping = AssemblyScanner.GetTypes().Where(x =>
-            {
-                Type[] interfaces = x.GetInterfaces();
-                bool any = interfaces.Any(intface => implementsType(intface, typeof (IStartThisStoryWhenReceive<>)));
-                return any;
-            }).SelectMany(type =>
-            {
-                var enumerable = type.GetInterfaces()
-                    .Where(intface => implementsType(intface, typeof (IStartThisStoryWhenReceive<>)))
-                    .Where(intfs => intfs.IsGenericType && intfs.GetGenericArguments().Any())
-                    .Select(y => new {type, message = y.GenericTypeArguments.First()});
-                return enumerable;
-            }).ToList();
-        }
-
-        private void MapMessageHandlers(IEnumerable<MethodInfo> methodInfos)
-        {
-            foreach (MethodInfo methodInfo in methodInfos)
-            {
-                ParameterInfo firstParameter = methodInfo.GetParameters().FirstOrDefault();
-                if (firstParameter == null) continue;
-
-                _handlerRoutingTable.RouteTypes(new[] {firstParameter.ParameterType}, methodInfo);
-                MethodInfo method = _handlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
-                Container.Configure(method.DeclaringType, ComponentLifecycle.PerUnitOfWork);
-                _handlersMapped = true;
-            }
         }
     }
 }

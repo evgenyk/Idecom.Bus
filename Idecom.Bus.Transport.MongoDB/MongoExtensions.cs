@@ -2,14 +2,14 @@ using Idecom.Bus.Addressing;
 
 namespace Idecom.Bus.Transport.MongoDB
 {
-    public static class MongoExtensions
+    internal static class MongoExtensions
     {
-        public static MongoTransportMessage.MongoAddress ToMongoAddress(this Address address)
+        public static MongoTransportMessageEntity.MongoAddress ToMongoAddress(this Address address)
         {
-            return new MongoTransportMessage.MongoAddress(address.Queue, address.Datacenter);
+            return new MongoTransportMessageEntity.MongoAddress(address.Queue, address.Datacenter);
         }
 
-        public static Address ToAddress(this MongoTransportMessage.MongoAddress mongoAddress)
+        public static Address ToAddress(this MongoTransportMessageEntity.MongoAddress mongoAddress)
         {
             return new Address(mongoAddress.Queue, mongoAddress.Datacenter);
         }

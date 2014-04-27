@@ -1,6 +1,6 @@
 ﻿namespace Idecom.Bus.Interfaces
 {
-    public interface IStartThisStoryWhenReceive<in T> : IHandleMessage<T>
+    public interface IStartThisStoryWhenReceive<in T> : IHandle<T>
     {
     }
 }

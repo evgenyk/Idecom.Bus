@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Idecom.Bus.Addressing;
+using Idecom.Bus.Implementations.Internal;
 using Idecom.Bus.Interfaces;
 using Idecom.Bus.Interfaces.Addons.PubSub;
 using Idecom.Bus.Transport;
+using Idecom.Bus.Utility;
 
 namespace Idecom.Bus.Implementations.UnicastBus
 {
@@ -11,20 +15,15 @@ namespace Idecom.Bus.Implementations.UnicastBus
     {
         public IContainer Container { get; set; }
         public IRoutingTable<MethodInfo> HandlerRoutingTable { get; set; }
-        public IRoutingTable<Address> MesageRoutingTable { get; set; }
+        public IRoutingTable<Address> MessageRoutingTable { get; set; }
         public IMessageSerializer Serializer { get; set; }
         public IInstanceCreator InstanceCreator { get; set; }
         public ISubscriptionDistributor SubscriptionDistributor { get; set; }
         public ITransport Transport { get; set; }
         public Address LocalAddress { get; set; }
+        public IEffectiveConfiguration EffectiveConfiguration { get; set; }
 
-        
-        
         private bool _isStarted;
-
-        public Bus()
-        {
-        }
 
         public IMessageContext CurrentMessageContext
         {
@@ -33,22 +32,29 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
         public IBusInstance Start()
         {
-            if (Transport == null)
-                throw new ArgumentException("Can not create bus. Transport hasn't been provided.");
-            if (Container == null)
-                throw new ArgumentException("Can not create bus. Container hasn't been provided.");
-            if (Serializer == null)
-                throw new ArgumentException("Can not create bus. Message serializer hasn't been provided.");
-            _isStarted = true;
-
-            Transport.TransportMessageReceived += TransportMessageReceived;
-            Transport.TransportMessageFinished += TransportOnTransportMessageFinished;
-
-
-            foreach (IBeforeBusStarted beforeBusStarted in Container.ResolveAll<IBeforeBusStarted>())
+            lock (this)
             {
-                beforeBusStarted.BeforeBusStarted();
-                Container.Release(beforeBusStarted);
+                if (_isStarted)
+                    throw new ArgumentException("Can't start bus which already started.");
+                if (Transport == null)
+                    throw new ArgumentException("Can not create bus. Transport hasn't been provided.");
+                if (Container == null)
+                    throw new ArgumentException("Can not create bus. Container hasn't been provided.");
+                if (Serializer == null)
+                    throw new ArgumentException("Can not create bus. Message serializer hasn't been provided.");
+
+                ApplyHandlerMapping();
+
+                Transport.TransportMessageReceived += TransportMessageReceived;
+                Transport.TransportMessageFinished += TransportOnTransportMessageFinished;
+
+                foreach (var beforeBusStarted in Container.ResolveAll<IBeforeBusStarted>())
+                {
+                    beforeBusStarted.BeforeBusStarted();
+                    Container.Release(beforeBusStarted);
+                }
+
+                _isStarted = true;
             }
             return this;
         }
@@ -58,17 +64,20 @@ namespace Idecom.Bus.Implementations.UnicastBus
             if (!_isStarted)
                 throw new Exception("Can not stop a bus that hasn't been started.");
 
-            _isStarted = false;
-            foreach (IBeforeBusStopped beforeBusStopped in Container.ResolveAll<IBeforeBusStopped>())
+            lock (this)
             {
-                beforeBusStopped.BeforeBusStopped();
-                Container.Release(beforeBusStopped);
+                foreach (var beforeBusStopped in Container.ResolveAll<IBeforeBusStopped>())
+                {
+                    beforeBusStopped.BeforeBusStopped();
+                    Container.Release(beforeBusStopped);
+                }
+                _isStarted = false;
             }
         }
 
         public void Send(object message)
         {
-            ExecuteOnlyWhenStarted(() => Transport.Send(message, MesageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send, CurrentMessageContextInternal()));
+            ExecuteOnlyWhenStarted(() => Transport.Send(message, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send, CurrentMessageContextInternal()));
         }
 
         public void SendLocal(object message)
@@ -118,7 +127,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 var handlerMethod = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.Message.GetType());
 
                 var handler = Container.Resolve(handlerMethod.DeclaringType);
-                handlerMethod.Invoke(handler, new[] {e.TransportMessage.Message});
+                handlerMethod.Invoke(handler, new[] { e.TransportMessage.Message });
             }
             finally
             {
@@ -131,5 +140,51 @@ namespace Idecom.Bus.Implementations.UnicastBus
             foreach (Action action in CurrentMessageContextInternal().DelayedActions)
                 action();
         }
+
+
+        private void ApplyHandlerMapping()
+        {
+            var allTypes = AssemblyScanner.GetTypes().ToList();
+
+            var events = allTypes.Where(EffectiveConfiguration.IsEvent);
+            var commands = allTypes.Where(EffectiveConfiguration.IsCommand);
+            var eventsAndCommands = events.Union(commands).ToList();
+
+            var mappedClasses = new List<Type>();
+            foreach (var mapping in EffectiveConfiguration.MessageMappings)
+            {
+                var types = allTypes.Where(type => type.Namespace != null && type.Namespace.Equals(mapping.Namespace, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                var eventsAndCommandsInANamespace = eventsAndCommands.Intersect(types).Distinct().ToList();
+                var notMappedTypes = types.Except(eventsAndCommandsInANamespace);
+                if (notMappedTypes.Any())
+                {
+                    throw new Exception("Some messages are not mapped: " + notMappedTypes.Select(x => x.Name).Aggregate((a, b) => a + ", " + b));
+                }
+                MessageRoutingTable.RouteTypes(eventsAndCommandsInANamespace, mapping.Address);
+            }
+
+            Func<Type, Type, bool> implementsType = (y, compareType) => y.IsGenericType && y.GetGenericTypeDefinition() == compareType;
+
+
+            IEnumerable<MethodInfo> messageToHandlerMapping = allTypes.Where(x => !x.IsInterface)
+                .SelectMany(type => type.GetMethods()
+                    .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
+                        .Where(type.GetInterfaces().Where(intface => implementsType(intface, typeof(IHandle<>))).SelectMany(intfs => intfs.GenericTypeArguments).Contains).Any()));
+            MapMessageHandlers(messageToHandlerMapping);
+        }
+
+        private void MapMessageHandlers(IEnumerable<MethodInfo> methodInfos)
+        {
+            foreach (MethodInfo methodInfo in methodInfos)
+            {
+                ParameterInfo firstParameter = methodInfo.GetParameters().FirstOrDefault();
+                if (firstParameter == null) continue;
+
+                HandlerRoutingTable.RouteTypes(new[] { firstParameter.ParameterType }, methodInfo);
+                MethodInfo method = HandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
+                Container.Configure(method.DeclaringType, ComponentLifecycle.PerUnitOfWork);
+            }
+        }
+
     }
 }
