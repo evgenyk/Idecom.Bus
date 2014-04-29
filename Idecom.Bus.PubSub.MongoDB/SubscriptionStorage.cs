@@ -31,17 +31,17 @@ namespace Idecom.Bus.PubSub.MongoDB
         public string DatabaseName { get; set; }
 
 
-        public IEnumerable<Address> GetSubscribersFor(object message)
+        public IEnumerable<Address> GetSubscribersFor(Type eventType)
         {
             return new List<Address>();
         }
 
-        public void Subscribe(Address subscriber, object message)
+        public void Subscribe(Address subscriber, Type eventType)
         {
-            throw new NotImplementedException();
+            _collection.Update()
         }
 
-        public void Unsubscribe(Address subscriber, object message)
+        public void Unsubscribe(Address subscriber, Type eventType)
         {
             throw new NotImplementedException();
         }

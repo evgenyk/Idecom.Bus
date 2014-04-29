@@ -27,9 +27,6 @@ namespace Idecom.Bus.SampleApp2
             IBusInstance bus = busInstance.Start();
             bus.Raise<IMetAFriendEvent>(x => { x.Name = "sdfsdfs"; });
 
-            Expression<Func<int>> ff = () => 12;
-
-
             Console.WriteLine("Bus configured. Press any key to close the app.");
             Console.ReadKey();
             bus.Stop();

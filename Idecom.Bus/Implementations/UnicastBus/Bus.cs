@@ -146,11 +146,13 @@ namespace Idecom.Bus.Implementations.UnicastBus
         {
             var allTypes = AssemblyScanner.GetTypes().ToList();
 
-            var events = allTypes.Where(EffectiveConfiguration.IsEvent);
+            IEnumerable<Type> events = allTypes.Where(EffectiveConfiguration.IsEvent);
+
+            SubscriptionDistributor.SubscribeTo(events);
+
             var commands = allTypes.Where(EffectiveConfiguration.IsCommand);
             var eventsAndCommands = events.Union(commands).ToList();
 
-            var mappedClasses = new List<Type>();
             foreach (var mapping in EffectiveConfiguration.MessageMappings)
             {
                 var types = allTypes.Where(type => type.Namespace != null && type.Namespace.Equals(mapping.Namespace, StringComparison.InvariantCultureIgnoreCase)).ToList();
