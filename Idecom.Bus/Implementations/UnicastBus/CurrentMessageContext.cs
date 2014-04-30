@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Transport;
-
 namespace Idecom.Bus.Implementations.UnicastBus
 {
+    using System;
+    using System.Collections.Generic;
+    using Interfaces;
+    using Transport;
+
     public class CurrentMessageContext : IMessageContext
     {
         private readonly IList<Action> _delayedActions;

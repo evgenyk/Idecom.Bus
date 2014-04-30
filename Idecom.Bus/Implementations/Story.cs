@@ -1,8 +1,8 @@
-﻿using Idecom.Bus.Interfaces;
-using Idecom.Bus.Interfaces.Addons.Stories;
-
-namespace Idecom.Bus.Implementations
+﻿namespace Idecom.Bus.Implementations
 {
+    using Interfaces;
+    using Interfaces.Addons.Stories;
+
     public abstract class Story<TState> : IStory<TState> where TState : IStoryState
     {
         public IBus Bus { get; set; }
@@ -10,8 +10,6 @@ namespace Idecom.Bus.Implementations
 
         public void CloseStory()
         {
-            
         }
-
     }
 }

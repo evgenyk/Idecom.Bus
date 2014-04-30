@@ -1,12 +1,12 @@
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace Idecom.Bus.Transport.MongoDB
 {
+    using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+
     internal class MaxWorkersTaskScheduler : TaskScheduler, IDisposable
     {
         private readonly List<Thread> _threads;
@@ -39,10 +39,7 @@ namespace Idecom.Bus.Transport.MongoDB
 
         public void Dispose()
         {
-            if (_disposed)
-            {
-                return;
-            }
+            if (_disposed) { return; }
 
             _disposed = true;
             if (_tasks == null) return;

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-
-namespace Idecom.Bus.Interfaces
+﻿namespace Idecom.Bus.Interfaces
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq.Expressions;
+
     public interface IContainer
     {
         IContainer ParentContainer { get; }

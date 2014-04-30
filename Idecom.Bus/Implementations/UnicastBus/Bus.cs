@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Idecom.Bus.Addressing;
-using Idecom.Bus.Implementations.Internal;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Interfaces.Addons.PubSub;
-using Idecom.Bus.Transport;
-using Idecom.Bus.Utility;
-
-namespace Idecom.Bus.Implementations.UnicastBus
+﻿namespace Idecom.Bus.Implementations.UnicastBus
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using Addressing;
+    using Interfaces;
+    using Interfaces.Addons.PubSub;
+    using Internal;
+    using Transport;
+    using Utility;
+
     internal class Bus : IBusInstance
     {
+        private bool _isStarted;
         public IContainer Container { get; set; }
         public IRoutingTable<MethodInfo> HandlerRoutingTable { get; set; }
         public IRoutingTable<Address> MessageRoutingTable { get; set; }
@@ -22,8 +23,6 @@ namespace Idecom.Bus.Implementations.UnicastBus
         public ITransport Transport { get; set; }
         public Address LocalAddress { get; set; }
         public IEffectiveConfiguration EffectiveConfiguration { get; set; }
-
-        private bool _isStarted;
 
         public IMessageContext CurrentMessageContext
         {
@@ -43,7 +42,11 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 if (Serializer == null)
                     throw new ArgumentException("Can not create bus. Message serializer hasn't been provided.");
 
-                ApplyHandlerMapping();
+                var allTypes = AssemblyScanner.GetTypes().ToList();
+                var events = allTypes.Where(EffectiveConfiguration.IsEvent).ToList();
+                var commands = allTypes.Where(EffectiveConfiguration.IsCommand);
+                ApplyHandlerMapping(events, commands);
+
 
                 Transport.TransportMessageReceived += TransportMessageReceived;
                 Transport.TransportMessageFinished += TransportOnTransportMessageFinished;
@@ -53,6 +56,8 @@ namespace Idecom.Bus.Implementations.UnicastBus
                     beforeBusStarted.BeforeBusStarted();
                     Container.Release(beforeBusStarted);
                 }
+
+                SubscriptionDistributor.SubscribeTo(events);
 
                 _isStarted = true;
             }
@@ -93,11 +98,11 @@ namespace Idecom.Bus.Implementations.UnicastBus
             ExecuteOnlyWhenStarted(() => Transport.Send(message, CurrentMessageContext.TransportMessage.SourceAddress, MessageIntent.Send, CurrentMessageContextInternal()));
         }
 
-        public void Raise<T>(Action<T> action)
+        public void Raise<T>(Action<T> action) where T : class
         {
             var message = InstanceCreator.CreateInstanceOf<T>();
             action(message);
-            SubscriptionDistributor.NotifySubscribers(message);
+            SubscriptionDistributor.NotifySubscribersOf<T>(message, CurrentMessageContextInternal());
         }
 
         private CurrentMessageContext CurrentMessageContextInternal()
@@ -127,12 +132,9 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 var handlerMethod = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.Message.GetType());
 
                 var handler = Container.Resolve(handlerMethod.DeclaringType);
-                handlerMethod.Invoke(handler, new[] { e.TransportMessage.Message });
+                handlerMethod.Invoke(handler, new[] {e.TransportMessage.Message});
             }
-            finally
-            {
-                Container.Release(currentMessageContext);
-            }
+            finally { Container.Release(currentMessageContext); }
         }
 
         private void TransportOnTransportMessageFinished(object sender, TransportMessageFinishedEventArgs transportMessageFinishedEventArgs)
@@ -142,36 +144,28 @@ namespace Idecom.Bus.Implementations.UnicastBus
         }
 
 
-        private void ApplyHandlerMapping()
+        private void ApplyHandlerMapping(IEnumerable<Type> events, IEnumerable<Type> commands)
         {
-            var allTypes = AssemblyScanner.GetTypes().ToList();
-
-            IEnumerable<Type> events = allTypes.Where(EffectiveConfiguration.IsEvent);
-
-            SubscriptionDistributor.SubscribeTo(events);
-
-            var commands = allTypes.Where(EffectiveConfiguration.IsCommand);
             var eventsAndCommands = events.Union(commands).ToList();
 
-            foreach (var mapping in EffectiveConfiguration.MessageMappings)
+            foreach (var mapping in EffectiveConfiguration.NamespaceToEndpointMappings)
             {
-                var types = allTypes.Where(type => type.Namespace != null && type.Namespace.Equals(mapping.Namespace, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                var types = eventsAndCommands.Where(type => type.Namespace != null && type.Namespace.Equals(mapping.Namespace, StringComparison.InvariantCultureIgnoreCase)).ToList();
                 var eventsAndCommandsInANamespace = eventsAndCommands.Intersect(types).Distinct().ToList();
                 var notMappedTypes = types.Except(eventsAndCommandsInANamespace);
+
                 if (notMappedTypes.Any())
-                {
                     throw new Exception("Some messages are not mapped: " + notMappedTypes.Select(x => x.Name).Aggregate((a, b) => a + ", " + b));
-                }
+
                 MessageRoutingTable.RouteTypes(eventsAndCommandsInANamespace, mapping.Address);
             }
 
             Func<Type, Type, bool> implementsType = (y, compareType) => y.IsGenericType && y.GetGenericTypeDefinition() == compareType;
 
-
-            IEnumerable<MethodInfo> messageToHandlerMapping = allTypes.Where(x => !x.IsInterface)
-                .SelectMany(type => type.GetMethods()
-                    .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
-                        .Where(type.GetInterfaces().Where(intface => implementsType(intface, typeof(IHandle<>))).SelectMany(intfs => intfs.GenericTypeArguments).Contains).Any()));
+            var messageToHandlerMapping = eventsAndCommands.Where(x => !x.IsInterface)
+                                                           .SelectMany(type => type.GetMethods()
+                                                                                   .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
+                                                                                                .Where(type.GetInterfaces().Where(intface => implementsType(intface, typeof (IHandle<>))).SelectMany(intfs => intfs.GenericTypeArguments).Contains).Any()));
             MapMessageHandlers(messageToHandlerMapping);
         }
 
@@ -179,14 +173,13 @@ namespace Idecom.Bus.Implementations.UnicastBus
         {
             foreach (MethodInfo methodInfo in methodInfos)
             {
-                ParameterInfo firstParameter = methodInfo.GetParameters().FirstOrDefault();
+                var firstParameter = methodInfo.GetParameters().FirstOrDefault();
                 if (firstParameter == null) continue;
 
-                HandlerRoutingTable.RouteTypes(new[] { firstParameter.ParameterType }, methodInfo);
-                MethodInfo method = HandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
+                HandlerRoutingTable.RouteTypes(new[] {firstParameter.ParameterType}, methodInfo);
+                var method = HandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
                 Container.Configure(method.DeclaringType, ComponentLifecycle.PerUnitOfWork);
             }
         }
-
     }
 }

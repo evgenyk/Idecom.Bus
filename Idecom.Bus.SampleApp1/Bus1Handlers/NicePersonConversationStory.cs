@@ -1,21 +1,21 @@
-﻿using System;
-using Idecom.Bus.Implementations;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Interfaces.Addons.Stories;
-using Idecom.Bus.SampleMessages;
-
-namespace Idecom.Bus.SampleApp1.Bus1Handlers
+﻿namespace Idecom.Bus.SampleApp1.Bus1Handlers
 {
-    /// <summary>
-    ///            Bus.Expect<SayHeelloMessage>.For(10.Seconds)
+    using System;
+    using Implementations;
+    using Interfaces;
+    using Interfaces.Addons.Stories;
+    using SampleMessages;
+
     //            .OtherwiseRaise<ITiredWaitingForAReply>();
     //!!!!!!!!!!!!!!!!!!!! chaining sagas together for complex flows!!!!!!!!!!!!!!!!!
     //!!!!!!!!!!!!!!!!!!!! SAGAS MUST BE TRANBSPARENT TO USE.
+    /// <summary>
+    ///     Bus.Expect<SayHeelloMessage>.For(10.Seconds)
     /// </summary>
     public class NicePersonConversationStory : Story<NicePersonConversationState>,
-        IStartThisStoryWhenReceive<IMetAFriendEvent>,
-        IHandle<SayHelloCommand>,
-        ITimeoutFor<ITiredWaitingForAReply>
+                                               IStartThisStoryWhenReceive<IMetAFriendEvent>,
+                                               IHandle<SayHelloCommand>,
+                                               ITimeoutFor<ITiredWaitingForAReply>
     {
         public void Handle(SayHelloCommand command)
         {

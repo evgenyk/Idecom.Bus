@@ -1,10 +1,9 @@
-﻿using Idecom.Bus.Implementations;
-using Idecom.Bus.Utility;
-using Xunit;
-using Xunit.Should;
-
-namespace Idecom.Bus.Tests
+﻿namespace Idecom.Bus.Tests
 {
+    using Implementations;
+    using Xunit;
+    using Xunit.Should;
+
     public class InterfaceProxyGeneratorTests
     {
         [Fact]
@@ -25,11 +24,6 @@ namespace Idecom.Bus.Tests
             instance.ShouldNotBe(null);
         }
 
-        public class SomeClass
-        {
-            public string StringProperty { get; set; }
-        }
-
 
         public interface IAmAnInterface : IAnotherInterface
         {
@@ -39,6 +33,11 @@ namespace Idecom.Bus.Tests
         public interface IAnotherInterface
         {
             string StringProperty { get; set; }
+        }
+
+        public class SomeClass
+        {
+            public string StringProperty { get; set; }
         }
     }
 }

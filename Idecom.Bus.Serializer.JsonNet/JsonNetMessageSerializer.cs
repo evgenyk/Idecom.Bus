@@ -1,14 +1,14 @@
-﻿using System;
-using System.Globalization;
-using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters;
-using Idecom.Bus.Interfaces;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-
-namespace Idecom.Bus.Serializer.JsonNet
+﻿namespace Idecom.Bus.Serializer.JsonNet
 {
+    using System;
+    using System.Globalization;
+    using System.IO;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Formatters;
+    using Interfaces;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
+
     public class JsonNetMessageSerializer : IMessageSerializer
     {
         private readonly IInstanceCreator _instanceCreator;

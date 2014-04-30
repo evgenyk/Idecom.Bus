@@ -1,12 +1,11 @@
-using System;
-using Idecom.Bus.Addressing;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Utility;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-
 namespace Idecom.Bus.Transport.MongoDB
 {
+    using System;
+    using Addressing;
+    using global::MongoDB.Bson;
+    using Interfaces;
+    using Utility;
+
     internal class MongoTransportMessageEntity
     {
         protected MongoTransportMessageEntity()
@@ -24,56 +23,56 @@ namespace Idecom.Bus.Transport.MongoDB
             SentTimeUtc = DateTime.UtcNow;
         }
 
-        [BsonElement("_id")]
+        [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("_id")]
         public BsonObjectId Id { get; set; }
 
-        [BsonElement("s")]
+        [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("s")]
         public MessageProcessingStatus Status { get; set; }
 
-        [BsonElement("rb")]
+        [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("rb")]
         public string ReceivedBy { get; set; }
 
-        [BsonElement("sm")]
+        [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("sm")]
         public string SerializedMessage { get; set; }
 
-        [BsonElement("i")]
+        [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("i")]
         public MessageIntent Intent { get; set; }
 
-        [BsonElement("sa")]
+        [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("sa")]
         public MongoAddress SourceAddress { get; set; }
 
-        [BsonElement("ta")]
+        [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("ta")]
         public MongoAddress TargetAddress { get; set; }
 
-        [BsonElement("mt")]
+        [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("mt")]
         public string MessageType { get; private set; }
 
-        [BsonElement("st")]
+        [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("st")]
         public DateTime SentTimeUtc { get; set; }
 
-        [BsonElement("rt")]
+        [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("rt")]
         public DateTime? ReceiveTimeUtc { get; set; }
 
-        [BsonElement("ft")]
+        [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("ft")]
         public DateTime? FailedTimeUtc { get; set; }
 
-        [BsonElement("at")]
+        [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("at")]
         public DateTime? AcknowledgedTimeUtc { get; set; }
 
-        [BsonElement("fr")]
+        [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("fr")]
         public string FailureReason { get; set; }
 
         public TransportMessage ToTransportMessage(IMessageSerializer serializer)
         {
-            Type messageType = ResolveMessageType();
-            object originalMessage = serializer.DeSerialize(SerializedMessage, messageType);
+            var messageType = ResolveMessageType();
+            var originalMessage = serializer.DeSerialize(SerializedMessage, messageType);
             var transpoortMessage = new TransportMessage(originalMessage, SourceAddress.ToAddress(), TargetAddress.ToAddress(), Intent);
             return transpoortMessage;
         }
 
         private Type ResolveMessageType()
         {
-            Type resolvedMessageType = TypeResolver.ResolveType(MessageType);
+            var resolvedMessageType = TypeResolver.ResolveType(MessageType);
 
             return resolvedMessageType;
         }
@@ -86,10 +85,10 @@ namespace Idecom.Bus.Transport.MongoDB
                 Datacenter = datacenter;
             }
 
-            [BsonElement("q")]
+            [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("q")]
             public string Queue { get; set; }
 
-            [BsonElement("dc")]
+            [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("dc")]
             public string Datacenter { get; set; }
         }
     }

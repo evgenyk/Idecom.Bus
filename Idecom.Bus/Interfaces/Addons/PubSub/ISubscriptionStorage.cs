@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using Idecom.Bus.Addressing;
-
-namespace Idecom.Bus.Interfaces.Addons.PubSub
+﻿namespace Idecom.Bus.Interfaces.Addons.PubSub
 {
+    using System;
+    using System.Collections.Generic;
+    using Addressing;
+
     public interface ISubscriptionStorage
     {
-        IEnumerable<Address> GetSubscribersFor(Type eventType);
-        void Subscribe(Address subscriber, Type eventType);
-        void Unsubscribe(Address subscriber, Type eventType);
+        IEnumerable<Address> GetSubscribersFor<T>() where T : class;
+        void Subscribe(Address subscriber, Type type);
+        void Unsubscribe<T>(Address subscriber) where T : class;
     }
 }

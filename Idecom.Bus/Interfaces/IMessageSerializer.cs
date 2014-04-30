@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Idecom.Bus.Interfaces
+﻿namespace Idecom.Bus.Interfaces
 {
+    using System;
+
     public interface IMessageSerializer
     {
         string Serialize(object message);

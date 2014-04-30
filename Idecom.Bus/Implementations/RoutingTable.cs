@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Idecom.Bus.Implementations
+﻿namespace Idecom.Bus.Implementations
 {
-    public interface IRoutingTable<TTarget> where TTarget: class
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
+    public interface IRoutingTable<TTarget> where TTarget : class
     {
         void RouteTypes(IEnumerable<Type> types, TTarget routeTarget);
         TTarget ResolveRouteFor(Type type);
@@ -32,7 +32,7 @@ namespace Idecom.Bus.Implementations
 
         public TTarget ResolveRouteFor(Type type)
         {
-            TTarget route = _routes.ContainsKey(type) ? _routes[type] : default(TTarget);
+            var route = _routes.ContainsKey(type) ? _routes[type] : default(TTarget);
             if (route == null)
                 throw new Exception(string.Format("{0} couldn't be routed to any known '{1}'", type.AssemblyQualifiedName, typeof (TTarget)));
             return route;

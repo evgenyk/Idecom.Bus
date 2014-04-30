@@ -1,13 +1,13 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Utility;
-using MongoDB.Driver;
-using MongoDB.Driver.Builders;
-
 namespace Idecom.Bus.Transport.MongoDB
 {
+    using System;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using global::MongoDB.Driver;
+    using global::MongoDB.Driver.Builders;
+    using Interfaces;
+    using Utility;
+
     internal class MessageReceiver
     {
         private readonly IContainer _container;
@@ -47,13 +47,13 @@ namespace Idecom.Bus.Transport.MongoDB
             _scheduler = new MaxWorkersTaskScheduler(_workersCount);
             _queueReaderThread = new Thread(() =>
             {
-                int lastEmptyQueueSleepMs = 5;
+                var lastEmptyQueueSleepMs = 5;
                 while (!_stopReaderThread)
                 {
                     while (_scheduler.TasksPending > 0)
                         Thread.Sleep(2); //All workers are busy
 
-                    MongoTransportMessageEntity mongoTransportMessageEntity = ReceiveTransportMessageFromQueue();
+                    var mongoTransportMessageEntity = ReceiveTransportMessageFromQueue();
                     if (mongoTransportMessageEntity == null)
                     {
                         lastEmptyQueueSleepMs += 20;
@@ -63,13 +63,7 @@ namespace Idecom.Bus.Transport.MongoDB
                         continue;
                     }
                     lastEmptyQueueSleepMs = 5;
-                    new Task(() =>
-                    {
-                        using (_container.BeginUnitOfWork())
-                        {
-                            ProcessWithRetry(mongoTransportMessageEntity.ToTransportMessage(_serializer), mongoTransportMessageEntity);
-                        }
-                    }).Start(_scheduler);
+                    new Task(() => { using (_container.BeginUnitOfWork()) { ProcessWithRetry(mongoTransportMessageEntity.ToTransportMessage(_serializer), mongoTransportMessageEntity); } }).Start(_scheduler);
                 }
             });
             _queueReaderThread.Start();
@@ -78,7 +72,7 @@ namespace Idecom.Bus.Transport.MongoDB
 
         private void ProcessWithRetry(TransportMessage transportMessage, MongoTransportMessageEntity mongoTransportMessageEntity)
         {
-            int attempt = 0;
+            var attempt = 0;
 
             while (attempt < _retries + 1)
             {
@@ -103,23 +97,23 @@ namespace Idecom.Bus.Transport.MongoDB
         {
             while (exception.InnerException != null)
                 exception = exception.InnerException;
-            IMongoQuery query = Query<MongoTransportMessageEntity>.EQ(x => x.Id, mongoTransportMessageEntity.Id);
-            UpdateBuilder<MongoTransportMessageEntity> update = Update<MongoTransportMessageEntity>.Set(x => x.FailedTimeUtc, DateTime.UtcNow).Set(x => x.Status, MessageProcessingStatus.PermanentlyFailed).Set(x => x.FailureReason, exception.Message);
+            var query = Query<MongoTransportMessageEntity>.EQ(x => x.Id, mongoTransportMessageEntity.Id);
+            var update = Update<MongoTransportMessageEntity>.Set(x => x.FailedTimeUtc, DateTime.UtcNow).Set(x => x.Status, MessageProcessingStatus.PermanentlyFailed).Set(x => x.FailureReason, exception.Message);
             _localCollection.Update(query, update, UpdateFlags.Multi, WriteConcern.Acknowledged);
         }
 
         private void AchknowledgeMessageProcessed(MongoTransportMessageEntity mongoTransportMessageEntity)
         {
-            IMongoQuery query = Query<MongoTransportMessageEntity>.EQ(x => x.Id, mongoTransportMessageEntity.Id);
+            var query = Query<MongoTransportMessageEntity>.EQ(x => x.Id, mongoTransportMessageEntity.Id);
             _localCollection.Remove(query, WriteConcern.Acknowledged);
         }
 
         private MongoTransportMessageEntity ReceiveTransportMessageFromQueue()
         {
-            IMongoQuery query = Query<MongoTransportMessageEntity>.EQ(x => x.Status, MessageProcessingStatus.AwaitingDispatch);
-            UpdateBuilder<MongoTransportMessageEntity> update = Update<MongoTransportMessageEntity>.Set(x => x.Status, MessageProcessingStatus.ReceivedByConsumer).Set(x => x.ReceivedBy, ApplicationIdGenerator.GenerateIdId()).Set(x => x.ReceiveTimeUtc, DateTime.UtcNow);
+            var query = Query<MongoTransportMessageEntity>.EQ(x => x.Status, MessageProcessingStatus.AwaitingDispatch);
+            var update = Update<MongoTransportMessageEntity>.Set(x => x.Status, MessageProcessingStatus.ReceivedByConsumer).Set(x => x.ReceivedBy, ApplicationIdGenerator.GenerateIdId()).Set(x => x.ReceiveTimeUtc, DateTime.UtcNow);
 
-            FindAndModifyResult transportMessages = _localCollection.FindAndModify(query, SortBy.Null, update, true);
+            var transportMessages = _localCollection.FindAndModify(query, SortBy.Null, update, true);
 
             var transportMessage = transportMessages.GetModifiedDocumentAs<MongoTransportMessageEntity>();
             return transportMessage;
@@ -131,8 +125,8 @@ namespace Idecom.Bus.Transport.MongoDB
         /// <param name="machineId"></param>
         private void ReturnUnfinishedMessagesToQueue(string machineId)
         {
-            IMongoQuery query = Query.And(Query<MongoTransportMessageEntity>.EQ(x => x.ReceivedBy, machineId), Query<MongoTransportMessageEntity>.EQ(x => x.Status, MessageProcessingStatus.ReceivedByConsumer));
-            UpdateBuilder<MongoTransportMessageEntity> update = Update<MongoTransportMessageEntity>.Set(x => x.ReceivedBy, null).Set(x => x.Status, MessageProcessingStatus.AwaitingDispatch).Set(x => x.ReceiveTimeUtc, null);
+            var query = Query.And(Query<MongoTransportMessageEntity>.EQ(x => x.ReceivedBy, machineId), Query<MongoTransportMessageEntity>.EQ(x => x.Status, MessageProcessingStatus.ReceivedByConsumer));
+            var update = Update<MongoTransportMessageEntity>.Set(x => x.ReceivedBy, null).Set(x => x.Status, MessageProcessingStatus.AwaitingDispatch).Set(x => x.ReceiveTimeUtc, null);
             _localCollection.Update(query, update, UpdateFlags.Multi, WriteConcern.Acknowledged);
         }
 

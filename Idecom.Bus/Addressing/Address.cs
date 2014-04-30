@@ -1,8 +1,8 @@
-﻿using System;
-using System.Net;
-
-namespace Idecom.Bus.Addressing
+﻿namespace Idecom.Bus.Addressing
 {
+    using System;
+    using System.Net;
+
     [Serializable]
     public class Address
     {
@@ -31,20 +31,14 @@ namespace Idecom.Bus.Addressing
 
         public static Address Parse(string destination)
         {
-            if (string.IsNullOrEmpty(destination))
-            {
-                throw new ArgumentException("Invalid destination address specified", "destination");
-            }
+            if (string.IsNullOrEmpty(destination)) { throw new ArgumentException("Invalid destination address specified", "destination"); }
 
-            string[] arr = destination.Split('@');
+            var arr = destination.Split('@');
 
-            string queue = arr[0];
+            var queue = arr[0];
             string datacenter = null;
 
-            if (String.IsNullOrWhiteSpace(queue))
-            {
-                throw new ArgumentException("Invalid destination address specified", "destination");
-            }
+            if (String.IsNullOrWhiteSpace(queue)) { throw new ArgumentException("Invalid destination address specified", "destination"); }
 
             if (arr.Length != 2) return new Address(queue);
             if (arr[1] != "." && arr[1].ToLower() != "localhost" && arr[1] != IPAddress.Loopback.ToString())
@@ -56,18 +50,17 @@ namespace Idecom.Bus.Addressing
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                return ((_queueLowerCased != null ? _queueLowerCased.GetHashCode() : 0)*397) ^ (_datacenterLowerCased != null ? _datacenterLowerCased.GetHashCode() : 0);
-            }
+            unchecked { return ((_queueLowerCased != null ? _queueLowerCased.GetHashCode() : 0)*397) ^ (_datacenterLowerCased != null ? _datacenterLowerCased.GetHashCode() : 0); }
         }
 
         public override string ToString()
         {
             if (LocalDatacenter)
-                return Queue;
+                return Queue.ToLowerInvariant();
 
-            return Queue + "@" + Datacenter;
+            var queueWithDatacenter = Queue + "@" + Datacenter;
+
+            return queueWithDatacenter.ToLowerInvariant();
         }
 
         public static bool operator ==(Address left, Address right)

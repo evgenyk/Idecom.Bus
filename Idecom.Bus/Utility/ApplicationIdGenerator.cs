@@ -1,13 +1,13 @@
-﻿using System;
-using System.Diagnostics;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
-
-namespace Idecom.Bus.Utility
+﻿namespace Idecom.Bus.Utility
 {
+    using System;
+    using System.Diagnostics;
+    using System.Net;
+    using System.Net.NetworkInformation;
+    using System.Reflection;
+    using System.Security.Cryptography;
+    using System.Text;
+
     public static class ApplicationIdGenerator
     {
         private static string _machineIdCache;
@@ -23,24 +23,24 @@ namespace Idecom.Bus.Utility
             if (_machineIdCache != null)
                 return _machineIdCache;
 
-            Assembly entryAssembly = Assembly.GetEntryAssembly();
+            var entryAssembly = Assembly.GetEntryAssembly();
 
-            string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
-            string hostName = Dns.GetHostName();
-            string fqdn = "";
+            var domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
+            var hostName = Dns.GetHostName();
+            var fqdn = "";
             if (!hostName.Contains(domainName))
                 fqdn = hostName + "." + domainName;
             else
                 fqdn = hostName;
 
             fqdn = fqdn.ToLowerInvariant();
-            string directory = new Uri(entryAssembly.CodeBase).LocalPath.ToLowerInvariant();
+            var directory = new Uri(entryAssembly.CodeBase).LocalPath.ToLowerInvariant();
 
-            byte[] hash = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(directory));
+            var hash = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(directory));
             var sb = new StringBuilder();
-            for (int i = 0; i < hash.Length; i++)
+            for (var i = 0; i < hash.Length; i++)
                 sb.Append(i.ToString("D"));
-            string serviceId = sb.ToString();
+            var serviceId = sb.ToString();
             _machineIdCache = serviceId + "@" + fqdn;
             return serviceId;
         }

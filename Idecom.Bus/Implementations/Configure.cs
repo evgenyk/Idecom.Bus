@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using Idecom.Bus.Addressing;
-using Idecom.Bus.Implementations.Addons.PubSub;
-using Idecom.Bus.Implementations.Internal;
-using Idecom.Bus.Interfaces;
-
-namespace Idecom.Bus.Implementations
+﻿namespace Idecom.Bus.Implementations
 {
+    using System.Collections.Generic;
+    using System.Reflection;
+    using Addons.PubSub;
+    using Addressing;
+    using Interfaces;
+    using Internal;
+    using UnicastBus;
+
     public class Configure
     {
         private readonly List<NamespaceToEndpointMapping> _namespaceToEndpoints;
@@ -30,10 +31,10 @@ namespace Idecom.Bus.Implementations
 
                 value.ConfigureProperty<EffectiveConfiguration>(x => x.IsEvent, DefaultConfiguration.DefaultEventNamingConvention);
                 value.ConfigureProperty<EffectiveConfiguration>(x => x.IsCommand, DefaultConfiguration.DefaultCommandNamingConvention);
-                value.ConfigureProperty<EffectiveConfiguration>(x => x.MessageMappings, _namespaceToEndpoints);
+                value.ConfigureProperty<EffectiveConfiguration>(x => x.NamespaceToEndpointMappings, _namespaceToEndpoints);
 
                 value.Configure<InstanceCreator>(ComponentLifecycle.Singleton);
-                value.Configure<UnicastBus.Bus>(ComponentLifecycle.Singleton);
+                value.Configure<Bus>(ComponentLifecycle.Singleton);
                 value.Configure<SubscriptionDistributor>(ComponentLifecycle.Singleton);
                 _container = value;
             }

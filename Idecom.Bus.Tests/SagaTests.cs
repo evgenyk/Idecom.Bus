@@ -1,7 +1,7 @@
-﻿using Xunit;
-
-namespace Idecom.Bus.Tests
+﻿namespace Idecom.Bus.Tests
 {
+    using Xunit;
+
     public class SagaTests
     {
         [Fact]

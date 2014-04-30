@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using Castle.Core;
-using Castle.MicroKernel.Lifestyle;
-using Castle.MicroKernel.Registration;
-using Castle.Windsor;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Utility;
-
-namespace Idecom.Bus.IoC.CastleWindsor
+﻿namespace Idecom.Bus.IoC.CastleWindsor
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using Castle.Core;
+    using Castle.MicroKernel.Lifestyle;
+    using Castle.MicroKernel.Registration;
+    using Castle.Windsor;
+    using Interfaces;
+    using Utility;
+
     public class WindsorContainerAdapter : IContainer
     {
         private readonly IWindsorContainer _container;
@@ -19,14 +18,14 @@ namespace Idecom.Bus.IoC.CastleWindsor
 
         public WindsorContainerAdapter(IWindsorContainer container = null)
         {
-            _container = container ?? new Castle.Windsor.WindsorContainer();
+            _container = container ?? new WindsorContainer();
             _beginScopeFunction = () => _container.BeginScope();
         }
 
         public void Configure(Type component, ComponentLifecycle componentLifecycle)
         {
-            LifestyleType lifestyleTypeFrom = GetLifestyleTypeFrom(componentLifecycle);
-            IEnumerable<Type> services = component.GetInterfaces().Where(x => !x.FullName.StartsWith("System.")).Concat(new[] {component});
+            var lifestyleTypeFrom = GetLifestyleTypeFrom(componentLifecycle);
+            var services = component.GetInterfaces().Where(x => !x.FullName.StartsWith("System.")).Concat(new[] {component});
             _container.Register(Component.For(services).ImplementedBy(component).LifeStyle.Is(lifestyleTypeFrom).NamedAutomatically(Guid.NewGuid().ToString()));
         }
 
@@ -37,13 +36,13 @@ namespace Idecom.Bus.IoC.CastleWindsor
 
         public void ConfigureInstance<T>(T instance)
         {
-            Type component = typeof (T);
+            var component = typeof (T);
 
-            ComponentModel registration = _container.Kernel.GetAssignableHandlers(component).Select(x => x.ComponentModel).SingleOrDefault();
+            var registration = _container.Kernel.GetAssignableHandlers(component).Select(x => x.ComponentModel).SingleOrDefault();
             if (registration != null)
                 throw new Exception("Can not configure a component that has already been registered.");
 
-            IEnumerable<Type> services = component.GetInterfaces().Where(x => !x.FullName.StartsWith("System.")).Concat(new[] {component});
+            var services = component.GetInterfaces().Where(x => !x.FullName.StartsWith("System.")).Concat(new[] {component});
             _container.Register(Component.For(services).Instance(instance).LifeStyle.Is(LifestyleType.Singleton));
         }
 
@@ -54,12 +53,8 @@ namespace Idecom.Bus.IoC.CastleWindsor
 
         public T Resolve<T>()
         {
-            try
-            {
-                return _container.Resolve<T>();
-            }
-            catch (Exception)
-            {
+            try { return _container.Resolve<T>(); }
+            catch (Exception) {
                 return default(T);
             }
         }
@@ -96,19 +91,19 @@ namespace Idecom.Bus.IoC.CastleWindsor
 
         public void ConfigureProperty<T>(Expression<Func<T, object>> property, object value)
         {
-            PropertyInfo prop = Reflect<T>.GetProperty(property);
+            var prop = Reflect<T>.GetProperty(property);
             ConfigureProperty<T>(prop.Name, value);
         }
 
         private void ConfigureProperty<T>(string property, object value)
         {
-            Type component = typeof (T);
-            ComponentModel registration = _container.Kernel.GetAssignableHandlers(component).Select(x => x.ComponentModel).SingleOrDefault();
+            var component = typeof (T);
+            var registration = _container.Kernel.GetAssignableHandlers(component).Select(x => x.ComponentModel).SingleOrDefault();
 
             if (registration == null)
                 throw new InvalidOperationException("Cannot configure property for a type which hadn't been configured yet. Please call 'Configure' first.");
 
-            PropertyInfo propertyInfo = component.GetProperty(property);
+            var propertyInfo = component.GetProperty(property);
 
             registration.AddProperty(
                 new PropertySet(propertyInfo,

@@ -1,19 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace Idecom.Bus.Utility
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public static class TypeResolver
     {
         private static readonly Dictionary<string, Type> ResolutionCache = new Dictionary<string, Type>(StringComparer.CurrentCultureIgnoreCase);
 
         public static Type ResolveType(string name)
         {
-            Type resolvedType = Type.GetType(name, false);
+            var resolvedType = Type.GetType(name, false);
             if (resolvedType != null) return resolvedType;
 
-            IEnumerable<Type> typesCache = AssemblyScanner.GetTypes();
+            var typesCache = AssemblyScanner.GetTypes();
 
             Type value;
             if (ResolutionCache.TryGetValue(name, out value))

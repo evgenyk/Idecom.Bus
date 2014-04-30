@@ -1,50 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using Idecom.Bus.Addressing;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Interfaces.Addons.PubSub;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver;
-
-namespace Idecom.Bus.PubSub.MongoDB
+﻿namespace Idecom.Bus.PubSub.MongoDB
 {
-    public class SubscriptionStorageEntity
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Addressing;
+    using global::MongoDB.Driver;
+    using global::MongoDB.Driver.Builders;
+    using Interfaces;
+    using Interfaces.Addons.PubSub;
+
+    public class SubscriptionStorage : ISubscriptionStorage, IBeforeBusStarted, IBeforeBusStopped
     {
-        [BsonElement("_id")]
-        public BsonObjectId Id { get; set; }
-
-        [BsonElement("mt")]
-        public string MessageType { get; set; }
-
-        [BsonElement("se")]
-        public string SubscriberAddress { get; set; }
-
-    }
-    
-    public class SubscriptionStorage: ISubscriptionStorage, IBeforeBusStarted, IBeforeBusStopped
-    {
-        private MongoCollection<SubscriptionStorageEntity> _collection;
         private const string SUBSCRIPTION_STORAGE_COLLECTION_NAME = "SubscriptionStorage";
-        
+        private MongoCollection<SubscriptionStorageEntity> _collection;
+
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }
-
-
-        public IEnumerable<Address> GetSubscribersFor(Type eventType)
-        {
-            return new List<Address>();
-        }
-
-        public void Subscribe(Address subscriber, Type eventType)
-        {
-            _collection.Update()
-        }
-
-        public void Unsubscribe(Address subscriber, Type eventType)
-        {
-            throw new NotImplementedException();
-        }
 
         public void BeforeBusStarted()
         {
@@ -53,7 +24,36 @@ namespace Idecom.Bus.PubSub.MongoDB
 
         public void BeforeBusStopped()
         {
-            
+        }
+
+
+        public IEnumerable<Address> GetSubscribersFor<T>() where T : class
+        {
+            var type = typeof (T);
+            var typeWithNamespace = GetTypeNameWithNamespace(type);
+            var query = Query<SubscriptionStorageEntity>.EQ(x => x.MessageType, typeWithNamespace);
+            var subscribers = _collection.FindAs<SubscriptionStorageEntity>(query).Select(x => Address.Parse(x.SubscriberAddress)).Distinct();
+            return subscribers;
+        }
+
+        public void Subscribe(Address subscriber, Type type)
+        {
+            var typeWithNamespace = GetTypeNameWithNamespace(type);
+            var subscriberAddress = subscriber.ToString();
+
+            var query = Query.And(Query<SubscriptionStorageEntity>.EQ(x => x.SubscriberAddress, subscriberAddress), Query<SubscriptionStorageEntity>.EQ(x => x.MessageType, typeWithNamespace));
+            var update = Update<SubscriptionStorageEntity>.Set(x => x.SubscriberAddress, subscriberAddress).Set(x => x.MessageType, typeWithNamespace);
+            _collection.Update(query, update, UpdateFlags.Upsert, WriteConcern.Acknowledged);
+        }
+
+        public void Unsubscribe<T>(Address subscriber) where T : class
+        {
+            throw new NotImplementedException();
+        }
+
+        private static string GetTypeNameWithNamespace(Type type)
+        {
+            return string.Format("{0}.{1}", type.Namespace, type.Name).ToLowerInvariant();
         }
     }
 }

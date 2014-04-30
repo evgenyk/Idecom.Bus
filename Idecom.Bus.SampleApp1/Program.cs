@@ -1,28 +1,27 @@
-﻿using System;
-using Castle.Windsor;
-using Idecom.Bus.Implementations;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.IoC.CastleWindsor;
-using Idecom.Bus.PubSub.MongoDB;
-using Idecom.Bus.SampleMessages;
-using Idecom.Bus.Serializer.JsonNet;
-using Idecom.Bus.Transport.MongoDB;
-
-namespace Idecom.Bus.SampleApp1
+﻿namespace Idecom.Bus.SampleApp1
 {
+    using System;
+    using Castle.Windsor;
+    using Implementations;
+    using IoC.CastleWindsor;
+    using PubSub.MongoDB;
+    using SampleMessages;
+    using Serializer.JsonNet;
+    using Transport.MongoDB;
+
     internal class Program
     {
         private static void Main()
         {
             var container = new WindsorContainer();
-            IBusInstance busInstance = Configure.With()
-                .WindsorContainer(container)
-                .MongoDbTransport("mongodb://localhost", "messageHub")
-                .JsonNetSerializer()
-                .RouteMessagesFromNamespaceTo<SayHelloCommand>("app2")
-                .PubSub("mongodb://localhost", "messageHub")
-                .CreateBus("app1")
-                .Start();
+            var busInstance = Configure.With()
+                                       .WindsorContainer(container)
+                                       .MongoDbTransport("mongodb://localhost", "messageHub")
+                                       .JsonNetSerializer()
+                                       .RouteMessagesFromNamespaceTo<SayHelloCommand>("app2")
+                                       .PubSub("mongodb://localhost", "messageHub")
+                                       .CreateBus("app1")
+                                       .Start();
 
 //            bus1.SendLocal(new SayHelloCommand("Hello local 1"));
 //            bus1.Send(new SayHelloCommand("Hello local 2"));

@@ -1,7 +1,7 @@
-﻿using Idecom.Bus.Addressing;
-
-namespace Idecom.Bus.Transport
+﻿namespace Idecom.Bus.Transport
 {
+    using Addressing;
+
     public class TransportMessage
     {
         private readonly MessageIntent _intent;

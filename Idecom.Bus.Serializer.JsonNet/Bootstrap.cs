@@ -1,8 +1,8 @@
-﻿using Idecom.Bus.Implementations;
-using Idecom.Bus.Interfaces;
-
-namespace Idecom.Bus.Serializer.JsonNet
+﻿namespace Idecom.Bus.Serializer.JsonNet
 {
+    using Implementations;
+    using Interfaces;
+
     public static class Bootstrap
     {
         public static Configure JsonNetSerializer(this Configure configure)

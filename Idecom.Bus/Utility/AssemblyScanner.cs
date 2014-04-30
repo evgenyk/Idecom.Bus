@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-
-namespace Idecom.Bus.Utility
+﻿namespace Idecom.Bus.Utility
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+
     public static class AssemblyScanner
     {
         private static List<Type> _typesCache = new List<Type>();
@@ -18,7 +18,7 @@ namespace Idecom.Bus.Utility
         [DebuggerNonUserCode] //so that exceptions don't jump at the developer debugging their app
         public static IEnumerable<Assembly> GetScannableAssemblies()
         {
-            FileInfo[] assemblyFiles = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetFiles("*.*", SearchOption.AllDirectories);
+            var assemblyFiles = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetFiles("*.*", SearchOption.AllDirectories);
 
 
             foreach (FileInfo assemblyFile in assemblyFiles)
@@ -33,8 +33,7 @@ namespace Idecom.Bus.Utility
                     assembly.GetTypes();
                 }
 
-                catch (Exception)
-                {
+                catch (Exception) {
                     continue;
                 }
 
