@@ -79,6 +79,7 @@
     <Compile Include="Transport\TransportMessage.cs" />
     <Compile Include="Utility\AssemblyScanner.cs" />
     <Compile Include="Utility\ApplicationIdGenerator.cs" />
+    <Compile Include="Utility\InterfaceImplementor.cs" />
     <Compile Include="Utility\Reflect.cs" />
     <Compile Include="Utility\TypeResolver.cs" />
   </ItemGroup>

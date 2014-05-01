@@ -10,6 +10,12 @@ namespace Idecom.Bus.Utility
 
         public static Type ResolveType(string name)
         {
+            var resolvedType = ResolveTypeInner(name);
+            return resolvedType;
+        }
+
+        private static Type ResolveTypeInner(string name)
+        {
             var resolvedType = Type.GetType(name, false);
             if (resolvedType != null) return resolvedType;
 

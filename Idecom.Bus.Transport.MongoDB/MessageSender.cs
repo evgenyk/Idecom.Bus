@@ -15,6 +15,10 @@
         {
             _database = database;
             _serializer = serializer;
+        }
+
+        public void Start()
+        {
             _isStarted = true;
         }
 

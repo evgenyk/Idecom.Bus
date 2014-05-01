@@ -24,7 +24,6 @@ namespace Idecom.Bus.Transport.MongoDB
         {
             _workersCount = workersCount;
             _serializer = serializer;
-            Start();
         }
 
         public MessageReceiver(MongoDbTransport transport, MongoCollection<MongoTransportMessageEntity> localCollection, int workersCount, int retries, IMessageSerializer serializer, IContainer container)
@@ -36,14 +35,16 @@ namespace Idecom.Bus.Transport.MongoDB
             _retries = retries;
             _container = container;
 
-            ReturnUnfinishedMessagesToQueue(ApplicationIdGenerator.GenerateIdId());
         }
 
         public int WorkersCount { get; private set; }
 
-        private void Start()
+        public void Start()
         {
             _stopReaderThread = false;
+
+            ReturnUnfinishedMessagesToQueue(ApplicationIdGenerator.GenerateIdId());
+            
             _scheduler = new MaxWorkersTaskScheduler(_workersCount);
             _queueReaderThread = new Thread(() =>
             {

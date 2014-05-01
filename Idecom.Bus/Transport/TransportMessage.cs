@@ -1,44 +1,27 @@
 ﻿namespace Idecom.Bus.Transport
 {
+    using System;
     using Addressing;
 
     public class TransportMessage
     {
-        private readonly MessageIntent _intent;
-        private readonly object _message;
-        private readonly Address _sourceAddress;
-        private readonly Address _targetAddress;
-
-        public TransportMessage(object message, Address sourceAddress, Address targetAddress, MessageIntent intent) : this(message)
+        public TransportMessage(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType) : this(message)
         {
-            _sourceAddress = sourceAddress;
-            _targetAddress = targetAddress;
-            _intent = intent;
+            SourceAddress = sourceAddress;
+            TargetAddress = targetAddress;
+            Intent = intent;
+            MessageType = messageType;
         }
 
         private TransportMessage(object message)
         {
-            _message = message;
+            Message = message;
         }
 
-        public Address SourceAddress
-        {
-            get { return _sourceAddress; }
-        }
-
-        public Address TargetAddress
-        {
-            get { return _targetAddress; }
-        }
-
-        public MessageIntent Intent
-        {
-            get { return _intent; }
-        }
-
-        public object Message
-        {
-            get { return _message; }
-        }
+        public Address SourceAddress { get; private set; }
+        public Address TargetAddress { get; private set; }
+        public MessageIntent Intent { get; private set; }
+        public Type MessageType { get; private set; }
+        public object Message { get; private set; }
     }
 }

@@ -42,6 +42,9 @@
                 if (Serializer == null)
                     throw new ArgumentException("Can not create bus. Message serializer hasn't been provided.");
 
+                Container.Configure<CurrentMessageContext>(ComponentLifecycle.PerUnitOfWork);
+
+
                 var allTypes = AssemblyScanner.GetTypes().ToList();
                 var events = allTypes.Where(EffectiveConfiguration.IsEvent).ToList();
                 var commands = allTypes.Where(EffectiveConfiguration.IsCommand);
@@ -129,10 +132,12 @@
                 currentMessageContext.TransportMessage = e.TransportMessage;
                 currentMessageContext.Attempt = e.Attempt;
                 currentMessageContext.MaxAttempts = e.MaxRetries + 1;
-                var handlerMethod = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.Message.GetType());
+                var handlerMethod = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
 
                 var handler = Container.Resolve(handlerMethod.DeclaringType);
                 handlerMethod.Invoke(handler, new[] {e.TransportMessage.Message});
+            }
+            catch (Exception ex) {
             }
             finally { Container.Release(currentMessageContext); }
         }
@@ -162,11 +167,15 @@
 
             Func<Type, Type, bool> implementsType = (y, compareType) => y.IsGenericType && y.GetGenericTypeDefinition() == compareType;
 
-            var messageToHandlerMapping = eventsAndCommands.Where(x => !x.IsInterface)
-                                                           .SelectMany(type => type.GetMethods()
-                                                                                   .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
-                                                                                                .Where(type.GetInterfaces().Where(intface => implementsType(intface, typeof (IHandle<>))).SelectMany(intfs => intfs.GenericTypeArguments).Contains).Any()));
-            MapMessageHandlers(messageToHandlerMapping);
+            var handlers = eventsAndCommands.SelectMany(type => type.GetMethods()
+                                        .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
+                                        .Where(type.GetInterfaces().Where(intface => implementsType(intface, typeof (IHandle<>))).SelectMany(intfs => intfs.GenericTypeArguments).Contains).Any()));
+
+            throw new NotImplementedException("Implement story subscriptions");
+            var sagers = eventsAndCommands.SelectMany(type => type.GetMethods()
+                                        .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
+                                        .Where(type.GetInterfaces().Where(intface => implementsType(intface, typeof (IStartThisStoryWhenReceive<>))).SelectMany(intfs => intfs.GenericTypeArguments).Contains).Any()));
+            MapMessageHandlers(handlers);
         }
 
         private void MapMessageHandlers(IEnumerable<MethodInfo> methodInfos)

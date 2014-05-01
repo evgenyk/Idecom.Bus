@@ -65,15 +65,19 @@ namespace Idecom.Bus.Transport.MongoDB
         public TransportMessage ToTransportMessage(IMessageSerializer serializer)
         {
             var messageType = ResolveMessageType();
-            var originalMessage = serializer.DeSerialize(SerializedMessage, messageType);
-            var transpoortMessage = new TransportMessage(originalMessage, SourceAddress.ToAddress(), TargetAddress.ToAddress(), Intent);
+
+            Type effectiveType = null;
+
+            effectiveType = messageType.IsInterface ? InterfaceImplementor.ImplementInterface(messageType) : messageType;
+            var originalMessage = serializer.DeSerialize(SerializedMessage, effectiveType);
+            
+            var transpoortMessage = new TransportMessage(originalMessage, SourceAddress.ToAddress(), TargetAddress.ToAddress(), Intent, messageType);
             return transpoortMessage;
         }
 
         private Type ResolveMessageType()
         {
             var resolvedMessageType = TypeResolver.ResolveType(MessageType);
-
             return resolvedMessageType;
         }
 

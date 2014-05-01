@@ -31,7 +31,9 @@
             var localCollection = _database.GetCollection<MongoTransportMessageEntity>(LocalAddress.ToString());
 
             _sender = new MessageSender(_database, MessageSerializer);
+            _sender.Start();
             _receiver = new MessageReceiver(this, localCollection, WorkersCount, Retries, MessageSerializer, Container);
+            _receiver.Start();
         }
 
         public void BeforeBusStopped()
