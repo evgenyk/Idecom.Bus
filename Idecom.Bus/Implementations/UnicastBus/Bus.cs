@@ -48,7 +48,7 @@
                 var allTypes = AssemblyScanner.GetTypes().ToList();
                 var events = allTypes.Where(EffectiveConfiguration.IsEvent).ToList();
                 var commands = allTypes.Where(EffectiveConfiguration.IsCommand);
-                ApplyHandlerMapping(events, commands);
+                ApplyHandlerMapping(events, commands, allTypes);
 
 
                 Transport.TransportMessageReceived += TransportMessageReceived;
@@ -149,7 +149,7 @@
         }
 
 
-        private void ApplyHandlerMapping(IEnumerable<Type> events, IEnumerable<Type> commands)
+        private void ApplyHandlerMapping(IEnumerable<Type> events, IEnumerable<Type> commands, List<Type> allTypes)
         {
             var eventsAndCommands = events.Union(commands).ToList();
 
@@ -167,14 +167,13 @@
 
             Func<Type, Type, bool> implementsType = (y, compareType) => y.IsGenericType && y.GetGenericTypeDefinition() == compareType;
 
-            var handlers = eventsAndCommands.SelectMany(type => type.GetMethods()
-                                        .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
-                                        .Where(type.GetInterfaces().Where(intface => implementsType(intface, typeof (IHandle<>))).SelectMany(intfs => intfs.GenericTypeArguments).Contains).Any()));
+            var handlers = allTypes.SelectMany(type => type.GetMethods()
+                                                           .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
+                                                                        .Where(type.GetInterfaces()
+                                                                                   .Where(intface => implementsType(intface, typeof (IHandle<>)))
+                                                                                   .SelectMany(intfs => intfs.GenericTypeArguments).Contains)
+                                                                        .Any())).ToList();
 
-            throw new NotImplementedException("Implement story subscriptions");
-            var sagers = eventsAndCommands.SelectMany(type => type.GetMethods()
-                                        .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
-                                        .Where(type.GetInterfaces().Where(intface => implementsType(intface, typeof (IStartThisStoryWhenReceive<>))).SelectMany(intfs => intfs.GenericTypeArguments).Contains).Any()));
             MapMessageHandlers(handlers);
         }
 

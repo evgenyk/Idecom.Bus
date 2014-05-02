@@ -8,7 +8,7 @@
 
     //            .OtherwiseRaise<ITiredWaitingForAReply>();
     //!!!!!!!!!!!!!!!!!!!! chaining sagas together for complex flows!!!!!!!!!!!!!!!!!
-    //!!!!!!!!!!!!!!!!!!!! SAGAS MUST BE TRANBSPARENT TO USE.
+    //!!!!!!!!!!!!!!!!!!!! SAGAS MUST BE TRANSPARENT TO USE.
     /// <summary>
     ///     Bus.Expect<SayHeelloMessage>.For(10.Seconds)
     /// </summary>
