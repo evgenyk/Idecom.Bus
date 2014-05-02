@@ -9,6 +9,7 @@
         void RouteTypes(IEnumerable<Type> types, TTarget routeTarget);
         TTarget ResolveRouteFor(Type type);
         IEnumerable<TTarget> GetDestinations();
+        void RouteType(Type type, TTarget routeTarget);
     }
 
     public class RoutingTable<TTarget> : IRoutingTable<TTarget> where TTarget : class
@@ -30,11 +31,18 @@
             }
         }
 
+        public void RouteType(Type type, TTarget routeTarget)
+        {
+            if (_routes.ContainsKey(type))
+                throw new Exception(string.Format("Can not assign type {0} to an endpoint {1} as it has already been mapped to {2}", type.FullName, routeTarget, _routes[type]));
+            _routes.Add(type, routeTarget);
+        }
+
         public TTarget ResolveRouteFor(Type type)
         {
             var route = _routes.ContainsKey(type) ? _routes[type] : default(TTarget);
             if (route == null)
-                throw new Exception(string.Format("{0} couldn't be routed to any known '{1}'", type.AssemblyQualifiedName, typeof (TTarget)));
+                throw new Exception(string.Format("{0} couldn't be routed to any known '{1}'", type.AssemblyQualifiedName, typeof(TTarget)));
             return route;
         }
 

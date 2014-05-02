@@ -1,5 +1,6 @@
 ﻿namespace Idecom.Bus.Implementations
 {
+    using System;
     using System.Collections.Generic;
     using System.Reflection;
     using Addons.PubSub;
@@ -26,6 +27,7 @@
             {
                 value.ConfigureInstance(new RoutingTable<Address>());
                 value.ConfigureInstance(new RoutingTable<MethodInfo>());
+                value.ConfigureInstance(new RoutingTable<Type>());
 
                 value.Configure<EffectiveConfiguration>(ComponentLifecycle.Singleton);
 

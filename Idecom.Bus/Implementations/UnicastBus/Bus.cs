@@ -17,6 +17,7 @@
         public IContainer Container { get; set; }
         public IRoutingTable<MethodInfo> HandlerRoutingTable { get; set; }
         public IRoutingTable<Address> MessageRoutingTable { get; set; }
+        public IRoutingTable<Type> StoryRoutingTable { get; set; }
         public IMessageSerializer Serializer { get; set; }
         public IInstanceCreator InstanceCreator { get; set; }
         public ISubscriptionDistributor SubscriptionDistributor { get; set; }
@@ -135,9 +136,16 @@
                 var handlerMethod = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
 
                 var handler = Container.Resolve(handlerMethod.DeclaringType);
+
+
+                var possibleStory = StoryRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
+                    
+                
+
+
                 handlerMethod.Invoke(handler, new[] {e.TransportMessage.Message});
             }
-            catch (Exception ex) {
+            catch (Exception) {
             }
             finally { Container.Release(currentMessageContext); }
         }
@@ -149,7 +157,7 @@
         }
 
 
-        private void ApplyHandlerMapping(IEnumerable<Type> events, IEnumerable<Type> commands, List<Type> allTypes)
+        private void ApplyHandlerMapping(IEnumerable<Type> events, IEnumerable<Type> commands, IEnumerable<Type> allTypes)
         {
             var eventsAndCommands = events.Union(commands).ToList();
 
@@ -172,14 +180,9 @@
                                                                         .Where(type.GetInterfaces()
                                                                                    .Where(intface => implementsType(intface, typeof (IHandle<>)))
                                                                                    .SelectMany(intfs => intfs.GenericTypeArguments).Contains)
-                                                                        .Any())).ToList();
+                                                                        .Any()));
 
-            MapMessageHandlers(handlers);
-        }
-
-        private void MapMessageHandlers(IEnumerable<MethodInfo> methodInfos)
-        {
-            foreach (MethodInfo methodInfo in methodInfos)
+            foreach (MethodInfo methodInfo in handlers)
             {
                 var firstParameter = methodInfo.GetParameters().FirstOrDefault();
                 if (firstParameter == null) continue;
@@ -188,6 +191,17 @@
                 var method = HandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
                 Container.Configure(method.DeclaringType, ComponentLifecycle.PerUnitOfWork);
             }
+
+
+            var messageToStoryMapping = allTypes.Where(x => x.GetInterfaces()
+                .Any(intface => implementsType(intface, typeof(IStartThisStoryWhenReceive<>))))
+            .SelectMany(type => type.GetInterfaces()
+                                      .Where(intface => implementsType(intface, typeof(IStartThisStoryWhenReceive<>)))
+                                      .Where(intfs => intfs.IsGenericType && intfs.GetGenericArguments().Any())
+                                      .Select(y => new { type, message = y.GenericTypeArguments.First() })).ToList();
+
+            messageToStoryMapping.ForEach(x => StoryRoutingTable.RouteType(x.message, x.type));
+
         }
     }
 }
