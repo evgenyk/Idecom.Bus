@@ -13,9 +13,10 @@ namespace Idecom.Bus.Transport.MongoDB
         protected MongoTransportMessageEntity()
         {
             Status = MessageProcessingStatus.AwaitingDispatch;
+            Headers = new Dictionary<string, string>();
         }
 
-        public MongoTransportMessageEntity(Address sourceAddress, Address targetAddress, MessageIntent intent, string serializedMessage, Type messageType)
+        public MongoTransportMessageEntity(Address sourceAddress, Address targetAddress, MessageIntent intent, string serializedMessage, Type messageType) : this()
         {
             SourceAddress = sourceAddress.ToMongoAddress();
             TargetAddress = targetAddress.ToMongoAddress();

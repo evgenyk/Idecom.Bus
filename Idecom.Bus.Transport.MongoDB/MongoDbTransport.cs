@@ -55,7 +55,7 @@
             if (currentMessageContext == null)
                 _sender.Send(message, LocalAddress, targetAddress, intent, type);
             else
-                currentMessageContext.DelayedSend(() => _sender.Send(message, LocalAddress, targetAddress, intent, type));
+                currentMessageContext.DelayedSend(message, LocalAddress, targetAddress, intent, type);
         }
 
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;

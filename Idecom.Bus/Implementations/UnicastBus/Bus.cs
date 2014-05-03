@@ -136,10 +136,9 @@
                 var handlerMethod = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
 
                 var handler = Container.Resolve(handlerMethod.DeclaringType);
-
-
-                var possibleStory = StoryRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
-                    
+                
+                var storyClass = StoryRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
+                if (storyClass != null) { currentMessageContext.StartSaga(); }
                 
 
 
@@ -152,8 +151,9 @@
 
         private void TransportOnTransportMessageFinished(object sender, TransportMessageFinishedEventArgs transportMessageFinishedEventArgs)
         {
-            foreach (Action action in CurrentMessageContextInternal().DelayedActions)
-                action();
+            var currentMessageContext = CurrentMessageContextInternal();
+            foreach (var action in currentMessageContext.DelayedActions)
+                Transport.Send(action.Message, action.TargetAddress, action.Intent, null, action.MessageType);
         }
 
 

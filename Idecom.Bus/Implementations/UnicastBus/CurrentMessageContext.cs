@@ -1,3 +1,5 @@
+using Idecom.Bus.Addressing;
+
 namespace Idecom.Bus.Implementations.UnicastBus
 {
     using System;
@@ -7,14 +9,15 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
     public class CurrentMessageContext : IMessageContext
     {
-        private readonly IList<Action> _delayedActions;
+        private readonly Queue<DelayedSend> _delayedActions;
+        private Guid _sagaId;
 
         public CurrentMessageContext()
         {
-            _delayedActions = new List<Action>();
+            _delayedActions = new Queue<DelayedSend>();
         }
 
-        public IEnumerable<Action> DelayedActions
+        public Queue<DelayedSend> DelayedActions
         {
             get { return _delayedActions; }
         }
@@ -24,9 +27,34 @@ namespace Idecom.Bus.Implementations.UnicastBus
         public int Attempt { get; set; }
         public int MaxAttempts { get; set; }
 
-        public void DelayedSend(Action action)
+        public void DelayedSend(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType)
         {
-            _delayedActions.Add(action);
+            _delayedActions.Enqueue(new DelayedSend(message, sourceAddress, targetAddress, intent, messageType, _sagaId));
+        }
+
+        public void StartSaga()
+        {
+            _sagaId = Guid.NewGuid();
+        }
+    }
+
+    public class DelayedSend
+    {
+        public object Message { get; set; }
+        public Address SourceAddress { get; set; }
+        public Address TargetAddress { get; set; }
+        public MessageIntent Intent { get; set; }
+        public Type MessageType { get; set; }
+        public Guid SagaId { get; set; }
+
+        public DelayedSend(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType, Guid sagaId)
+        {
+            Message = message;
+            SourceAddress = sourceAddress;
+            TargetAddress = targetAddress;
+            Intent = intent;
+            MessageType = messageType;
+            SagaId = sagaId;
         }
     }
 }

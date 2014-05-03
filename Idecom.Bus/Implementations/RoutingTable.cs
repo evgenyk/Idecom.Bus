@@ -41,8 +41,6 @@
         public TTarget ResolveRouteFor(Type type)
         {
             var route = _routes.ContainsKey(type) ? _routes[type] : default(TTarget);
-            if (route == null)
-                throw new Exception(string.Format("{0} couldn't be routed to any known '{1}'", type.AssemblyQualifiedName, typeof(TTarget)));
             return route;
         }
 
