@@ -10,11 +10,12 @@ namespace Idecom.Bus.Implementations.UnicastBus
     public class CurrentMessageContext : IMessageContext
     {
         private readonly Queue<DelayedSend> _delayedActions;
-        private Guid _sagaId;
+        private Dictionary<string, string> _systemHeaders;
 
         public CurrentMessageContext()
         {
             _delayedActions = new Queue<DelayedSend>();
+            _systemHeaders = new Dictionary<string, string>();
         }
 
         public Queue<DelayedSend> DelayedActions
@@ -29,12 +30,12 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
         public void DelayedSend(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType)
         {
-            _delayedActions.Enqueue(new DelayedSend(message, sourceAddress, targetAddress, intent, messageType, _sagaId));
+            _delayedActions.Enqueue(new DelayedSend(message, sourceAddress, targetAddress, intent, messageType, _systemHeaders));
         }
 
         public void StartSaga()
         {
-            _sagaId = Guid.NewGuid();
+            _systemHeaders["SAGA_ID"] = Guid.NewGuid().ToString();
         }
     }
 
