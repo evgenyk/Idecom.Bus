@@ -16,12 +16,13 @@ namespace Idecom.Bus.Transport.MongoDB
             Headers = new Dictionary<string, string>();
         }
 
-        public MongoTransportMessageEntity(Address sourceAddress, Address targetAddress, MessageIntent intent, string serializedMessage, Type messageType) : this()
+        public MongoTransportMessageEntity(Address sourceAddress, Address targetAddress, MessageIntent intent, string serializedMessage, Type messageType, Dictionary<string, string> headers) : this()
         {
             SourceAddress = sourceAddress.ToMongoAddress();
             TargetAddress = targetAddress.ToMongoAddress();
             Intent = intent;
             SerializedMessage = serializedMessage;
+            Headers = headers;
             MessageType = messageType.FullName;
             SentTimeUtc = DateTime.UtcNow;
         }

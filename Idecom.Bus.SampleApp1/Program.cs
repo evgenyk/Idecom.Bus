@@ -1,4 +1,7 @@
-﻿namespace Idecom.Bus.SampleApp1
+﻿using System.ComponentModel;
+using Idecom.Bus.Implementations.UnicastBus;
+
+namespace Idecom.Bus.SampleApp1
 {
     using System;
     using Castle.Windsor;
@@ -22,6 +25,7 @@
                                        .PubSub("mongodb://localhost", "messageHub")
                                        .CreateBus("app1")
                                        .Start();
+
 
 //            bus1.SendLocal(new SayHelloCommand("Hello local 1"));
 //            bus1.Send(new SayHelloCommand("Hello local 2"));

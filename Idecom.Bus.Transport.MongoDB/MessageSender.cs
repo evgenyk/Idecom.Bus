@@ -1,4 +1,6 @@
-﻿namespace Idecom.Bus.Transport.MongoDB
+﻿using System.Collections.Generic;
+
+namespace Idecom.Bus.Transport.MongoDB
 {
     using System;
     using Addressing;
@@ -27,7 +29,7 @@
             get { return _isStarted; }
         }
 
-        public void Send(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType)
+        public void Send(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType, Dictionary<string, string> headers)
         {
             if (!_isStarted)
                 throw new Exception("Can not send messages while sender stopped.");
@@ -35,7 +37,7 @@
             var targetCollection = _database.GetCollection<MongoTransportMessageEntity>(targetAddress.ToString());
             var type = messageType ?? message.GetType();
 
-            var mongoMessage = new MongoTransportMessageEntity(sourceAddress, targetAddress, intent, _serializer.Serialize(message), type);
+            var mongoMessage = new MongoTransportMessageEntity(sourceAddress, targetAddress, intent, _serializer.Serialize(message), type, headers);
             targetCollection.Insert(mongoMessage, WriteConcern.Acknowledged);
         }
 

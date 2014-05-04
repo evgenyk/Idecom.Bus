@@ -9,18 +9,21 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
     public class CurrentMessageContext : IMessageContext
     {
-        private readonly Queue<DelayedSend> _delayedActions;
-        private Dictionary<string, string> _systemHeaders;
+        private readonly Queue<DelayedSend> _delayedSends;
+        private readonly Dictionary<string, string> _headers;
 
         public CurrentMessageContext()
         {
-            _delayedActions = new Queue<DelayedSend>();
-            _systemHeaders = new Dictionary<string, string>();
+            _delayedSends = new Queue<DelayedSend>();
+            _headers = new Dictionary<string, string>();
         }
 
-        public Queue<DelayedSend> DelayedActions
+        public Queue<DelayedSend> DelayedSends
         {
-            get { return _delayedActions; }
+            get
+            {
+                return _delayedSends;
+            }
         }
 
         public TransportMessage TransportMessage { get; set; }
@@ -28,14 +31,19 @@ namespace Idecom.Bus.Implementations.UnicastBus
         public int Attempt { get; set; }
         public int MaxAttempts { get; set; }
 
+        public Dictionary<string, string> Headers
+        {
+            get { return _headers; }
+        }
+
         public void DelayedSend(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType)
         {
-            _delayedActions.Enqueue(new DelayedSend(message, sourceAddress, targetAddress, intent, messageType, _systemHeaders));
+            _delayedSends.Enqueue(new DelayedSend(message, sourceAddress, targetAddress, intent, messageType));
         }
 
         public void StartSaga()
         {
-            _systemHeaders["SAGA_ID"] = Guid.NewGuid().ToString();
+            _headers["SAGAID"] = Guid.NewGuid().ToString();
         }
     }
 
@@ -46,16 +54,14 @@ namespace Idecom.Bus.Implementations.UnicastBus
         public Address TargetAddress { get; set; }
         public MessageIntent Intent { get; set; }
         public Type MessageType { get; set; }
-        public Guid SagaId { get; set; }
 
-        public DelayedSend(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType, Guid sagaId)
+        public DelayedSend(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType)
         {
             Message = message;
             SourceAddress = sourceAddress;
             TargetAddress = targetAddress;
             Intent = intent;
             MessageType = messageType;
-            SagaId = sagaId;
         }
     }
 }

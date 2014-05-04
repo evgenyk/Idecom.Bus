@@ -152,7 +152,7 @@
         private void TransportOnTransportMessageFinished(object sender, TransportMessageFinishedEventArgs transportMessageFinishedEventArgs)
         {
             var currentMessageContext = CurrentMessageContextInternal();
-            foreach (var action in currentMessageContext.DelayedActions)
+            foreach (var action in currentMessageContext.DelayedSends)
                 Transport.Send(action.Message, action.TargetAddress, action.Intent, null, action.MessageType);
         }
 

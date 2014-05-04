@@ -53,6 +53,7 @@
             Container.ConfigureInstance(new Address(queueName));
 
             var bus = Container.Resolve<IBusInstance>();
+
             Container.ParentContainer.ConfigureInstance(bus);
             Container.Release(bus);
             return bus;
