@@ -1,4 +1,5 @@
 using Idecom.Bus.Addressing;
+using Idecom.Bus.Utility;
 
 namespace Idecom.Bus.Implementations.UnicastBus
 {
@@ -36,32 +37,31 @@ namespace Idecom.Bus.Implementations.UnicastBus
             get { return _headers; }
         }
 
-        public void DelayedSend(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType)
+        public void DelayedSend(TransportMessage transportMessage)
         {
-            _delayedSends.Enqueue(new DelayedSend(message, sourceAddress, targetAddress, intent, messageType));
+            _delayedSends.Enqueue(new DelayedSend(transportMessage));
         }
 
         public void StartSaga()
         {
-            _headers["SAGAID"] = Guid.NewGuid().ToString();
+            _headers[SystemHeaders.SAGA_ID] = Guid.NewGuid().ToString();
+        }
+
+        public void ResumeSaga(string sagaId)
+        {
+            if (_headers.ContainsKey(SystemHeaders.SAGA_ID))
+                throw new Exception("Seem like we tried to resume saga when one was already running. This might indicate a bug in Idecom.Bus.");
+            _headers[SystemHeaders.SAGA_ID] = sagaId;
         }
     }
 
     public class DelayedSend
     {
-        public object Message { get; set; }
-        public Address SourceAddress { get; set; }
-        public Address TargetAddress { get; set; }
-        public MessageIntent Intent { get; set; }
-        public Type MessageType { get; set; }
-
-        public DelayedSend(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType)
+        public DelayedSend(TransportMessage transportMessage)
         {
-            Message = message;
-            SourceAddress = sourceAddress;
-            TargetAddress = targetAddress;
-            Intent = intent;
-            MessageType = messageType;
+            TransportMessage = transportMessage;
         }
+
+        public TransportMessage TransportMessage { get; set; }
     }
 }

@@ -22,7 +22,7 @@ namespace Idecom.Bus.Transport.MongoDB
             TargetAddress = targetAddress.ToMongoAddress();
             Intent = intent;
             SerializedMessage = serializedMessage;
-            Headers = headers;
+            Headers = new Dictionary<string, string>(headers ?? new Dictionary<string, string>());
             MessageType = messageType.FullName;
             SentTimeUtc = DateTime.UtcNow;
         }

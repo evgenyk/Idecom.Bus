@@ -29,15 +29,16 @@ namespace Idecom.Bus.Transport.MongoDB
             get { return _isStarted; }
         }
 
-        public void Send(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType, Dictionary<string, string> headers)
+        public void Send(TransportMessage transportMessage)
         {
             if (!_isStarted)
                 throw new Exception("Can not send messages while sender stopped.");
 
-            var targetCollection = _database.GetCollection<MongoTransportMessageEntity>(targetAddress.ToString());
-            var type = messageType ?? message.GetType();
+            var targetCollection = _database.GetCollection<MongoTransportMessageEntity>(transportMessage.TargetAddress.ToString());
+            var type = transportMessage.MessageType ?? transportMessage.Message.GetType();
 
-            var mongoMessage = new MongoTransportMessageEntity(sourceAddress, targetAddress, intent, _serializer.Serialize(message), type, headers);
+
+            var mongoMessage = new MongoTransportMessageEntity(transportMessage.SourceAddress, transportMessage.TargetAddress, transportMessage.Intent, _serializer.Serialize(transportMessage.Message), type, transportMessage.Headers);
             targetCollection.Insert(mongoMessage, WriteConcern.Acknowledged);
         }
 

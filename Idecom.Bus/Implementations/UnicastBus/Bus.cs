@@ -17,7 +17,7 @@
         public IContainer Container { get; set; }
         public IRoutingTable<MethodInfo> HandlerRoutingTable { get; set; }
         public IRoutingTable<Address> MessageRoutingTable { get; set; }
-        public IRoutingTable<Type> StoryRoutingTable { get; set; }
+        public IRoutingTable<Type> SagaRoutingTable { get; set; }
         public IMessageSerializer Serializer { get; set; }
         public IInstanceCreator InstanceCreator { get; set; }
         public ISubscriptionDistributor SubscriptionDistributor { get; set; }
@@ -86,12 +86,13 @@
 
         public void Send(object message)
         {
-            ExecuteOnlyWhenStarted(() => Transport.Send(message, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send, CurrentMessageContextInternal()));
+
+            ExecuteOnlyWhenStarted(() => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send), CurrentMessageContextInternal()));
         }
 
         public void SendLocal(object message)
         {
-            ExecuteOnlyWhenStarted(() => Transport.Send(message, LocalAddress, MessageIntent.Send, CurrentMessageContextInternal()));
+            ExecuteOnlyWhenStarted(() => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.SendLocal), CurrentMessageContextInternal()));
         }
 
         public void Reply(object message)
@@ -99,7 +100,7 @@
             if (LocalAddress.Equals(CurrentMessageContext.TransportMessage.SourceAddress))
                 throw new Exception("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: " + CurrentMessageContext.TransportMessage.SourceAddress);
 
-            ExecuteOnlyWhenStarted(() => Transport.Send(message, CurrentMessageContext.TransportMessage.SourceAddress, MessageIntent.Send, CurrentMessageContextInternal()));
+            ExecuteOnlyWhenStarted(() => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Reply), CurrentMessageContextInternal()));
         }
 
         public void Raise<T>(Action<T> action) where T : class
@@ -137,10 +138,9 @@
 
                 var handler = Container.Resolve(handlerMethod.DeclaringType);
                 
-                var storyClass = StoryRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
+                var storyClass = SagaRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
                 if (storyClass != null) { currentMessageContext.StartSaga(); }
-                
-
+                if (currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID)) { currentMessageContext.ResumeSaga(currentMessageContext.TransportMessage.Headers[SystemHeaders.SAGA_ID]); }
 
                 handlerMethod.Invoke(handler, new[] {e.TransportMessage.Message});
             }
@@ -152,8 +152,15 @@
         private void TransportOnTransportMessageFinished(object sender, TransportMessageFinishedEventArgs transportMessageFinishedEventArgs)
         {
             var currentMessageContext = CurrentMessageContextInternal();
+
             foreach (var action in currentMessageContext.DelayedSends)
-                Transport.Send(action.Message, action.TargetAddress, action.Intent, null, action.MessageType);
+            {
+                //Track the saga through handlers
+                if (currentMessageContext.Headers.ContainsKey(SystemHeaders.SAGA_ID)) {
+                    action.TransportMessage.Headers[SystemHeaders.SAGA_ID] = currentMessageContext.Headers[SystemHeaders.SAGA_ID];
+                }
+                Transport.Send(action.TransportMessage);
+            }
         }
 
 
@@ -194,13 +201,13 @@
 
 
             var messageToStoryMapping = allTypes.Where(x => x.GetInterfaces()
-                .Any(intface => implementsType(intface, typeof(IStartThisStoryWhenReceive<>))))
+                .Any(intface => implementsType(intface, typeof(IStartThisSagaWhenReceive<>))))
             .SelectMany(type => type.GetInterfaces()
-                                      .Where(intface => implementsType(intface, typeof(IStartThisStoryWhenReceive<>)))
+                                      .Where(intface => implementsType(intface, typeof(IStartThisSagaWhenReceive<>)))
                                       .Where(intfs => intfs.IsGenericType && intfs.GetGenericArguments().Any())
                                       .Select(y => new { type, message = y.GenericTypeArguments.First() })).ToList();
 
-            messageToStoryMapping.ForEach(x => StoryRoutingTable.RouteType(x.message, x.type));
+            messageToStoryMapping.ForEach(x => SagaRoutingTable.RouteType(x.message, x.type));
 
         }
     }

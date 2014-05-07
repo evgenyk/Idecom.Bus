@@ -19,7 +19,7 @@
             var subscribers = Storage.GetSubscribersFor<T>();
             
             foreach (var subscriber in subscribers)
-                Transport.Send(message, subscriber, MessageIntent.Publish, currentMessageContext, typeof(T));
+                Transport.Send(new TransportMessage(message, LocalAddress, subscriber, MessageIntent.Publish, typeof(T)), currentMessageContext);
         }
 
         public void SubscribeTo(IEnumerable<Type> events)

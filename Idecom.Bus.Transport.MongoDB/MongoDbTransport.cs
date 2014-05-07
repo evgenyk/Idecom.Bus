@@ -50,12 +50,12 @@
             _receiver.ChangeWorkersCount(workers);
         }
 
-        public void Send(object message, Address targetAddress, MessageIntent intent, CurrentMessageContext currentMessageContext, Type type)
+        public void Send(TransportMessage transportMessage, CurrentMessageContext currentMessageContext = null)
         {
             if (currentMessageContext == null)
-                _sender.Send(message, LocalAddress, targetAddress, intent, type);
+                _sender.Send(transportMessage);
             else
-                currentMessageContext.DelayedSend(message, LocalAddress, targetAddress, intent, type);
+                currentMessageContext.DelayedSend(transportMessage);
         }
 
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;

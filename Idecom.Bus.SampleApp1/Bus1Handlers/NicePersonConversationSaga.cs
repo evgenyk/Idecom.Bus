@@ -12,8 +12,8 @@
     /// <summary>
     ///     Bus.Expect<SayHeelloMessage>.For(10.Seconds)
     /// </summary>
-    public class NicePersonConversationStory : Story<NicePersonConversationState>,
-                                               IStartThisStoryWhenReceive<IMetAFriendEvent>,
+    public class NicePersonConversationSaga : Saga<NicePersonConversationState>,
+                                               IStartThisSagaWhenReceive<IMetAFriendEvent>,
                                                IHandle<SayHelloCommand>,
                                                ITimeoutFor<ITiredWaitingForAReply>
     {
@@ -21,13 +21,16 @@
         {
             Console.WriteLine("Said goodbuy");
             Bus.Reply(new SayGoodByeCommand("See you"));
-            CloseStory();
+            CloseSaga();
         }
 
         public void Handle(IMetAFriendEvent command)
         {
             Console.WriteLine("Met a friend");
-            Bus.Send(new SayHelloCommand("Hi"));
+            
+            var sayHelloCommand = new SayHelloCommand("Hi");
+            
+            Bus.Send(sayHelloCommand);
         }
 
         public void HandleTimeout(ITiredWaitingForAReply timeout)
@@ -45,7 +48,7 @@
         void HandleTimeout(T timeout);
     }
 
-    public class NicePersonConversationState : IStoryState
+    public class NicePersonConversationState : ISagaState
     {
     }
 }
