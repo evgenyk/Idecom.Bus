@@ -24,6 +24,8 @@
         public ITransport Transport { get; set; }
         public Address LocalAddress { get; set; }
         public IEffectiveConfiguration EffectiveConfiguration { get; set; }
+        public ISagaStorage SagaStorage { get; set; }
+
 
         public IMessageContext CurrentMessageContext
         {
@@ -137,11 +139,26 @@
                 var handlerMethod = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
 
                 var handler = Container.Resolve(handlerMethod.DeclaringType);
-                
-                var storyClass = SagaRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
-                if (storyClass != null) { currentMessageContext.StartSaga(); }
-                if (currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID)) { currentMessageContext.ResumeSaga(currentMessageContext.TransportMessage.Headers[SystemHeaders.SAGA_ID]); }
 
+                var sagaClass = SagaRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
+                if (sagaClass != null)
+                {
+                    var stateClass = sagaClass.BaseType.GenericTypeArguments.FirstOrDefault();
+
+                    if (currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID))
+                    {
+                        var existingSagaId = currentMessageContext.TransportMessage.Headers[SystemHeaders.SAGA_ID];
+                        //var saga = SagaStorage.GetById(existingSagaId);
+                        currentMessageContext.ResumeSaga(existingSagaId);
+                    }
+                    else
+                    {
+                        currentMessageContext.StartSaga();
+                        //var saga = SagaStorage
+                    }
+                }
+
+                
                 handlerMethod.Invoke(handler, new[] {e.TransportMessage.Message});
             }
             catch (Exception) {
