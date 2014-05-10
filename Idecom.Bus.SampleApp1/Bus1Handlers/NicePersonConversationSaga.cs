@@ -27,10 +27,9 @@
         public void Handle(IMetAFriendEvent command)
         {
             Console.WriteLine("Met a friend");
-            
             var sayHelloCommand = new SayHelloCommand("Hi");
-            
             Bus.Send(sayHelloCommand);
+            State.FriendSaidHello = true;
         }
 
         public void HandleTimeout(ITiredWaitingForAReply timeout)
@@ -50,5 +49,8 @@
 
     public class NicePersonConversationState : ISagaState
     {
+        public bool FriendSaidHello { get; set; }
+        public bool RepliedBackWithHello { get; set; }
+
     }
 }

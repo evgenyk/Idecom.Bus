@@ -4,7 +4,7 @@
 
     public interface ISaga<out TState> where TState : ISagaState
     {
-        TState SagaState { get; }
+        TState State { get; }
     }
 
     public abstract class SagaState : ISagaState

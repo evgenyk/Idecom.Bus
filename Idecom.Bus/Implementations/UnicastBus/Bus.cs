@@ -136,30 +136,34 @@
                 currentMessageContext.TransportMessage = e.TransportMessage;
                 currentMessageContext.Attempt = e.Attempt;
                 currentMessageContext.MaxAttempts = e.MaxRetries + 1;
-                var handlerMethod = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
 
+                var handlerMethod = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
                 var handler = Container.Resolve(handlerMethod.DeclaringType);
 
                 var sagaClass = SagaRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
                 if (sagaClass != null)
                 {
-                    var stateClass = sagaClass.BaseType.GenericTypeArguments.FirstOrDefault();
-
+                    var sagaStateClass = sagaClass.BaseType.GenericTypeArguments.FirstOrDefault();
                     if (currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID))
                     {
                         var existingSagaId = currentMessageContext.TransportMessage.Headers[SystemHeaders.SAGA_ID];
-                        //var saga = SagaStorage.GetById(existingSagaId);
                         currentMessageContext.ResumeSaga(existingSagaId);
                     }
                     else
                     {
                         currentMessageContext.StartSaga();
-                        //var saga = SagaStorage
+                        var sagaStateInstance = InstanceCreator.CreateInstanceOf(sagaStateClass);
+
+                        var state = handler.GetType().GetProperty("State");
+                        state.SetValue(handler, sagaStateInstance);
+
                     }
                 }
 
-                
+
                 handlerMethod.Invoke(handler, new[] {e.TransportMessage.Message});
+
+
             }
             catch (Exception) {
             }
