@@ -1,16 +1,17 @@
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace Idecom.Bus.PubSub.MongoDB
 {
-    using global::MongoDB.Bson;
-
     public class SubscriptionStorageEntity
     {
-        [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("_id")]
+        [BsonElement("_id")]
         public BsonObjectId Id { get; set; }
 
-        [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("mt")]
+        [BsonElement("mt")]
         public string MessageType { get; set; }
 
-        [global::MongoDB.Bson.Serialization.Attributes.BsonElementAttribute("se")]
+        [BsonElement("se")]
         public string SubscriberAddress { get; set; }
     }
 }

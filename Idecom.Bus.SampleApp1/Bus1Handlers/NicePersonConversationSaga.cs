@@ -29,7 +29,7 @@
             Console.WriteLine("Met a friend");
             var sayHelloCommand = new SayHelloCommand("Hi");
             Bus.Send(sayHelloCommand);
-            State.FriendSaidHello = true;
+            Data.FriendSaidHello = true;
         }
 
         public void HandleTimeout(ITiredWaitingForAReply timeout)

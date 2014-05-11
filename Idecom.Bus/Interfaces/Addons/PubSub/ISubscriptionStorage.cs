@@ -10,9 +10,4 @@
         void Subscribe(Address subscriber, Type type);
         void Unsubscribe<T>(Address subscriber) where T : class;
     }
-
-    public interface ISagaStorage
-    {
-
-    }
 }

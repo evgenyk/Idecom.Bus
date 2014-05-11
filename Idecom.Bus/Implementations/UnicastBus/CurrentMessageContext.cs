@@ -1,13 +1,11 @@
-using Idecom.Bus.Addressing;
+using System;
+using System.Collections.Generic;
+using Idecom.Bus.Interfaces;
+using Idecom.Bus.Transport;
 using Idecom.Bus.Utility;
 
 namespace Idecom.Bus.Implementations.UnicastBus
 {
-    using System;
-    using System.Collections.Generic;
-    using Interfaces;
-    using Transport;
-
     public class CurrentMessageContext : IMessageContext
     {
         private readonly Queue<DelayedSend> _delayedSends;
@@ -21,10 +19,12 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
         public Queue<DelayedSend> DelayedSends
         {
-            get
-            {
-                return _delayedSends;
-            }
+            get { return _delayedSends; }
+        }
+
+        public Dictionary<string, string> Headers
+        {
+            get { return _headers; }
         }
 
         public TransportMessage TransportMessage { get; set; }
@@ -32,19 +32,16 @@ namespace Idecom.Bus.Implementations.UnicastBus
         public int Attempt { get; set; }
         public int MaxAttempts { get; set; }
 
-        public Dictionary<string, string> Headers
-        {
-            get { return _headers; }
-        }
-
         public void DelayedSend(TransportMessage transportMessage)
         {
             _delayedSends.Enqueue(new DelayedSend(transportMessage));
         }
 
-        public void StartSaga()
+        public string StartSaga()
         {
-            _headers[SystemHeaders.SAGA_ID] = Guid.NewGuid().ToString();
+            var sagaId = ShortGuid.NewGuid();
+            _headers[SystemHeaders.SAGA_ID] = sagaId;
+            return sagaId;
         }
 
         public void ResumeSaga(string sagaId)

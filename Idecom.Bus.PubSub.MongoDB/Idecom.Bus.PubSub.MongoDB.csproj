@@ -47,8 +47,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BootstrapPubSub.cs" />
+    <Compile Include="BootstrapMongoDbPubSub.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SagaStorage.cs" />
+    <Compile Include="SagaStorageEntity.cs" />
     <Compile Include="SubscriptionStorage.cs" />
     <Compile Include="SubscriptionStorageEntity.cs" />
   </ItemGroup>

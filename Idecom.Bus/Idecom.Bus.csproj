@@ -57,6 +57,7 @@
     <Compile Include="Implementations\Saga.cs" />
     <Compile Include="Implementations\UnicastBus\Bus.cs" />
     <Compile Include="Implementations\UnicastBus\CurrentMessageContext.cs" />
+    <Compile Include="Interfaces\Addons\PubSub\ISagaStorage.cs" />
     <Compile Include="Interfaces\Addons\PubSub\ISubscriptionDistributor.cs" />
     <Compile Include="Interfaces\Addons\PubSub\ISubscriptionStorage.cs" />
     <Compile Include="Interfaces\Addons\Stories\ISaga.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="Utility\ApplicationIdGenerator.cs" />
     <Compile Include="Utility\InterfaceImplementor.cs" />
     <Compile Include="Utility\Reflect.cs" />
+    <Compile Include="Utility\ShortGuid.cs" />
     <Compile Include="Utility\SystemHeaders.cs" />
     <Compile Include="Utility\TypeResolver.cs" />
   </ItemGroup>

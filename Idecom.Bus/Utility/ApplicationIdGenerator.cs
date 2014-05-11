@@ -18,7 +18,7 @@
         /// </summary>
         /// <returns></returns>
         [DebuggerNonUserCode] //so that exceptions don't jump at the developer debugging their app
-        public static string GenerateIdId()
+        public static string GenerateId()
         {
             if (_machineIdCache != null)
                 return _machineIdCache;

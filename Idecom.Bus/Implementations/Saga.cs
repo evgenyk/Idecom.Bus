@@ -3,10 +3,10 @@
     using Interfaces;
     using Interfaces.Addons.Stories;
 
-    public abstract class Saga<TState> : ISaga<TState> where TState : ISagaState
+    public abstract class Saga<TSagaState> : ISaga<TSagaState> where TSagaState : ISagaState
     {
         public IBus Bus { get; set; }
-        public TState State { get; set; }
+        public TSagaState Data { get; set; }
 
         public void CloseSaga()
         {

@@ -70,7 +70,7 @@
                 var mongoCollection = _database.GetCollection(collectionName);
                 const string dequeueIndexName = "Stataus_Id";
                 if (!mongoCollection.IndexExists(dequeueIndexName))
-                    mongoCollection.EnsureIndex(IndexKeys<MongoTransportMessageEntity>.Ascending(x => x.Id).Ascending(x => x.Status), IndexOptions.SetName(dequeueIndexName));
+                    mongoCollection.CreateIndex(IndexKeys<MongoTransportMessageEntity>.Ascending(x => x.Id).Ascending(x => x.Status), IndexOptions.SetName(dequeueIndexName));
             }
         }
 

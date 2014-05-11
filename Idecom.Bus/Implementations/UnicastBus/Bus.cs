@@ -139,30 +139,38 @@
 
                 var handlerMethod = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
                 var handler = Container.Resolve(handlerMethod.DeclaringType);
+                Action executeHandler = () => handlerMethod.Invoke(handler, new[] { e.TransportMessage.Message });
 
                 var sagaClass = SagaRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
-                if (sagaClass != null)
+                var inSaga = sagaClass != null || currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID);
+                if (inSaga)
                 {
-                    var sagaStateClass = sagaClass.BaseType.GenericTypeArguments.FirstOrDefault();
+                    object sagaData = null;
+                    string sagaId;
                     if (currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID))
                     {
-                        var existingSagaId = currentMessageContext.TransportMessage.Headers[SystemHeaders.SAGA_ID];
-                        currentMessageContext.ResumeSaga(existingSagaId);
+                        sagaId = currentMessageContext.TransportMessage.Headers[SystemHeaders.SAGA_ID];
+                        currentMessageContext.ResumeSaga(sagaId);
+                        sagaData = SagaStorage.Get(sagaId);
                     }
                     else
                     {
-                        currentMessageContext.StartSaga();
-                        var sagaStateInstance = InstanceCreator.CreateInstanceOf(sagaStateClass);
-
-                        var state = handler.GetType().GetProperty("State");
-                        state.SetValue(handler, sagaStateInstance);
-
+                        var sagaStateClass = sagaClass.BaseType.GenericTypeArguments.FirstOrDefault();
+                        sagaId = currentMessageContext.StartSaga();
+                        sagaData = InstanceCreator.CreateInstanceOf(sagaStateClass);
+                        var sagaDataProperty = handler.GetType().GetProperty("Data");
+                        sagaDataProperty.SetValue(handler, sagaData);
                     }
+
+                    try
+                    {
+                        executeHandler();
+                    }
+                    finally { SagaStorage.Update(sagaId, sagaData); }
+
                 }
-
-
-                handlerMethod.Invoke(handler, new[] {e.TransportMessage.Message});
-
+                else
+                { executeHandler(); }
 
             }
             catch (Exception) {

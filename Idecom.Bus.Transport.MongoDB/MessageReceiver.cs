@@ -43,7 +43,7 @@ namespace Idecom.Bus.Transport.MongoDB
         {
             _stopReaderThread = false;
 
-            ReturnUnfinishedMessagesToQueue(ApplicationIdGenerator.GenerateIdId());
+            ReturnUnfinishedMessagesToQueue(ApplicationIdGenerator.GenerateId());
             
             _scheduler = new MaxWorkersTaskScheduler(_workersCount);
             _queueReaderThread = new Thread(() =>
@@ -112,7 +112,7 @@ namespace Idecom.Bus.Transport.MongoDB
         private MongoTransportMessageEntity ReceiveTransportMessageFromQueue()
         {
             var query = Query<MongoTransportMessageEntity>.EQ(x => x.Status, MessageProcessingStatus.AwaitingDispatch);
-            var update = Update<MongoTransportMessageEntity>.Set(x => x.Status, MessageProcessingStatus.ReceivedByConsumer).Set(x => x.ReceivedBy, ApplicationIdGenerator.GenerateIdId()).Set(x => x.ReceiveTimeUtc, DateTime.UtcNow);
+            var update = Update<MongoTransportMessageEntity>.Set(x => x.Status, MessageProcessingStatus.ReceivedByConsumer).Set(x => x.ReceivedBy, ApplicationIdGenerator.GenerateId()).Set(x => x.ReceiveTimeUtc, DateTime.UtcNow);
 
             var transportMessages = _localCollection.FindAndModify(query, SortBy.Null, update, true);
 

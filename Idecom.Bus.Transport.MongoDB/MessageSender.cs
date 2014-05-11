@@ -38,7 +38,8 @@ namespace Idecom.Bus.Transport.MongoDB
             var type = transportMessage.MessageType ?? transportMessage.Message.GetType();
 
 
-            var mongoMessage = new MongoTransportMessageEntity(transportMessage.SourceAddress, transportMessage.TargetAddress, transportMessage.Intent, _serializer.Serialize(transportMessage.Message), type, transportMessage.Headers);
+            var serializedMessage = _serializer.Serialize(transportMessage.Message);
+            var mongoMessage = new MongoTransportMessageEntity(transportMessage.SourceAddress, transportMessage.TargetAddress, transportMessage.Intent, serializedMessage, type, transportMessage.Headers);
             targetCollection.Insert(mongoMessage, WriteConcern.Acknowledged);
         }
 

@@ -24,8 +24,8 @@
 
         public void BeforeBusStopped()
         {
+            _collection.Database.Server.Disconnect();
         }
-
 
         public IEnumerable<Address> GetSubscribersFor<T>() where T : class
         {
