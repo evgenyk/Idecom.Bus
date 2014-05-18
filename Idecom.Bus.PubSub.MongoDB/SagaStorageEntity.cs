@@ -8,10 +8,7 @@ namespace Idecom.Bus.PubSub.MongoDB
         [BsonElement("_id")]
         public string Id { get; set; }
 
-        [BsonElement("dt")]
-        public string DataType { get; set; }
-
         [BsonElement("d")]
-        public string Data { get; set; }
+        public object Data { get; set; }
     }
 }
