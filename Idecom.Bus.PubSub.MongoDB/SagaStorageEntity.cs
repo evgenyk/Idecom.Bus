@@ -5,6 +5,12 @@ namespace Idecom.Bus.PubSub.MongoDB
 {
     public class SagaStorageEntity
     {
+        public SagaStorageEntity(string id, object data)
+        {
+            Id = id;
+            Data = data;
+        }
+
         [BsonElement("_id")]
         public string Id { get; set; }
 

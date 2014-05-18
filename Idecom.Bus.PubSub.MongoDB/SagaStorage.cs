@@ -2,6 +2,7 @@
 using Idecom.Bus.Interfaces;
 using Idecom.Bus.Interfaces.Addons.PubSub;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
@@ -24,25 +25,34 @@ namespace Idecom.Bus.PubSub.MongoDB
             _collection.Database.Server.Disconnect();
         }
 
-        void ISagaStorage.Update(string sagaId, object sagaData)
+        public void Update(string sagaId, object sagaData)
         {
-            var query = Query<SagaStorageEntity>.EQ(x => x.Id, sagaId);
-            var update = Update<SagaStorageEntity>
-                .Set(x => x.Data, sagaData);
-            var setType = Update.Set("d._t", sagaData.GetType().Name);
+//            var lookupClassMap = BsonClassMap.LookupClassMap(sagaData.GetType());
+//            lookupClassMap.SetDiscriminatorIsRequired(true);
+//            lookupClassMap.SetDiscriminator(sagaData.GetType().Name);
+//            BsonClassMap.RegisterClassMap(lookupClassMap);
 
+            var heh = BsonClassMap.GetRegisteredClassMaps();
+            _collection.Insert(new SagaStorageEntity(sagaId, sagaData));
 
-            var bulkOperation = _collection.InitializeOrderedBulkOperation();
-            bulkOperation.Find(query).Upsert().UpdateOne(update);
-            bulkOperation.Find(query).Upsert().UpdateOne(setType);
-
-            BsonClassMap.RegisterClassMap<NiceCo>();
-
-            bulkOperation.Execute(WriteConcern.Acknowledged);
+//            var query = Query<SagaStorageEntity>.EQ(x => x.Id, sagaId);
+//            var update = Update<SagaStorageEntity>
+//                .Set(x => x.Data, sagaData);
+//            var setType = Update.Set("d._t", sagaData.GetType().Name);
+//
+//
+//            var bulkOperation = _collection.InitializeOrderedBulkOperation();
+//            bulkOperation.Find(query).Upsert().UpdateOne(update);
+//            bulkOperation.Find(query).Upsert().UpdateOne(setType);
+//
+//            bulkOperation.Execute(WriteConcern.Acknowledged);
         }
 
-        public object Get(string sagaId)
+        public object Get(Type sagaDataType, string sagaId)
         {
+            BsonClassMap.LookupClassMap(sagaDataType);
+            var heh = BsonClassMap.GetRegisteredClassMaps();
+            var heh2 = _collection.FindOneById(sagaId);
             var result = _collection.FindOneByIdAs<SagaStorageEntity>(sagaId);
             return null;
         }

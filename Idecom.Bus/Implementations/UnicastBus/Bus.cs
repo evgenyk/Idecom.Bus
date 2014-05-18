@@ -138,6 +138,9 @@
                 currentMessageContext.MaxAttempts = e.MaxRetries + 1;
 
                 var handlerMethod = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
+                if (handlerMethod == null) {
+                    throw new Exception("Could not detect ");
+                }
                 var handler = Container.Resolve(handlerMethod.DeclaringType);
                 Action executeHandler = () => handlerMethod.Invoke(handler, new[] { e.TransportMessage.Message });
 
@@ -147,15 +150,16 @@
                 {
                     object sagaData = null;
                     string sagaId;
+                    var sagaStateClass = sagaClass.BaseType.GenericTypeArguments.FirstOrDefault();
+
                     if (currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID))
                     {
                         sagaId = currentMessageContext.TransportMessage.Headers[SystemHeaders.SAGA_ID];
                         currentMessageContext.ResumeSaga(sagaId);
-                        sagaData = SagaStorage.Get(sagaId);
+                        sagaData = SagaStorage.Get(sagaStateClass, sagaId);
                     }
                     else
                     {
-                        var sagaStateClass = sagaClass.BaseType.GenericTypeArguments.FirstOrDefault();
                         sagaId = currentMessageContext.StartSaga();
                         sagaData = InstanceCreator.CreateInstanceOf(sagaStateClass);
                         var sagaDataProperty = handler.GetType().GetProperty("Data");
@@ -173,7 +177,9 @@
                 { executeHandler(); }
 
             }
-            catch (Exception) {
+            catch (Exception ex) {
+                Console.WriteLine(ex.ToString());
+                throw;
             }
             finally { Container.Release(currentMessageContext); }
         }
