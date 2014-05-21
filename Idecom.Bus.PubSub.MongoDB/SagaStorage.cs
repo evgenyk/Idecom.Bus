@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Idecom.Bus.Implementations;
 using Idecom.Bus.Interfaces;
 using Idecom.Bus.Interfaces.Addons.PubSub;
 using MongoDB.Bson.Serialization;
@@ -13,10 +16,12 @@ namespace Idecom.Bus.PubSub.MongoDB
         private MongoCollection<SubscriptionStorageEntity> _collection;
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }
+        public IRoutingTable<Type> MappedTypes { get; set; }
 
         public void BeforeBusStarted()
         {
             _collection = new MongoClient(ConnectionString).GetServer().GetDatabase(DatabaseName).GetCollection<SubscriptionStorageEntity>(SAGA_STORAGE_COLLECTION_NAME);
+            IEnumerable<Type> heh = MappedTypes.GetDestinations().Select(x=>x.BaseType).SelectMany(x=>x.GenericTypeArguments);
         }
 
         public void BeforeBusStopped()

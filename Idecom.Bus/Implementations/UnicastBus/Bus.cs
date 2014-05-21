@@ -156,7 +156,7 @@
                     {
                         sagaId = currentMessageContext.TransportMessage.Headers[SystemHeaders.SAGA_ID];
                         currentMessageContext.ResumeSaga(sagaId);
-                        sagaData = SagaStorage.Get(sagaStateClass, sagaId);
+                        sagaData = SagaStorage.Get(sagaId);
                     }
                     else
                     {
