@@ -36,8 +36,6 @@ namespace Idecom.Bus.PubSub.MongoDB
             bulkOperation.Find(query).Upsert().UpdateOne(update);
             bulkOperation.Find(query).Upsert().UpdateOne(setType);
 
-            BsonClassMap.RegisterClassMap<NiceCo>();
-
             bulkOperation.Execute(WriteConcern.Acknowledged);
         }
 

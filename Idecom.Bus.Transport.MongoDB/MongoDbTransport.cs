@@ -83,10 +83,5 @@
         {
             TransportMessageFinished(this, new TransportMessageFinishedEventArgs(transportMessage));
         }
-
-        public void AfterBusStopped()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

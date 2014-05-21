@@ -5,7 +5,7 @@
 
     public static class BootstrapMongoDbPubSub
     {
-        public static Configure PubSub(this Configure configure, string mongodbConnectionString, string databaseName)
+        public static Configure MongoDbPubSub(this Configure configure, string mongodbConnectionString, string databaseName)
         {
             configure.Container.Configure<SubscriptionStorage>(ComponentLifecycle.Singleton);
             configure.Container.ConfigureProperty<SubscriptionStorage>(x => x.ConnectionString, mongodbConnectionString);

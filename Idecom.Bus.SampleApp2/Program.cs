@@ -19,7 +19,7 @@
                                        .MongoDbTransport("mongodb://localhost", "messageHub")
                                        .JsonNetSerializer()
                                        .RouteMessagesFromNamespaceTo<SayHelloCommand>("app1")
-                                       .PubSub("mongodb://localhost", "messageHub")
+                                       .MongoDbPubSub("mongodb://localhost", "messageHub")
                                        .CreateBus("app2");
 
             var bus = busInstance.Start();
