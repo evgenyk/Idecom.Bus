@@ -1,8 +1,10 @@
-﻿namespace Idecom.Bus.Interfaces.Addons.PubSub
+﻿using System;
+
+namespace Idecom.Bus.Interfaces.Addons.PubSub
 {
     public interface ISagaStorage
     {
         void Update(string sagaId, object sagaData);
-        object Get(string sagaId);
+        object Get(Type sagaDataType, string sagaId);
     }
 }
