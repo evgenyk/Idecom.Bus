@@ -139,7 +139,7 @@
 
                 var handlerMethod = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
                 if (handlerMethod == null) {
-                    throw new Exception("Could not detect ");
+                    throw new Exception("Could not resolve handler for " + e.TransportMessage.MessageType);
                 }
                 var handler = Container.Resolve(handlerMethod.DeclaringType);
                 Action executeHandler = () => handlerMethod.Invoke(handler, new[] { e.TransportMessage.Message });
@@ -148,19 +148,19 @@
                 var inSaga = sagaClass != null || currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID);
                 if (inSaga)
                 {
-                    object sagaData = null;
+                    object sagaData;
                     string sagaId;
-                    var sagaStateClass = sagaClass.BaseType.GenericTypeArguments.FirstOrDefault();
 
                     if (currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID))
                     {
                         sagaId = currentMessageContext.TransportMessage.Headers[SystemHeaders.SAGA_ID];
                         currentMessageContext.ResumeSaga(sagaId);
-                        sagaData = SagaStorage.Get(sagaStateClass, sagaId);
+                        sagaData = SagaStorage.Get(sagaId);
                     }
                     else
                     {
                         sagaId = currentMessageContext.StartSaga();
+                        var sagaStateClass = sagaClass.BaseType.GenericTypeArguments.FirstOrDefault();
                         sagaData = InstanceCreator.CreateInstanceOf(sagaStateClass);
                         var sagaDataProperty = handler.GetType().GetProperty("Data");
                         sagaDataProperty.SetValue(handler, sagaData);
@@ -235,15 +235,14 @@
             }
 
 
-            var messageToStoryMapping = allTypes.Where(x => x.GetInterfaces()
+            var messageToSagaMapping = allTypes.Where(x => x.GetInterfaces()
                 .Any(intface => implementsType(intface, typeof(IStartThisSagaWhenReceive<>))))
             .SelectMany(type => type.GetInterfaces()
                                       .Where(intface => implementsType(intface, typeof(IStartThisSagaWhenReceive<>)))
                                       .Where(intfs => intfs.IsGenericType && intfs.GetGenericArguments().Any())
                                       .Select(y => new { type, message = y.GenericTypeArguments.First() })).ToList();
 
-            messageToStoryMapping.ForEach(x => SagaRoutingTable.RouteType(x.message, x.type));
-
+            messageToSagaMapping.ForEach(x => SagaRoutingTable.RouteType(x.message, x.type));
         }
     }
 }
