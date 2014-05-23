@@ -18,7 +18,8 @@
         [DebuggerNonUserCode] //so that exceptions don't jump at the developer debugging their app
         public static IEnumerable<Assembly> GetScannableAssemblies()
         {
-            var assemblyFiles = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetFiles("*.*", SearchOption.AllDirectories);
+            var directoryInfo = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            var assemblyFiles = directoryInfo.GetFiles("*.dll", SearchOption.AllDirectories).Union(directoryInfo.GetFiles("*.exe", SearchOption.AllDirectories));
 
 
             foreach (FileInfo assemblyFile in assemblyFiles)
@@ -28,8 +29,6 @@
                 try
                 {
                     assembly = Assembly.LoadFrom(assemblyFile.FullName);
-
-                    //will throw if assembly can't be loaded
                     assembly.GetTypes();
                 }
 

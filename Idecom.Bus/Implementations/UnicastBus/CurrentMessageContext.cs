@@ -46,7 +46,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
         public void ResumeSaga(string sagaId)
         {
-            if (_headers.ContainsKey(SystemHeaders.SAGA_ID))
+            if (_headers.ContainsKey(SystemHeaders.SAGA_ID) && !_headers[SystemHeaders.SAGA_ID].Equals(sagaId, StringComparison.CurrentCultureIgnoreCase))
                 throw new Exception("Seem like we tried to resume saga when one was already running. This might indicate a bug in Idecom.Bus.");
             _headers[SystemHeaders.SAGA_ID] = sagaId;
         }

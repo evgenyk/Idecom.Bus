@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Idecom.Bus.Implementations;
 using Idecom.Bus.Interfaces;
 using Idecom.Bus.Interfaces.Addons.PubSub;
@@ -26,6 +27,8 @@ namespace Idecom.Bus.PubSub.MongoDB
             var heh2 = BsonClassMap.GetRegisteredClassMaps();
             foreach (var sagaDataType in sagaDataTypes) { BsonClassMap.LookupClassMap(sagaDataType); }
             var heh = BsonClassMap.GetRegisteredClassMaps();
+
+            var currentThread = Thread.CurrentThread.ManagedThreadId;
         }
 
         public void BeforeBusStopped()
@@ -40,6 +43,7 @@ namespace Idecom.Bus.PubSub.MongoDB
             //            lookupClassMap.SetDiscriminator(sagaData.GetType().Name);
             //            BsonClassMap.RegisterClassMap(lookupClassMap);
 
+            var currentThread = Thread.CurrentThread.ManagedThreadId;
             var gg = BsonClassMap.GetRegisteredClassMaps();
             var heh = BsonClassMap.LookupClassMap(sagaData.GetType());
             _collection.Insert(new SagaStorageEntity(sagaId, sagaData));
@@ -59,10 +63,13 @@ namespace Idecom.Bus.PubSub.MongoDB
 
         public object Get(string sagaId)
         {
+            var currentThread = Thread.CurrentThread.ManagedThreadId;
+
+
             var heh = BsonClassMap.GetRegisteredClassMaps();
             var heh2 = _collection.FindOneById(sagaId);
             var result = _collection.FindOneByIdAs<SagaStorageEntity>(sagaId);
-            return null;
+            return result.Data;
         }
 
         public void KnownSagaTypes(IEnumerable<Type> types)

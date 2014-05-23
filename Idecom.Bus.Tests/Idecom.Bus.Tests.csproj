@@ -32,6 +32,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MongoDB.Bson">
+      <HintPath>..\packages\mongocsharpdriver.1.9.0\lib\net35\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver">
+      <HintPath>..\packages\mongocsharpdriver.1.9.0\lib\net35\MongoDB.Driver.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -48,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="InterfaceProxyGeneratorTests.cs" />
+    <Compile Include="MongoDbTests\MongoDbSerializationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SagaTests.cs" />
   </ItemGroup>
@@ -56,6 +63,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Idecom.Bus.PubSub.MongoDB\Idecom.Bus.PubSub.MongoDB.csproj">
+      <Project>{9dd532af-0c9b-427e-9100-02b526707105}</Project>
+      <Name>Idecom.Bus.PubSub.MongoDB</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Idecom.Bus.Serializer.JsonNet\Idecom.Bus.Serializer.JsonNet.csproj">
       <Project>{8a0fc948-3ca2-4eac-87c9-9d76ce180b7a}</Project>
       <Name>Idecom.Bus.Serializer.JsonNet</Name>
