@@ -10,12 +10,13 @@
 
         public void Handle(SayGoodByeCommand command)
         {
-            Console.WriteLine("SayGoodByeCommand");
+            Console.WriteLine("A friend said good bye, said see you");
+            Bus.Reply(new SeeYouCommand("See you"));
         }
 
         public void Handle(SayHelloCommand command)
         {
-            Console.WriteLine("SayHelloCommand");
+            Console.WriteLine("A friend said hello");
 
             Bus.Reply(new SayHelloCommand("Hello back to you!!"));
         }

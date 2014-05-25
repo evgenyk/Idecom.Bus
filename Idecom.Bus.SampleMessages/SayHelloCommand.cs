@@ -2,21 +2,28 @@
 {
     public class SayHelloCommand
     {
-        public SayHelloCommand(string hello)
+        public SayHelloCommand(string greeting)
         {
-            Hello = hello;
+            Greeting = greeting;
         }
 
         protected SayHelloCommand()
         {
         }
 
-        public string Hello { get; set; }
+        public string Greeting { get; set; }
     }
 
     public class SayGoodByeCommand : SayHelloCommand
     {
-        public SayGoodByeCommand(string hello) : base(hello)
+        public SayGoodByeCommand(string greeting) : base(greeting)
+        {
+        }
+    }
+
+    public class SeeYouCommand : SayHelloCommand
+    {
+        public SeeYouCommand(string greeting) : base(greeting)
         {
         }
     }

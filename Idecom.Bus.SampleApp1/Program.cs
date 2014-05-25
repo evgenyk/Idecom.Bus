@@ -3,11 +3,9 @@ using Castle.Windsor;
 using Idecom.Bus.Implementations;
 using Idecom.Bus.IoC.CastleWindsor;
 using Idecom.Bus.PubSub.MongoDB;
-using Idecom.Bus.SampleApp1.Bus1Handlers;
 using Idecom.Bus.SampleMessages;
 using Idecom.Bus.Serializer.JsonNet;
 using Idecom.Bus.Transport.MongoDB;
-using MongoDB.Bson.Serialization;
 
 namespace Idecom.Bus.SampleApp1
 {
