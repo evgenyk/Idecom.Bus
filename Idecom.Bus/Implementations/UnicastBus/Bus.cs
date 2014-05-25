@@ -50,9 +50,11 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
 
                 var allTypes = AssemblyScanner.GetTypes().ToList();
-                var events = allTypes.Where(EffectiveConfiguration.IsEvent).ToList();
-                var commands = allTypes.Where(EffectiveConfiguration.IsCommand);
+                List<Type> events = allTypes.Where(EffectiveConfiguration.IsEvent).ToList();
+                var commands = allTypes.Where(EffectiveConfiguration.IsCommand).ToList();
                 ApplyHandlerMapping(events, commands, allTypes);
+
+                var eventsWithHandlers = events.Where(e => HandlerRoutingTable.ResolveRouteFor(e) != null).ToList();
 
 
                 Transport.TransportMessageReceived += TransportMessageReceived;
@@ -64,7 +66,9 @@ namespace Idecom.Bus.Implementations.UnicastBus
                     Container.Release(beforeBusStarted);
                 }
 
-                SubscriptionDistributor.SubscribeTo(events);
+                SubscriptionDistributor.Unsubscribe(events.Except(eventsWithHandlers));
+                SubscriptionDistributor.SubscribeTo(eventsWithHandlers);
+                
 
                 _isStarted = true;
             }

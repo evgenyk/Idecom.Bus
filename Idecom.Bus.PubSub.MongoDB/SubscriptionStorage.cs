@@ -31,7 +31,7 @@
         {
             var type = typeof (T);
             var typeWithNamespace = GetTypeNameWithNamespace(type);
-            var query = Query<SubscriptionStorageEntity>.EQ(x => x.MessageType, typeWithNamespace);
+            var query = Query.And(Query<SubscriptionStorageEntity>.EQ(x => x.MessageType, typeWithNamespace), Query<SubscriptionStorageEntity>.EQ(x=>x.Subscribed, true));
             var subscribers = _collection.FindAs<SubscriptionStorageEntity>(query).Select(x => Address.Parse(x.SubscriberAddress)).Distinct();
             return subscribers;
         }
@@ -42,13 +42,23 @@
             var subscriberAddress = subscriber.ToString();
 
             var query = Query.And(Query<SubscriptionStorageEntity>.EQ(x => x.SubscriberAddress, subscriberAddress), Query<SubscriptionStorageEntity>.EQ(x => x.MessageType, typeWithNamespace));
-            var update = Update<SubscriptionStorageEntity>.Set(x => x.SubscriberAddress, subscriberAddress).Set(x => x.MessageType, typeWithNamespace);
+            var update = Update<SubscriptionStorageEntity>
+                .Set(x => x.SubscriberAddress, subscriberAddress)
+                .Set(x => x.MessageType, typeWithNamespace)
+                .Set(x => x.Subscribed, true);
             _collection.Update(query, update, UpdateFlags.Upsert, WriteConcern.Acknowledged);
         }
 
-        public void Unsubscribe<T>(Address subscriber) where T : class
+        public void Unsubscribe(Address subscriber, Type type)
         {
-            throw new NotImplementedException();
+            var typeWithNamespace = GetTypeNameWithNamespace(type);
+            var subscriberAddress = subscriber.ToString();
+            var query = Query.And(Query<SubscriptionStorageEntity>.EQ(x => x.SubscriberAddress, subscriberAddress), Query<SubscriptionStorageEntity>.EQ(x => x.MessageType, typeWithNamespace));
+            var update = Update<SubscriptionStorageEntity>
+                .Set(x => x.SubscriberAddress, subscriberAddress)
+                .Set(x => x.MessageType, typeWithNamespace)
+                .Set(x=>x.Subscribed, false);
+            _collection.Update(query, update, UpdateFlags.Upsert, WriteConcern.Acknowledged);
         }
 
         private static string GetTypeNameWithNamespace(Type type)

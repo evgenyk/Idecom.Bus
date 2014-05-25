@@ -13,5 +13,8 @@ namespace Idecom.Bus.PubSub.MongoDB
 
         [BsonElement("se")]
         public string SubscriberAddress { get; set; }
+
+        [BsonElement("sb")]
+        public bool Subscribed { get; set; }
     }
 }

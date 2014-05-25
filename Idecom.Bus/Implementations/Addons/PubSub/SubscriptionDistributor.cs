@@ -27,5 +27,11 @@ namespace Idecom.Bus.Implementations.Addons.PubSub
             foreach (var @event in events)
                 Storage.Subscribe(LocalAddress, @event);
         }
+
+        public void Unsubscribe(IEnumerable<Type> events)
+        {
+            foreach (var @event in events)
+                Storage.Unsubscribe(LocalAddress, @event);
+        }
     }
 }

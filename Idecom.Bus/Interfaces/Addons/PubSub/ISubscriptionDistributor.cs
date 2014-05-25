@@ -8,5 +8,6 @@ namespace Idecom.Bus.Interfaces.Addons.PubSub
     {
         void NotifySubscribersOf<T>(object message, CurrentMessageContext currentMessageContext) where T : class;
         void SubscribeTo(IEnumerable<Type> events);
+        void Unsubscribe(IEnumerable<Type> events);
     }
 }
