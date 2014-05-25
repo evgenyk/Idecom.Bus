@@ -1,16 +1,17 @@
-﻿namespace Idecom.Bus.Implementations.UnicastBus
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using Addressing;
-    using Interfaces;
-    using Interfaces.Addons.PubSub;
-    using Internal;
-    using Transport;
-    using Utility;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Idecom.Bus.Addressing;
+using Idecom.Bus.Implementations.Internal;
+using Idecom.Bus.Interfaces;
+using Idecom.Bus.Interfaces.Addons.PubSub;
+using Idecom.Bus.Interfaces.Addons.Stories;
+using Idecom.Bus.Transport;
+using Idecom.Bus.Utility;
 
+namespace Idecom.Bus.Implementations.UnicastBus
+{
     internal class Bus : IBusInstance
     {
         private bool _isStarted;
@@ -88,7 +89,6 @@
 
         public void Send(object message)
         {
-
             ExecuteOnlyWhenStarted(() => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send), CurrentMessageContextInternal()));
         }
 
@@ -138,14 +138,12 @@
                 currentMessageContext.MaxAttempts = e.MaxRetries + 1;
 
                 var handlerMethod = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
-                if (handlerMethod == null) {
-                    throw new Exception("Could not resolve handler for " + e.TransportMessage.MessageType);
-                }
+                if (handlerMethod == null) { throw new Exception("Could not resolve handler for " + e.TransportMessage.MessageType); }
                 var handler = Container.Resolve(handlerMethod.DeclaringType);
-                Action executeHandler = () => handlerMethod.Invoke(handler, new[] { e.TransportMessage.Message });
+                Action executeHandler = () => handlerMethod.Invoke(handler, new[] {e.TransportMessage.Message});
 
                 var sagaType = MessageToStartSagaMapping.ResolveRouteFor(e.TransportMessage.MessageType);
-                var inSaga = IsSubclassOfRawGeneric(typeof(Saga<>), handlerMethod.DeclaringType) && (sagaType != null || currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID));
+                var inSaga = IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType) && (sagaType != null || currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID));
 
                 string sagaId = null;
                 if (currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID))
@@ -169,33 +167,36 @@
                         sagaDataProperty.SetValue(handler, sagaData);
                     }
 
-                    try
+                    try { executeHandler(); }
+                    finally
                     {
-                        executeHandler();
+                        if (((ISaga) handler).IsClosed)
+                        {
+                            SagaStorage.Close(sagaId);
+                        }
+                        else
+                        {
+                            SagaStorage.Update(sagaId, sagaData);
+                        }
                     }
-                    finally { SagaStorage.Update(sagaId, sagaData); }
-
                 }
                 else
                 { executeHandler(); }
-
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex.ToString());
                 throw;
             }
             finally { Container.Release(currentMessageContext); }
         }
 
-        static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
+        private static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
         {
-            while (toCheck != null && toCheck != typeof(object))
+            while (toCheck != null && toCheck != typeof (object))
             {
                 var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
-                if (generic == cur)
-                {
-                    return true;
-                }
+                if (generic == cur) { return true; }
                 toCheck = toCheck.BaseType;
             }
             return false;
@@ -208,9 +209,7 @@
             foreach (var action in currentMessageContext.DelayedSends)
             {
                 //Track the saga through handlers
-                if (currentMessageContext.Headers.ContainsKey(SystemHeaders.SAGA_ID)) {
-                    action.TransportMessage.Headers[SystemHeaders.SAGA_ID] = currentMessageContext.Headers[SystemHeaders.SAGA_ID];
-                }
+                if (currentMessageContext.Headers.ContainsKey(SystemHeaders.SAGA_ID)) { action.TransportMessage.Headers[SystemHeaders.SAGA_ID] = currentMessageContext.Headers[SystemHeaders.SAGA_ID]; }
                 Transport.Send(action.TransportMessage);
             }
         }
@@ -253,12 +252,12 @@
 
 
             var enumerable = allTypes.Where(x => x.GetInterfaces()
-                                                  .Any(intface => implementsType(intface, typeof(IStartThisSagaWhenReceive<>)))).ToList();
+                                                  .Any(intface => implementsType(intface, typeof (IStartThisSagaWhenReceive<>)))).ToList();
             var messageToStartSagaMapping = enumerable
-            .SelectMany(type => type.GetInterfaces()
-                                      .Where(intface => implementsType(intface, typeof(IStartThisSagaWhenReceive<>)))
-                                      .Where(intfs => intfs.IsGenericType && intfs.GetGenericArguments().Any())
-                                      .Select(y => new { type, message = y.GenericTypeArguments.First() })).ToList();
+                .SelectMany(type => type.GetInterfaces()
+                                        .Where(intface => implementsType(intface, typeof (IStartThisSagaWhenReceive<>)))
+                                        .Where(intfs => intfs.IsGenericType && intfs.GetGenericArguments().Any())
+                                        .Select(y => new {type, message = y.GenericTypeArguments.First()})).ToList();
 
             messageToStartSagaMapping.ForEach(x => MessageToStartSagaMapping.RouteType(x.message, x.type));
         }

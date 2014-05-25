@@ -1,21 +1,12 @@
-﻿using Idecom.Bus.Utility;
-
-namespace Idecom.Bus.Interfaces.Addons.Stories
+﻿namespace Idecom.Bus.Interfaces.Addons.Stories
 {
-    using System;
-
-    public interface ISaga<out TSagaState> where TSagaState : ISagaState
+    public interface ISaga
     {
-        TSagaState Data { get; }
+        bool IsClosed { get; }
     }
 
-    public abstract class ContainSagaState : ISagaState
+    public interface ISaga<out TSagaState> : ISaga where TSagaState : ISagaState
     {
-        private string _id;
-
-        protected ContainSagaState()
-        {
-            _id = ShortGuid.NewGuid();
-        }
+        TSagaState Data { get; }
     }
 }

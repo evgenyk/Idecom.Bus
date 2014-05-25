@@ -16,5 +16,8 @@ namespace Idecom.Bus.PubSub.MongoDB
 
         [BsonElement("d")]
         public object Data { get; set; }
+
+        [BsonElement("cl")]
+        public bool Closed { get; set; }
     }
 }
