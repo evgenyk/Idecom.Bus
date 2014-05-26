@@ -33,7 +33,12 @@ namespace Idecom.Bus.PubSub.MongoDB
         {
             var query = Query<SagaStorageEntity>.EQ(x => x.Id, sagaId);
             var sagaDataWithDiscriminator = sagaData.ToBsonDocument().Set("_t", sagaData.GetType().Name);
-            var update = Update<SagaStorageEntity>.Set(e => e.Data, sagaDataWithDiscriminator);
+
+            var update = Update<SagaStorageEntity>
+                .Set(e => e.Data, sagaDataWithDiscriminator)
+                .Set(e=>e.DateUpdated, DateTime.UtcNow)
+                .SetOnInsert(e=>e.DateStarted, DateTime.UtcNow);
+            
             _collection.Update(query, update, UpdateFlags.Upsert, WriteConcern.Acknowledged);
         }
 
@@ -47,7 +52,8 @@ namespace Idecom.Bus.PubSub.MongoDB
         {
             var query = Query<SagaStorageEntity>.EQ(x => x.Id, sagaId);
             var update = Update<SagaStorageEntity>
-                .Set(x => x.Closed, true);
+                .Set(x => x.Closed, true)
+                .Set(x=>x.DateClosed, DateTime.UtcNow);
             _collection.Update(query, update, UpdateFlags.Upsert, WriteConcern.Acknowledged);
         }
 
