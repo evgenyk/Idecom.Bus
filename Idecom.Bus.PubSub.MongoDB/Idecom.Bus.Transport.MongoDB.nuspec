@@ -1,21 +1,21 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
-    <id>Idecom.Bus.IoC.CastleWindsor</id>
+    <id>Idecom.Bus.PubSub.MongoDB</id>
     <version>1.0.1</version>
-    <title>Idecom.Bus.IoC.CastleWindsor</title>
+    <title>Idecom.Bus.PubSub.MongoDB</title>
     <authors>Evgeny Komarevtsev</authors>
     <owners>Evgeny Komarevtsev</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>CastleWindsor container integration for Idecom.Bus</description>
+    <description>MongoDB pub/sub, subscription storage and saga persistence for Idecom.Bus</description>
+    <releaseNotes></releaseNotes>
     <dependencies>
       <dependency id="Idecom.Bus" />
-      <dependency id="Castle.Windsor" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\debug\Idecom.Bus.IoC.CastleWindsor.dll" target="lib" />
-    <file src="bin\debug\Idecom.Bus.IoC.CastleWindsor.pdb" target="lib" />
+    <file src="bin\debug\Idecom.Bus.Transport.MongoDB.dll" target="lib" />
+    <file src="bin\debug\Idecom.Bus.Transport.MongoDB.pdb" target="lib" />
     <file src="**\*.cs" target="src" exclude="bin\**;obj\**;tools\**" />
   </files>
 </package>
