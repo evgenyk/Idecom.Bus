@@ -11,11 +11,12 @@
     <releaseNotes></releaseNotes>
     <dependencies>
       <dependency id="Idecom.Bus" />
+      <dependency id="mongocsharpdriver" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\debug\Idecom.Bus.Transport.MongoDB.dll" target="lib" />
-    <file src="bin\debug\Idecom.Bus.Transport.MongoDB.pdb" target="lib" />
+    <file src="bin\debug\Idecom.Bus.PubSub.MongoDB.dll" target="lib" />
+    <file src="bin\debug\Idecom.Bus.PubSub.MongoDB.pdb" target="lib" />
     <file src="**\*.cs" target="src" exclude="bin\**;obj\**;tools\**" />
   </files>
 </package>
