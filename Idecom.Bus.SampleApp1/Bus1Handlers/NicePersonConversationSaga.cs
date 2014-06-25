@@ -5,6 +5,7 @@ using Idecom.Bus.SampleMessages;
 
 namespace Idecom.Bus.SampleApp1.Bus1Handlers
 {
+    [SingleInstanceSaga]
     public class NicePersonConversationSaga : Saga<NicePersonConversationState>,
                                               IStartThisSagaWhenReceive<IMetAFriendEvent>,
                                               IHandle<SayHelloCommand>,
@@ -18,6 +19,12 @@ namespace Idecom.Bus.SampleApp1.Bus1Handlers
 
         public void Handle(IMetAFriendEvent command)
         {
+            if (Data.Started)
+            {
+                Console.WriteLine("Saga already started");
+                return;
+            }
+            Data.Started = true;
             Console.WriteLine("Met a friend, said hi");
             var sayHelloCommand = new SayHelloCommand("Hi");
             Bus.Send(sayHelloCommand);
@@ -26,6 +33,7 @@ namespace Idecom.Bus.SampleApp1.Bus1Handlers
 
         public void Handle(SeeYouCommand command)
         {
+            Data.Started = false;
             Console.WriteLine("Received See you back");
             CloseSaga();
             Console.WriteLine("Closed saga");

@@ -45,16 +45,15 @@ namespace Idecom.Bus.PubSub.MongoDB
         public object Get(string sagaId)
         {
             var result = _collection.FindOneByIdAs<SagaStorageEntity>(sagaId);
-            return result.Data;
+            var resultOrNull = result == null ? null : result.Data;
+
+            return resultOrNull;
         }
 
         public void Close(string sagaId)
         {
             var query = Query<SagaStorageEntity>.EQ(x => x.Id, sagaId);
-            var update = Update<SagaStorageEntity>
-                .Set(x => x.Closed, true)
-                .Set(x=>x.DateClosed, DateTime.UtcNow);
-            _collection.Update(query, update, UpdateFlags.Upsert, WriteConcern.Acknowledged);
+            _collection.Remove(query);
         }
 
         private void MapSagaDataClasses()

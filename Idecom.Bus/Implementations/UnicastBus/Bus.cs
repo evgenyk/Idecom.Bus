@@ -49,18 +49,18 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 Container.Configure<CurrentMessageContext>(ComponentLifecycle.PerUnitOfWork);
 
 
-                var allTypes = AssemblyScanner.GetTypes().ToList();
+                List<Type> allTypes = AssemblyScanner.GetTypes().ToList();
                 List<Type> events = allTypes.Where(EffectiveConfiguration.IsEvent).ToList();
-                var commands = allTypes.Where(EffectiveConfiguration.IsCommand).ToList();
+                List<Type> commands = allTypes.Where(EffectiveConfiguration.IsCommand).ToList();
                 ApplyHandlerMapping(events, commands, allTypes);
 
-                var eventsWithHandlers = events.Where(e => HandlerRoutingTable.ResolveRouteFor(e) != null).ToList();
+                List<Type> eventsWithHandlers = events.Where(e => HandlerRoutingTable.ResolveRouteFor(e) != null).ToList();
 
 
                 Transport.TransportMessageReceived += TransportMessageReceived;
                 Transport.TransportMessageFinished += TransportOnTransportMessageFinished;
 
-                foreach (var beforeBusStarted in Container.ResolveAll<IBeforeBusStarted>())
+                foreach (IBeforeBusStarted beforeBusStarted in Container.ResolveAll<IBeforeBusStarted>())
                 {
                     beforeBusStarted.BeforeBusStarted();
                     Container.Release(beforeBusStarted);
@@ -68,7 +68,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
                 SubscriptionDistributor.Unsubscribe(events.Except(eventsWithHandlers));
                 SubscriptionDistributor.SubscribeTo(eventsWithHandlers);
-                
+
 
                 _isStarted = true;
             }
@@ -82,7 +82,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
             lock (this)
             {
-                foreach (var beforeBusStopped in Container.ResolveAll<IBeforeBusStopped>())
+                foreach (IBeforeBusStopped beforeBusStopped in Container.ResolveAll<IBeforeBusStopped>())
                 {
                     beforeBusStopped.BeforeBusStopped();
                     Container.Release(beforeBusStopped);
@@ -93,20 +93,24 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
         public void Send(object message)
         {
-            ExecuteOnlyWhenStarted(() => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send), CurrentMessageContextInternal()));
+            ExecuteOnlyWhenStarted(
+                () => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send), CurrentMessageContextInternal()));
         }
 
         public void SendLocal(object message)
         {
-            ExecuteOnlyWhenStarted(() => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.SendLocal), CurrentMessageContextInternal()));
+            ExecuteOnlyWhenStarted(
+                () => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.SendLocal), CurrentMessageContextInternal()));
         }
 
         public void Reply(object message)
         {
             if (LocalAddress.Equals(CurrentMessageContext.TransportMessage.SourceAddress))
-                throw new Exception("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: " + CurrentMessageContext.TransportMessage.SourceAddress);
+                throw new Exception("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: " +
+                                    CurrentMessageContext.TransportMessage.SourceAddress);
 
-            ExecuteOnlyWhenStarted(() => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Reply), CurrentMessageContextInternal()));
+            ExecuteOnlyWhenStarted(
+                () => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Reply), CurrentMessageContextInternal()));
         }
 
         public void Raise<T>(Action<T> action) where T : class
@@ -141,66 +145,87 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 currentMessageContext.Attempt = e.Attempt;
                 currentMessageContext.MaxAttempts = e.MaxRetries + 1;
 
-                var handlerMethod = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
-                if (handlerMethod == null) { throw new Exception("Could not resolve handler for " + e.TransportMessage.MessageType); }
-                var handler = Container.Resolve(handlerMethod.DeclaringType);
+                MethodInfo handlerMethod = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
+                if (handlerMethod == null)
+                {
+                    throw new Exception("Could not resolve handler for " + e.TransportMessage.MessageType);
+                }
+                object handler = Container.Resolve(handlerMethod.DeclaringType);
                 Action executeHandler = () => handlerMethod.Invoke(handler, new[] {e.TransportMessage.Message});
 
-                var sagaType = MessageToStartSagaMapping.ResolveRouteFor(e.TransportMessage.MessageType);
-                var inSaga = IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType) && (sagaType != null || currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID));
+                Type startSagaType = MessageToStartSagaMapping.ResolveRouteFor(e.TransportMessage.MessageType);
+                bool inSaga = IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType) &&
+                              (startSagaType != null || currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID));
+
 
                 string sagaId = null;
+
                 if (currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID))
-                {
                     sagaId = currentMessageContext.TransportMessage.Headers[SystemHeaders.SAGA_ID];
-                    currentMessageContext.ResumeSaga(sagaId);
-                }
+
+                bool isSagaSingleton = inSaga && handlerMethod.DeclaringType.GetCustomAttribute<SingleInstanceSagaAttribute>() != null;
+
+                if (sagaId == null && isSagaSingleton)
+                    sagaId = startSagaType.FullName.ToLowerInvariant();
 
                 if (inSaga)
                 {
-                    object sagaData;
+                    if (sagaId != null)
+                        currentMessageContext.ResumeSaga(sagaId);
 
-                    if (currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID))
+
+                    object sagaData = null;
+
+                    if (sagaId != null)
                         sagaData = SagaStorage.Get(sagaId);
-                    else
+
+                    if (sagaData == null)
                     {
-                        sagaId = currentMessageContext.StartSaga();
-                        var sagaStateClass = sagaType.BaseType.GenericTypeArguments.FirstOrDefault();
+                        sagaId = currentMessageContext.StartSaga(sagaId);
+                        Type sagaStateClass = startSagaType.BaseType.GenericTypeArguments.FirstOrDefault();
                         sagaData = InstanceCreator.CreateInstanceOf(sagaStateClass);
-                        var sagaDataProperty = handler.GetType().GetProperty("Data");
-                        sagaDataProperty.SetValue(handler, sagaData);
                     }
 
-                    try { executeHandler(); }
+                    PropertyInfo sagaDataProperty = handler.GetType().GetProperty("Data");
+                    sagaDataProperty.SetValue(handler, sagaData);
+
+                    try
+                    {
+                        executeHandler();
+                    }
                     finally
                     {
                         if (((ISaga) handler).IsClosed)
-                        {
                             SagaStorage.Close(sagaId);
-                        }
                         else
-                        {
                             SagaStorage.Update(sagaId, sagaData);
-                        }
                     }
                 }
                 else
-                { executeHandler(); }
+                {
+                    executeHandler();
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
                 throw;
             }
-            finally { Container.Release(currentMessageContext); }
+            finally
+            {
+                Container.Release(currentMessageContext);
+            }
         }
 
         private static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
         {
             while (toCheck != null && toCheck != typeof (object))
             {
-                var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
-                if (generic == cur) { return true; }
+                Type cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
+                if (generic == cur)
+                {
+                    return true;
+                }
                 toCheck = toCheck.BaseType;
             }
             return false;
@@ -208,12 +233,17 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
         private void TransportOnTransportMessageFinished(object sender, TransportMessageFinishedEventArgs transportMessageFinishedEventArgs)
         {
-            var currentMessageContext = CurrentMessageContextInternal();
+            CurrentMessageContext currentMessageContext = CurrentMessageContextInternal();
 
-            foreach (var action in currentMessageContext.DelayedSends)
+            //Track the saga through handlers
+            foreach (DelayedSend action in currentMessageContext.DelayedSends)
             {
-                //Track the saga through handlers
-                if (currentMessageContext.Headers.ContainsKey(SystemHeaders.SAGA_ID)) { action.TransportMessage.Headers[SystemHeaders.SAGA_ID] = currentMessageContext.Headers[SystemHeaders.SAGA_ID]; }
+                if (currentMessageContext.Headers.ContainsKey(SystemHeaders.SAGA_ID))
+                    // attaching to a new saga created in this message
+                    action.TransportMessage.Headers[SystemHeaders.SAGA_ID] = currentMessageContext.Headers[SystemHeaders.SAGA_ID];
+                else if (currentMessageContext.TransportMessage != null && currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID))
+                    // attaching to saga in the incoming message
+                    action.TransportMessage.Headers[SystemHeaders.SAGA_ID] = currentMessageContext.TransportMessage.Headers[SystemHeaders.SAGA_ID];
                 Transport.Send(action.TransportMessage);
             }
         }
@@ -221,13 +251,13 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
         private void ApplyHandlerMapping(IEnumerable<Type> events, IEnumerable<Type> commands, IEnumerable<Type> allTypes)
         {
-            var eventsAndCommands = events.Union(commands).ToList();
+            List<Type> eventsAndCommands = events.Union(commands).ToList();
 
-            foreach (var mapping in EffectiveConfiguration.NamespaceToEndpointMappings)
+            foreach (NamespaceToEndpointMapping mapping in EffectiveConfiguration.NamespaceToEndpointMappings)
             {
-                var types = eventsAndCommands.Where(type => type.Namespace != null && type.Namespace.Equals(mapping.Namespace, StringComparison.InvariantCultureIgnoreCase)).ToList();
-                var eventsAndCommandsInANamespace = eventsAndCommands.Intersect(types).Distinct().ToList();
-                var notMappedTypes = types.Except(eventsAndCommandsInANamespace);
+                List<Type> types = eventsAndCommands.Where(type => type.Namespace != null && type.Namespace.Equals(mapping.Namespace, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                List<Type> eventsAndCommandsInANamespace = eventsAndCommands.Intersect(types).Distinct().ToList();
+                IEnumerable<Type> notMappedTypes = types.Except(eventsAndCommandsInANamespace);
 
                 if (notMappedTypes.Any())
                     throw new Exception("Some messages are not mapped: " + notMappedTypes.Select(x => x.Name).Aggregate((a, b) => a + ", " + b));
@@ -237,31 +267,31 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
             Func<Type, Type, bool> implementsType = (y, compareType) => y.IsGenericType && y.GetGenericTypeDefinition() == compareType;
 
-            var handlers = allTypes.SelectMany(type => type.GetMethods()
-                                                           .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
-                                                                        .Where(type.GetInterfaces()
-                                                                                   .Where(intface => implementsType(intface, typeof (IHandle<>)))
-                                                                                   .SelectMany(intfs => intfs.GenericTypeArguments).Contains)
-                                                                        .Any()));
+            IEnumerable<MethodInfo> handlers = allTypes.SelectMany(type => type.GetMethods()
+                .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
+                    .Where(type.GetInterfaces()
+                        .Where(intface => implementsType(intface, typeof (IHandle<>)))
+                        .SelectMany(intfs => intfs.GenericTypeArguments).Contains)
+                    .Any()));
 
             foreach (MethodInfo methodInfo in handlers)
             {
-                var firstParameter = methodInfo.GetParameters().FirstOrDefault();
+                ParameterInfo firstParameter = methodInfo.GetParameters().FirstOrDefault();
                 if (firstParameter == null) continue;
 
                 HandlerRoutingTable.RouteTypes(new[] {firstParameter.ParameterType}, methodInfo);
-                var method = HandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
+                MethodInfo method = HandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
                 Container.Configure(method.DeclaringType, ComponentLifecycle.PerUnitOfWork);
             }
 
 
-            var enumerable = allTypes.Where(x => x.GetInterfaces()
-                                                  .Any(intface => implementsType(intface, typeof (IStartThisSagaWhenReceive<>)))).ToList();
+            List<Type> enumerable = allTypes.Where(x => x.GetInterfaces()
+                .Any(intface => implementsType(intface, typeof (IStartThisSagaWhenReceive<>)))).ToList();
             var messageToStartSagaMapping = enumerable
                 .SelectMany(type => type.GetInterfaces()
-                                        .Where(intface => implementsType(intface, typeof (IStartThisSagaWhenReceive<>)))
-                                        .Where(intfs => intfs.IsGenericType && intfs.GetGenericArguments().Any())
-                                        .Select(y => new {type, message = y.GenericTypeArguments.First()})).ToList();
+                    .Where(intface => implementsType(intface, typeof (IStartThisSagaWhenReceive<>)))
+                    .Where(intfs => intfs.IsGenericType && intfs.GetGenericArguments().Any())
+                    .Select(y => new {type, message = y.GenericTypeArguments.First()})).ToList();
 
             messageToStartSagaMapping.ForEach(x => MessageToStartSagaMapping.RouteType(x.message, x.type));
         }

@@ -23,7 +23,8 @@
                                        .CreateBus("app2");
 
             var bus = busInstance.Start();
-            bus.Raise<IMetAFriendEvent>(x => { x.Name = "sdfsdfs"; });
+            //bus.Raise<IMetAFriendEvent>(x => { x.Name = "sdfsdfs"; });
+            //bus.Raise<IMetAFriendEvent>(x => { x.Name = "sdfsdfs 2"; });
 
             Console.WriteLine("Bus configured. Press any key to close the app.");
             Console.ReadKey();

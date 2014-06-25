@@ -37,9 +37,9 @@ namespace Idecom.Bus.Implementations.UnicastBus
             _delayedSends.Enqueue(new DelayedSend(transportMessage));
         }
 
-        public string StartSaga()
+        public string StartSaga(string overrideSagaId = null)
         {
-            var sagaId = ShortGuid.NewGuid();
+            var sagaId = overrideSagaId ?? ShortGuid.NewGuid().ToString();
             _headers[SystemHeaders.SAGA_ID] = sagaId;
             return sagaId;
         }

@@ -1,5 +1,4 @@
 using System;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Idecom.Bus.PubSub.MongoDB
@@ -17,12 +16,6 @@ namespace Idecom.Bus.PubSub.MongoDB
 
         [BsonElement("d")]
         public object Data { get; set; }
-
-        [BsonElement("cl")]
-        public bool Closed { get; set; }
-
-        [BsonElement("dc")]
-        public BsonDateTime DateClosed { get; set; }
 
         [BsonElement("du")]
         public DateTime DateUpdated { get; set; }
