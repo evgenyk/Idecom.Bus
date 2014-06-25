@@ -1,4 +1,6 @@
-﻿namespace Idecom.Bus.SampleApp2
+﻿using System.Threading;
+
+namespace Idecom.Bus.SampleApp2
 {
     using System;
     using Castle.Windsor;
@@ -23,8 +25,14 @@
                                        .CreateBus("app2");
 
             var bus = busInstance.Start();
-            //bus.Raise<IMetAFriendEvent>(x => { x.Name = "sdfsdfs"; });
-            //bus.Raise<IMetAFriendEvent>(x => { x.Name = "sdfsdfs 2"; });
+            bus.Raise<IMetAFriendEvent>(x => { x.Name = "sdfsdfs"; });
+
+            for (int i = 0; i < 10; i++)
+            {
+                int i1 = i;
+                bus.Raise<IMetAFriendEvent>(x => { x.Name = "sdfsdfs " + i1; });
+            }
+
 
             Console.WriteLine("Bus configured. Press any key to close the app.");
             Console.ReadKey();

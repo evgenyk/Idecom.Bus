@@ -42,7 +42,7 @@
                 sb.Append(i.ToString("D"));
             var serviceId = sb.ToString();
             _machineIdCache = serviceId + "@" + fqdn;
-            return serviceId;
+            return _machineIdCache;
         }
     }
 }
