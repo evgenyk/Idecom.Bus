@@ -1,14 +1,14 @@
-﻿namespace Idecom.Bus.Serializer.JsonNet
-{
-    using System;
-    using System.Globalization;
-    using System.IO;
-    using System.Runtime.Serialization;
-    using System.Runtime.Serialization.Formatters;
-    using Interfaces;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
+﻿using System;
+using System.Globalization;
+using System.IO;
+using System.Runtime.Serialization.Formatters;
+using Idecom.Bus.Interfaces;
+using Idecom.Bus.Serializer.JsonNet.Converters;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
+namespace Idecom.Bus.Serializer.JsonNet
+{
     public class JsonNetMessageSerializer : IMessageSerializer
     {
         private readonly IInstanceCreator _instanceCreator;
@@ -21,7 +21,13 @@
             {
                 TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
                 TypeNameHandling = TypeNameHandling.Auto,
-                Converters = {new IsoDateTimeConverter {DateTimeStyles = DateTimeStyles.RoundtripKind}},
+                Converters =
+                {
+                    new IsoDateTimeConverter {DateTimeStyles = DateTimeStyles.RoundtripKind},
+                    new StringEnumConverter(),
+                    new TimeSpanConverter(),
+                    new UriConverter()
+                },
                 MissingMemberHandling = MissingMemberHandling.Ignore,
             };
         }
@@ -40,21 +46,6 @@
         {
             var result = JsonConvert.DeserializeObject(message, type);
             return result;
-        }
-    }
-
-    public class InterfaceSupportingBinder : SerializationBinder
-    {
-        private readonly IInstanceCreator _instanceCreator;
-
-        public InterfaceSupportingBinder(IInstanceCreator instanceCreator)
-        {
-            _instanceCreator = instanceCreator;
-        }
-
-        public override Type BindToType(string assemblyName, string typeName)
-        {
-            return null;
         }
     }
 }

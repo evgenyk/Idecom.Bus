@@ -1,10 +1,14 @@
-﻿namespace Idecom.Bus.SampleMessages
+﻿using System;
+
+namespace Idecom.Bus.SampleMessages
 {
     public class SayHelloCommand
     {
         public SayHelloCommand(string greeting)
         {
             Greeting = greeting;
+            InterestingWebsite = new Uri("http://www.whatever.com");
+            HaventSeenYouSince = TimeSpan.FromDays(35);
         }
 
         protected SayHelloCommand()
@@ -12,6 +16,8 @@
         }
 
         public string Greeting { get; set; }
+        public Uri InterestingWebsite { get; set; }
+        public TimeSpan HaventSeenYouSince { get; set; }
     }
 
     public class SayGoodByeCommand : SayHelloCommand
