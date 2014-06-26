@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>Idecom.Bus.PubSub.MongoDB</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <title>Idecom.Bus.PubSub.MongoDB</title>
     <authors>Evgeny Komarevtsev</authors>
     <owners>Evgeny Komarevtsev</owners>
@@ -11,7 +11,7 @@
     <releaseNotes></releaseNotes>
     <dependencies>
       <dependency id="Idecom.Bus" />
-      <dependency id="mongocsharpdriver" version="1.9.1" />
+      <dependency id="mongocsharpdriver" />
     </dependencies>
   </metadata>
   <files>

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Idecom.Bus</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <authors>Evgeny Komarevtsev</authors>
     <owners>Evgeny Komarevtsev</owners>
     <description>Idecom message bus - low friction service bus with pluggable everything</description>
