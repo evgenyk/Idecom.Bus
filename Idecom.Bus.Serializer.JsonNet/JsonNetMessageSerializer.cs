@@ -44,8 +44,9 @@ namespace Idecom.Bus.Serializer.JsonNet
 
         public object DeSerialize(string message, Type type)
         {
-            var result = JsonConvert.DeserializeObject(message, type);
-            return result;
+            var serializer = JsonSerializer.Create(_jsonSerializerSettings);
+            var deserialized = serializer.Deserialize(new StringReader(message), type);
+            return deserialized;
         }
     }
 }

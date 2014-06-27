@@ -65,8 +65,8 @@ namespace Idecom.Bus.Utility
             var propertyName = propertyInfo.Name;
             var propertyType = propertyInfo.GetMethod.ReturnType;
 
-            var field = typeBuilder.DefineField(String.Format("_{0}", propertyName), typeof(string), FieldAttributes.Private);
-            var prop = typeBuilder.DefineProperty(propertyName, PropertyAttributes.HasDefault, typeof(string), null);
+            var field = typeBuilder.DefineField(String.Format("_{0}", propertyName), propertyType, FieldAttributes.Private);
+            var prop = typeBuilder.DefineProperty(propertyName, PropertyAttributes.HasDefault, propertyType, null);
             const MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Final | MethodAttributes.Virtual;
 
 

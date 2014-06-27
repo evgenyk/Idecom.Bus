@@ -64,7 +64,13 @@ namespace Idecom.Bus.Transport.MongoDB
                         continue;
                     }
                     lastEmptyQueueSleepMs = 5;
-                    new Task(() => { using (_container.BeginUnitOfWork()) { ProcessWithRetry(mongoTransportMessageEntity.ToTransportMessage(_serializer), mongoTransportMessageEntity); } }).Start(_scheduler);
+                    new Task(() =>
+                    {
+                        using (_container.BeginUnitOfWork())
+                        {
+                            ProcessWithRetry(mongoTransportMessageEntity.ToTransportMessage(_serializer), mongoTransportMessageEntity);
+                        }
+                    }).Start(_scheduler);
                 }
             });
             _queueReaderThread.Start();
