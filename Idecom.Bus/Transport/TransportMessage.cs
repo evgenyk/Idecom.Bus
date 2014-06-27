@@ -1,9 +1,12 @@
-﻿namespace Idecom.Bus.Transport
+﻿using System.Diagnostics;
+
+namespace Idecom.Bus.Transport
 {
     using System;
     using System.Collections.Generic;
     using Addressing;
 
+    [DebuggerStepThrough]
     public class TransportMessage
     {
         public TransportMessage(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType = null, Dictionary<string, string> headers = null)

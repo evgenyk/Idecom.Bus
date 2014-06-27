@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Idecom.Bus.Addressing;
@@ -120,6 +121,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
             SubscriptionDistributor.NotifySubscribersOf<T>(message, CurrentMessageContextInternal());
         }
 
+        [DebuggerStepThrough]
         private CurrentMessageContext CurrentMessageContextInternal()
         {
             var currentMessageContext = Container.Resolve<CurrentMessageContext>();
