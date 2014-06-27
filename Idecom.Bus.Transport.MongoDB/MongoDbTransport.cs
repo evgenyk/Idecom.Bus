@@ -52,6 +52,9 @@
 
         public void Send(TransportMessage transportMessage, CurrentMessageContext currentMessageContext = null)
         {
+            if (transportMessage.TargetAddress == null)
+                throw new InvalidOperationException(string.Format("Can not send a message of type {0} as the target address could not be found. did you forget to configure routing?", transportMessage.MessageType.Name));
+
             if (currentMessageContext == null)
                 _sender.Send(transportMessage);
             else
