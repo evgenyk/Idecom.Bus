@@ -17,7 +17,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
     {
         private bool _isStarted;
         public IContainer Container { get; set; }
-        public IRoutingTable<MethodInfo> HandlerRoutingTable { get; set; }
+        public IMultiRoutingTable<MethodInfo> HandlerRoutingTable { get; set; }
         public IRoutingTable<Address> MessageRoutingTable { get; set; }
         public IRoutingTable<Type> MessageToStartSagaMapping { get; set; }
         public IMessageSerializer Serializer { get; set; }
@@ -145,66 +145,14 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 currentMessageContext.Attempt = e.Attempt;
                 currentMessageContext.MaxAttempts = e.MaxRetries + 1;
 
-                var handlerMethod = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType);
+                var handlerMethods = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType).ToList();
 
-                var handlerNotFoundMessage = string.Format("Could not resolve handler for {0}", e.TransportMessage.MessageType);
-                if (handlerMethod == null)
-                    throw new Exception(handlerNotFoundMessage);
-
-                var handler = Container.Resolve(handlerMethod.DeclaringType);
-                Action executeHandler = () => handlerMethod.Invoke(handler, new[] {e.TransportMessage.Message});
-
-                var startSagaType = MessageToStartSagaMapping.ResolveRouteFor(e.TransportMessage.MessageType);
-                var inSaga = IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType) &&
-                             (startSagaType != null || currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID));
-
-                if (!inSaga && IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType))
-                    throw new Exception(handlerNotFoundMessage);
+                if (!handlerMethods.Any())
+                    Console.WriteLine("Warning: Received a message of type {0}, but could not find a handler for it", e.TransportMessage.MessageType);
 
 
-                string sagaId = null;
-
-                if (currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID))
-                    sagaId = currentMessageContext.TransportMessage.Headers[SystemHeaders.SAGA_ID];
-
-                var isSagaSingleton = inSaga && handlerMethod.DeclaringType.GetCustomAttribute<SingleInstanceSagaAttribute>() != null;
-
-                if (sagaId == null && isSagaSingleton)
-                    sagaId = startSagaType.FullName.ToLowerInvariant();
-
-
-                if (inSaga)
-                {
-                    if (sagaId != null)
-                        currentMessageContext.ResumeSaga(sagaId);
-
-
-                    object sagaData = null;
-
-                    if (sagaId != null)
-                        sagaData = SagaStorage.Get(sagaId);
-
-                    if (sagaData == null)
-                    {
-                        sagaId = currentMessageContext.StartSaga(sagaId);
-                        var sagaStateClass = startSagaType.BaseType.GenericTypeArguments.FirstOrDefault();
-                        sagaData = InstanceCreator.CreateInstanceOf(sagaStateClass);
-                    }
-
-                    var sagaDataProperty = handler.GetType().GetProperty("Data");
-                    sagaDataProperty.SetValue(handler, sagaData);
-
-                    try { executeHandler(); }
-                    finally
-                    {
-                        if (((ISaga) handler).IsClosed)
-                            SagaStorage.Close(sagaId);
-                        else
-                            SagaStorage.Update(sagaId, sagaData);
-                    }
-                }
-                else
-                { executeHandler(); }
+                foreach (var handlerMethod in handlerMethods)
+                    ExecuteHandler(e, handlerMethod, currentMessageContext);
             }
             catch (Exception ex)
             {
@@ -212,6 +160,65 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 throw;
             }
             finally { Container.Release(currentMessageContext); }
+        }
+
+        private void ExecuteHandler(TransportMessageReceivedEventArgs e, MethodInfo handlerMethod, CurrentMessageContext currentMessageContext)
+        {
+
+            var handler = Container.Resolve(handlerMethod.DeclaringType);
+            Action executeHandler = () => handlerMethod.Invoke(handler, new[] {e.TransportMessage.Message});
+
+            var startSagaType = MessageToStartSagaMapping.ResolveRouteFor(e.TransportMessage.MessageType);
+            var inSaga = IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType) &&
+                         (startSagaType != null || currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID));
+
+            if (!inSaga && IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType))
+                return;
+
+
+            string sagaId = null;
+
+            if (currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID))
+                sagaId = currentMessageContext.TransportMessage.Headers[SystemHeaders.SAGA_ID];
+
+            var isSagaSingleton = inSaga && handlerMethod.DeclaringType.GetCustomAttribute<SingleInstanceSagaAttribute>() != null;
+
+            if (sagaId == null && isSagaSingleton)
+                sagaId = startSagaType.FullName.ToLowerInvariant();
+
+
+            if (inSaga)
+            {
+                if (sagaId != null)
+                    currentMessageContext.ResumeSaga(sagaId);
+
+
+                object sagaData = null;
+
+                if (sagaId != null)
+                    sagaData = SagaStorage.Get(sagaId);
+
+                if (sagaData == null)
+                {
+                    sagaId = currentMessageContext.StartSaga(sagaId);
+                    var sagaStateClass = startSagaType.BaseType.GenericTypeArguments.FirstOrDefault();
+                    sagaData = InstanceCreator.CreateInstanceOf(sagaStateClass);
+                }
+
+                var sagaDataProperty = handler.GetType().GetProperty("Data");
+                sagaDataProperty.SetValue(handler, sagaData);
+
+                try { executeHandler(); }
+                finally
+                {
+                    if (((ISaga) handler).IsClosed)
+                        SagaStorage.Close(sagaId);
+                    else
+                        SagaStorage.Update(sagaId, sagaData);
+                }
+            }
+            else
+            { executeHandler(); }
         }
 
         private static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
@@ -274,8 +281,10 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 if (firstParameter == null) continue;
 
                 HandlerRoutingTable.RouteTypes(new[] {firstParameter.ParameterType}, methodInfo);
-                var method = HandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
-                Container.Configure(method.DeclaringType, ComponentLifecycle.PerUnitOfWork);
+                
+                IEnumerable<MethodInfo> methods = HandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
+                foreach (var method in methods)
+                    Container.Configure(method.DeclaringType, ComponentLifecycle.PerUnitOfWork);
             }
 
 

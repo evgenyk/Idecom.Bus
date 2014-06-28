@@ -26,7 +26,7 @@
             internal set
             {
                 value.ConfigureInstance(new RoutingTable<Address>());
-                value.ConfigureInstance(new RoutingTable<MethodInfo>());
+                value.ConfigureInstance(new MultiRoutingTable<MethodInfo>());
                 value.ConfigureInstance(new RoutingTable<Type>());
 
                 value.Configure<EffectiveConfiguration>(ComponentLifecycle.Singleton);

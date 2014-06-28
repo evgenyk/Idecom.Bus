@@ -52,6 +52,7 @@
     <Compile Include="Implementations\Internal\EffectiveConfiguration.cs" />
     <Compile Include="Implementations\InstanceCreator.cs" />
     <Compile Include="Implementations\Internal\NamespaceToEndpointMapping.cs" />
+    <Compile Include="Implementations\MultiRoutingTable.cs" />
     <Compile Include="Implementations\NestedConfigurationBase.cs" />
     <Compile Include="Implementations\RoutingTable.cs" />
     <Compile Include="Implementations\Saga.cs" />
