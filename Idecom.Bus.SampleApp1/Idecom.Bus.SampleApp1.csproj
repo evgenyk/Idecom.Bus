@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Bus1Handlers\NicePersonConversationSaga.cs" />
     <Compile Include="Bus1Handlers\NicePersonConversationState.cs" />
+    <Compile Include="Bus1Handlers\SayHelloTyMyselfHandler.cs" />
     <Compile Include="PerfMetric.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

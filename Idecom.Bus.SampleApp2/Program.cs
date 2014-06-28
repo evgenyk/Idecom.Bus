@@ -38,6 +38,7 @@ namespace Idecom.Bus.SampleApp2
 //            }
 
 
+
             Console.WriteLine("Bus configured. Press any key to close the app.");
             Console.ReadKey();
             bus.Stop();

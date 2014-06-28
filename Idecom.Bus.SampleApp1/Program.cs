@@ -23,6 +23,7 @@ namespace Idecom.Bus.SampleApp1
                                        .CreateBus("app1")
                                        .Start();
 
+            busInstance.SendLocal(new SayHelloCommand("Blah"));
 
             Console.WriteLine("Bus configured. Press any key to close the app.");
             Console.ReadKey();
