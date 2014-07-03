@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Idecom.Bus.Addressing;
 using Idecom.Bus.Implementations;
 using Idecom.Bus.Interfaces;
 using Idecom.Bus.Interfaces.Addons.PubSub;
@@ -17,6 +18,7 @@ namespace Idecom.Bus.PubSub.MongoDB
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }
         public IRoutingTable<Type> SagaRoutingTable { get; set; }
+        public Address Address { get; set; }
 
         public void BeforeBusStarted()
         {
@@ -36,6 +38,7 @@ namespace Idecom.Bus.PubSub.MongoDB
 
             var update = Update<SagaStorageEntity>
                 .Set(e => e.Data, sagaDataWithDiscriminator)
+                .Set(e => e.OwnerEndpoint, Address.ToString())
                 .Set(e=>e.DateUpdated, DateTime.UtcNow)
                 .SetOnInsert(e=>e.DateStarted, DateTime.UtcNow);
             
@@ -44,7 +47,8 @@ namespace Idecom.Bus.PubSub.MongoDB
 
         public object Get(string sagaId)
         {
-            var result = _collection.FindOneByIdAs<SagaStorageEntity>(sagaId);
+            var mongoQuery = Query.And(Query<SagaStorageEntity>.EQ(x=>x.Id, sagaId), Query<SagaStorageEntity>.EQ(x=>x.OwnerEndpoint, Address.ToString()));
+            var result = _collection.FindOneAs<SagaStorageEntity>(mongoQuery);
             var resultOrNull = result == null ? null : result.Data;
 
             return resultOrNull;

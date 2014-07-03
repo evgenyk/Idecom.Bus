@@ -17,6 +17,9 @@ namespace Idecom.Bus.PubSub.MongoDB
         [BsonElement("d")]
         public object Data { get; set; }
 
+        [BsonElement("oe")]
+        public string OwnerEndpoint { get; set; }
+
         [BsonElement("du")]
         public DateTime DateUpdated { get; set; }
 
