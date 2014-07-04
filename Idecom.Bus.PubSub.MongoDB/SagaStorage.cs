@@ -33,7 +33,7 @@ namespace Idecom.Bus.PubSub.MongoDB
 
         public void Update(string sagaId, object sagaData)
         {
-            var byIdQuery = GetByIdQuery(sagaId);
+            var byIdQuery = Query<SagaStorageEntity>.EQ(x=>x.Id, GetInternalSagaId(sagaId));
             var sagaDataWithDiscriminator = sagaData.ToBsonDocument().Set("_t", sagaData.GetType().Name);
 
             var update = Update<SagaStorageEntity>
@@ -47,22 +47,21 @@ namespace Idecom.Bus.PubSub.MongoDB
 
         public object Get(string sagaId)
         {
-            var byIdQuery = GetByIdQuery(sagaId);
+            var byIdQuery = Query<SagaStorageEntity>.EQ(x=>x.Id, GetInternalSagaId(sagaId));
             var result = _collection.FindOneAs<SagaStorageEntity>(byIdQuery);
             var resultOrNull = result == null ? null : result.Data;
 
             return resultOrNull;
         }
 
-        private IMongoQuery GetByIdQuery(string sagaId)
+        private string GetInternalSagaId(string sagaId)
         {
-            var sagaIdInternal = sagaId + "_" + Address;
-            return Query<SagaStorageEntity>.EQ(x=>x.Id, sagaIdInternal);
+            return sagaId + "_" + Address;
         }
 
         public void Close(string sagaId)
         {
-            var query = Query<SagaStorageEntity>.EQ(x => x.Id, sagaId);
+            var query = Query<SagaStorageEntity>.EQ(x => x.Id, GetInternalSagaId(sagaId));
             _collection.Remove(query);
         }
 
