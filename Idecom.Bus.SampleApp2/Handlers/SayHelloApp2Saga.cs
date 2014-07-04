@@ -1,13 +1,16 @@
-﻿namespace Idecom.Bus.SampleApp2.Handlers
+﻿using Idecom.Bus.Implementations;
+using Idecom.Bus.Interfaces.Addons.Stories;
+
+namespace Idecom.Bus.SampleApp2.Handlers
 {
     using System;
     using Interfaces;
     using SampleMessages;
 
-    public class SayHelloHandler : IHandle<SayHelloCommand>, IHandle<SayGoodByeCommand>
+    public class SayHelloApp2Saga : Saga<SayHelloSagaInApp2State>, 
+        IStartThisSagaWhenReceive<SayHelloCommand>, 
+        IHandle<SayGoodByeCommand>
     {
-        public IBus Bus { get; set; }
-
         public void Handle(SayGoodByeCommand command)
         {
             Console.WriteLine("A friend said good bye, said see you");
@@ -20,5 +23,9 @@
 
             Bus.Reply(new SayHelloCommand("Hello back to you!!"));
         }
+    }
+
+    public class SayHelloSagaInApp2State : ISagaState
+    {
     }
 }

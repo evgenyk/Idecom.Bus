@@ -69,7 +69,14 @@
             foreach (string collectionName in targetQueues.Select(queue => queue.ToString()))
             {
                 if (!_database.CollectionExists(collectionName))
-                    _database.CreateCollection(collectionName);
+                    try
+                    {
+                        _database.CreateCollection(collectionName);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Could not create collection {0} with exception {1}", collectionName, e);
+                    }
                 var mongoCollection = _database.GetCollection(collectionName);
                 const string dequeueIndexName = "Stataus_Id";
                 if (!mongoCollection.IndexExists(dequeueIndexName))
