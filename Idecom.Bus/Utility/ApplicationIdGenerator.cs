@@ -23,7 +23,7 @@
             if (_machineIdCache != null)
                 return _machineIdCache;
 
-            var entryAssembly = Assembly.GetEntryAssembly();
+            var entryAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
 
             var domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
             var hostName = Dns.GetHostName();

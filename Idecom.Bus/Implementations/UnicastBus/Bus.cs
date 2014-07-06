@@ -7,7 +7,7 @@ using Idecom.Bus.Addressing;
 using Idecom.Bus.Implementations.Internal;
 using Idecom.Bus.Interfaces;
 using Idecom.Bus.Interfaces.Addons.PubSub;
-using Idecom.Bus.Interfaces.Addons.Stories;
+using Idecom.Bus.Interfaces.Addons.Sagas;
 using Idecom.Bus.Transport;
 using Idecom.Bus.Utility;
 

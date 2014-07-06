@@ -1,4 +1,4 @@
-﻿namespace Idecom.Bus.Interfaces.Addons.Stories
+﻿namespace Idecom.Bus.Interfaces.Addons.Sagas
 {
     public interface ISaga
     {

@@ -62,9 +62,9 @@
     <Compile Include="Interfaces\Addons\PubSub\ISagaStorage.cs" />
     <Compile Include="Interfaces\Addons\PubSub\ISubscriptionDistributor.cs" />
     <Compile Include="Interfaces\Addons\PubSub\ISubscriptionStorage.cs" />
-    <Compile Include="Interfaces\Addons\Stories\ISaga.cs" />
-    <Compile Include="Interfaces\Addons\Stories\ISagaManager.cs" />
-    <Compile Include="Interfaces\Addons\Stories\ISagaState.cs" />
+    <Compile Include="Interfaces\Addons\Sagas\ISaga.cs" />
+    <Compile Include="Interfaces\Addons\Sagas\ISagaManager.cs" />
+    <Compile Include="Interfaces\Addons\Sagas\ISagaState.cs" />
     <Compile Include="Interfaces\IBeforeBusStarted.cs" />
     <Compile Include="Interfaces\IBeforeBusStopped.cs" />
     <Compile Include="Interfaces\IBus.cs" />

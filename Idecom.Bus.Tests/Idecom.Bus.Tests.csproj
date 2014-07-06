@@ -32,6 +32,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core">
+      <HintPath>..\packages\Castle.Core.3.3.0\lib\net45\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Windsor, Version=3.3.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Castle.Windsor.3.3.0\lib\net45\Castle.Windsor.dll</HintPath>
+    </Reference>
     <Reference Include="MongoDB.Bson, Version=1.9.1.221, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\mongocsharpdriver.1.9.1\lib\net35\MongoDB.Bson.dll</HintPath>
@@ -56,7 +63,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="InterfaceProxyGeneratorTests.cs" />
-    <Compile Include="MongoDbTests\MongoDbSerializationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SagaTests.cs" />
   </ItemGroup>
@@ -65,6 +71,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Idecom.Bus.IoC.CastleWindsor\Idecom.Bus.IoC.CastleWindsor.csproj">
+      <Project>{ECF7264E-6522-4653-A47B-DCFFF6DF5EFD}</Project>
+      <Name>Idecom.Bus.IoC.CastleWindsor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Idecom.Bus.PubSub.MongoDB\Idecom.Bus.PubSub.MongoDB.csproj">
       <Project>{9dd532af-0c9b-427e-9100-02b526707105}</Project>
       <Name>Idecom.Bus.PubSub.MongoDB</Name>
@@ -72,6 +82,10 @@
     <ProjectReference Include="..\Idecom.Bus.Serializer.JsonNet\Idecom.Bus.Serializer.JsonNet.csproj">
       <Project>{8a0fc948-3ca2-4eac-87c9-9d76ce180b7a}</Project>
       <Name>Idecom.Bus.Serializer.JsonNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Idecom.Bus.Transport.MongoDB\Idecom.Bus.Transport.MongoDB.csproj">
+      <Project>{CDCA2FD0-B0FC-4544-B731-6DAF7FD14752}</Project>
+      <Name>Idecom.Bus.Transport.MongoDB</Name>
     </ProjectReference>
     <ProjectReference Include="..\Idecom.Bus\Idecom.Bus.csproj">
       <Project>{ee090f5d-3b56-4773-8b22-28eeec9d18e2}</Project>

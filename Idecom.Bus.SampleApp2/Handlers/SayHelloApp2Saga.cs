@@ -1,5 +1,5 @@
 ﻿using Idecom.Bus.Implementations;
-using Idecom.Bus.Interfaces.Addons.Stories;
+using Idecom.Bus.Interfaces.Addons.Sagas;
 
 namespace Idecom.Bus.SampleApp2.Handlers
 {

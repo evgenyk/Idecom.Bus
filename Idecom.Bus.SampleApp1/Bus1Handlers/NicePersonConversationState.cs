@@ -1,4 +1,4 @@
-﻿using Idecom.Bus.Interfaces.Addons.Stories;
+﻿using Idecom.Bus.Interfaces.Addons.Sagas;
 
 namespace Idecom.Bus.SampleApp1.Bus1Handlers
 {
