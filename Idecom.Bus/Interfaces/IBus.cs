@@ -8,6 +8,6 @@
         void Send(object message);
         void SendLocal(object message);
         void Reply(object message);
-        void Raise<T>(Action<T> action) where T : class;
+        void Raise<T>(Action<T> action = null) where T : class;
     }
 }

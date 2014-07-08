@@ -118,7 +118,9 @@ namespace Idecom.Bus.Implementations.UnicastBus
         public void Raise<T>(Action<T> action) where T : class
         {
             var message = InstanceCreator.CreateInstanceOf<T>();
-            action(message);
+            if (action != null)
+                action(message);
+
             SubscriptionDistributor.NotifySubscribersOf<T>(message, CurrentMessageContextInternal());
         }
 

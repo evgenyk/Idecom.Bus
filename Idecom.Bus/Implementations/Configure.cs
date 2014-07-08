@@ -64,5 +64,11 @@
             _namespaceToEndpoints.Add(new NamespaceToEndpointMapping(typeof (T).Namespace, new Address(address)));
             return this;
         }
+
+        public Configure ExposeConfiguration(Action<Configure> exposeConfigurationAction)
+        {
+            exposeConfigurationAction(this);
+            return this;
+        }
     }
 }
