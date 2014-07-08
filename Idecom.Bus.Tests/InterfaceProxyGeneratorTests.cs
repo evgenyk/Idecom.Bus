@@ -27,7 +27,9 @@
 
         public interface IAmAnInterface : IAnotherInterface
         {
-            string StringProperty { get; set; } //on purpose
+#pragma warning disable 108,114
+            string StringProperty { get; set; }
+#pragma warning restore 108,114
         }
 
         public interface IAnotherInterface
