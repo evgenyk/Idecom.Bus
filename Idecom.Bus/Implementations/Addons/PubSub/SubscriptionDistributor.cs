@@ -10,9 +10,16 @@ namespace Idecom.Bus.Implementations.Addons.PubSub
 {
     internal class SubscriptionDistributor : ISubscriptionDistributor
     {
-        public ISubscriptionStorage Storage { get; set; }
-        public Address LocalAddress { get; set; }
-        public ITransport Transport { get; set; }
+        public SubscriptionDistributor(ISubscriptionStorage storage, Address localAddress, ITransport transport)
+        {
+            Storage = storage;
+            LocalAddress = localAddress;
+            Transport = transport;
+        }
+
+        public ISubscriptionStorage Storage { get; private set; }
+        public Address LocalAddress { get; private set; }
+        public ITransport Transport { get; private set; }
 
         public void NotifySubscribersOf<T>(object message, CurrentMessageContext currentMessageContext) where T : class
         {

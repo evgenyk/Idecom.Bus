@@ -67,6 +67,10 @@ namespace Idecom.Bus.Implementations.UnicastBus
                     Container.Release(beforeBusStarted);
                 }
 
+                if (events.Any())
+                    if (SubscriptionDistributor == null)
+                        throw new Exception(string.Format("Could not start pub/sub infrustructure: found {0} event(s) but SubscriptionsDistributor has not been configured", events.Count));
+
                 SubscriptionDistributor.Unsubscribe(events.Except(eventsWithHandlers));
                 SubscriptionDistributor.SubscribeTo(eventsWithHandlers);
 
@@ -141,6 +145,9 @@ namespace Idecom.Bus.Implementations.UnicastBus
             try
             {
                 currentMessageContext = Container.Resolve<CurrentMessageContext>();
+                if (currentMessageContext == null)
+                    throw new Exception("Could not resolve current message context");
+
                 currentMessageContext.TransportMessage = e.TransportMessage;
                 currentMessageContext.Attempt = e.Attempt;
                 currentMessageContext.MaxAttempts = e.MaxRetries + 1;

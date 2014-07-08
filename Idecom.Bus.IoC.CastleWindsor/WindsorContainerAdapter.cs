@@ -1,16 +1,16 @@
-﻿namespace Idecom.Bus.IoC.CastleWindsor
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using Castle.Core;
-    using Castle.MicroKernel.Lifestyle;
-    using Castle.MicroKernel.Registration;
-    using Castle.Windsor;
-    using Interfaces;
-    using Utility;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using Castle.Core;
+using Castle.MicroKernel.Lifestyle;
+using Castle.MicroKernel.Registration;
+using Castle.Windsor;
+using Idecom.Bus.Interfaces;
+using Idecom.Bus.Utility;
 
+namespace Idecom.Bus.IoC.CastleWindsor
+{
     public class WindsorContainerAdapter : IContainer
     {
         private readonly IWindsorContainer _container;
@@ -53,8 +53,12 @@
 
         public T Resolve<T>()
         {
-            try { return _container.Resolve<T>(); }
-            catch (Exception) {
+            try
+            {
+                return _container.Resolve<T>();
+            }
+            catch (Exception)
+            {
                 return default(T);
             }
         }
