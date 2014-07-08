@@ -1,4 +1,5 @@
-﻿using Idecom.Bus.Interfaces.Addons.PubSub;
+﻿using System;
+using Idecom.Bus.Interfaces.Addons.PubSub;
 
 namespace Idecom.Bus.Tests.InMemoryInfrustructure
 {
@@ -6,15 +7,17 @@ namespace Idecom.Bus.Tests.InMemoryInfrustructure
     {
         public void Update(string sagaId, object sagaData)
         {
+            throw new NotImplementedException();
         }
 
         public object Get(string sagaId)
         {
-            return null;
+            throw new NotImplementedException();
         }
 
         public void Close(string sagaId)
         {
+            throw new NotImplementedException();
         }
     }
 }

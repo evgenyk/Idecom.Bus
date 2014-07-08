@@ -19,7 +19,7 @@ namespace Idecom.Bus.Tests.InMemoryInfrustructure
         {
             using (Container.BeginUnitOfWork())
             {
-                TransportMessageReceived(this, new TransportMessageReceivedEventArgs(new TransportMessage(transportMessage.Message, transportMessage.TargetAddress, transportMessage.TargetAddress, transportMessage.Intent, transportMessage.Message.GetType()), 1, 1));
+                TransportMessageReceived(this, new TransportMessageReceivedEventArgs(new TransportMessage(transportMessage.Message, transportMessage.TargetAddress, transportMessage.TargetAddress, transportMessage.Intent, transportMessage.MessageType ?? transportMessage.Message.GetType()), 1, 1));
             }
         }
 

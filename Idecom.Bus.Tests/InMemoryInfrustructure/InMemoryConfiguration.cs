@@ -13,5 +13,13 @@ namespace Idecom.Bus.Tests.InMemoryInfrustructure
 
             return configure;
         }
+
+        public static Configure InMemoryPubSub(this Configure configure, int workersCount = 1, int retries = 1)
+        {
+            configure.Container.Configure<InMemorySubscriptionStorage>(ComponentLifecycle.Singleton);
+            configure.Container.Configure<InMemorySagaPersister>(ComponentLifecycle.Singleton);
+
+            return configure;
+        }
     }
 }

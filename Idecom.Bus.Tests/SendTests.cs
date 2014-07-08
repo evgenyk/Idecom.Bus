@@ -8,13 +8,19 @@ using Xunit.Should;
 
 namespace Idecom.Bus.Tests
 {
-    public class SendTests : IHandle<ACommand>
+    public class SendTests : IHandle<ACommand>, IHandle<IEvent>
     {
-        private volatile static int _handlerCalledTimes;
+        private static volatile int _commandsHandled;
+        private static volatile int _eventsHandled;
 
         public void Handle(ACommand command)
         {
-            _handlerCalledTimes++;
+            _commandsHandled++;
+        }
+
+        public void Handle(IEvent command)
+        {
+            _eventsHandled++;
         }
 
         [Fact]
@@ -23,12 +29,13 @@ namespace Idecom.Bus.Tests
             var bus = Configure.With()
                 .WindsorContainer()
                 .InMemoryTransport()
+                .InMemoryPubSub()
                 .JsonNetSerializer()
                 .CreateBus("app1")
                 .Start();
 
             bus.SendLocal(new ACommand());
-            _handlerCalledTimes.ShouldBeGreaterThan(0);
+            _commandsHandled.ShouldBeGreaterThan(0);
         }
 
         [Fact]
@@ -37,12 +44,13 @@ namespace Idecom.Bus.Tests
             var bus = Configure.With()
                 .WindsorContainer()
                 .InMemoryTransport()
+                .InMemoryPubSub()
                 .JsonNetSerializer()
                 .CreateBus("app1")
                 .Start();
 
             bus.Raise<IEvent>(e => { });
-            _handlerCalledTimes.ShouldBeGreaterThan(0);
+            _eventsHandled.ShouldBeGreaterThan(0);
         }
     }
 
