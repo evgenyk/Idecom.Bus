@@ -8,7 +8,7 @@ using Xunit.Should;
 
 namespace Idecom.Bus.Tests
 {
-    public class SendTests : IHandle<ACommand>, IHandle<IEvent>
+    public class BasicSendAndPublishTests : IHandle<ACommand>, IHandle<IEvent>
     {
         private static volatile int _commandsHandled;
         private static volatile int _eventsHandled;
