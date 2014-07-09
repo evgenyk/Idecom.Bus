@@ -62,10 +62,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InMemoryInfrustructure\InMemoryConfiguration.cs" />
-    <Compile Include="InMemoryInfrustructure\InMemorySagaPersister.cs" />
-    <Compile Include="InMemoryInfrustructure\InMemorySubscriptionStorage.cs" />
-    <Compile Include="InMemoryInfrustructure\InMemoryTransport.cs" />
+    <Compile Include="InMemoryInfrastructure\InMemoryConfiguration.cs" />
+    <Compile Include="InMemoryInfrastructure\InMemorySagaPersister.cs" />
+    <Compile Include="InMemoryInfrastructure\InMemorySubscriptionStorage.cs" />
+    <Compile Include="InMemoryInfrastructure\InMemoryTransport.cs" />
     <Compile Include="InterfaceProxyGeneratorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BasicSendAndPublishTests.cs" />

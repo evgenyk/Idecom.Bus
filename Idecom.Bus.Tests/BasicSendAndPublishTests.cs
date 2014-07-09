@@ -2,7 +2,7 @@
 using Idecom.Bus.Interfaces;
 using Idecom.Bus.IoC.CastleWindsor;
 using Idecom.Bus.Serializer.JsonNet;
-using Idecom.Bus.Tests.InMemoryInfrustructure;
+using Idecom.Bus.Tests.InMemoryInfrastructure;
 using Xunit;
 using Xunit.Should;
 

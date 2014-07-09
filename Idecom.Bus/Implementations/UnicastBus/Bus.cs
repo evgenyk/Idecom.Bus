@@ -156,12 +156,11 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
                 var handlerMethods = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType).ToList();
 
-                if (!handlerMethods.Any())
+                var executedHandlers = handlerMethods.Select(handler => ExecuteHandler(e, handler, currentMessageContext)).ToList();
+                
+                if (executedHandlers.All(x => !x))
                     Console.WriteLine("Warning: Received a message of type {0}, but could not find a handler for it", e.TransportMessage.MessageType);
 
-
-                foreach (var handlerMethod in handlerMethods)
-                    ExecuteHandler(e, handlerMethod, currentMessageContext);
             }
             catch (Exception ex)
             {
@@ -171,7 +170,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
             finally { Container.Release(currentMessageContext); }
         }
 
-        private void ExecuteHandler(TransportMessageReceivedEventArgs e, MethodInfo handlerMethod, CurrentMessageContext currentMessageContext)
+        private bool ExecuteHandler(TransportMessageReceivedEventArgs e, MethodInfo handlerMethod, CurrentMessageContext currentMessageContext)
         {
 
             var handler = Container.Resolve(handlerMethod.DeclaringType);
@@ -182,7 +181,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
                          (startSagaType != null || currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID));
 
             if (!inSaga && IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType))
-                return;
+                return false;
 
 
             string sagaId = null;
@@ -227,7 +226,11 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 }
             }
             else
-            { executeHandler(); }
+            {
+                executeHandler();
+            }
+
+            return true;
         }
 
         private static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)

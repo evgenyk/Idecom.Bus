@@ -1,7 +1,7 @@
 ﻿using Idecom.Bus.Implementations;
 using Idecom.Bus.Interfaces;
 
-namespace Idecom.Bus.Tests.InMemoryInfrustructure
+namespace Idecom.Bus.Tests.InMemoryInfrastructure
 {
     public static class InMemoryConfiguration
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Idecom.Bus.Addressing;
 using Idecom.Bus.Interfaces.Addons.PubSub;
 
-namespace Idecom.Bus.Tests.InMemoryInfrustructure
+namespace Idecom.Bus.Tests.InMemoryInfrastructure
 {
     public class InMemorySubscriptionStorage : ISubscriptionStorage
     {

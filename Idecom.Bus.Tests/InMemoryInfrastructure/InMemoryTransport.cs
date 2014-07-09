@@ -3,7 +3,7 @@ using Idecom.Bus.Implementations.UnicastBus;
 using Idecom.Bus.Interfaces;
 using Idecom.Bus.Transport;
 
-namespace Idecom.Bus.Tests.InMemoryInfrustructure
+namespace Idecom.Bus.Tests.InMemoryInfrastructure
 {
     public class InMemoryTransport : ITransport
     {
@@ -17,9 +17,9 @@ namespace Idecom.Bus.Tests.InMemoryInfrustructure
 
         public void Send(TransportMessage transportMessage, CurrentMessageContext currentMessageContext = null)
         {
-            using (Container.BeginUnitOfWork())
-            {
-                TransportMessageReceived(this, new TransportMessageReceivedEventArgs(new TransportMessage(transportMessage.Message, transportMessage.TargetAddress, transportMessage.TargetAddress, transportMessage.Intent, transportMessage.MessageType ?? transportMessage.Message.GetType()), 1, 1));
+            using (Container.BeginUnitOfWork()) {
+                TransportMessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage, 1, Retries));
+                TransportMessageFinished(this, new TransportMessageFinishedEventArgs(transportMessage));
             }
         }
 

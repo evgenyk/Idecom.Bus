@@ -26,7 +26,13 @@ namespace Idecom.Bus.Implementations.Addons.PubSub
             var subscribers = Storage.GetSubscribersFor<T>();
 
             foreach (var subscriber in subscribers)
-                Transport.Send(new TransportMessage(message, LocalAddress, subscriber, MessageIntent.Publish, typeof (T)), currentMessageContext);
+            {
+                var transportMessage = new TransportMessage(message, LocalAddress, subscriber, MessageIntent.Publish, typeof(T));
+                if (currentMessageContext != null)
+                    currentMessageContext.DelayedSend(transportMessage);
+                else 
+                    Transport.Send(transportMessage);
+            }
         }
 
         public void SubscribeTo(IEnumerable<Type> events)

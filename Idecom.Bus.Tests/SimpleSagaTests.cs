@@ -5,7 +5,7 @@ using Idecom.Bus.Interfaces;
 using Idecom.Bus.Interfaces.Addons.Sagas;
 using Idecom.Bus.IoC.CastleWindsor;
 using Idecom.Bus.Serializer.JsonNet;
-using Idecom.Bus.Tests.InMemoryInfrustructure;
+using Idecom.Bus.Tests.InMemoryInfrastructure;
 using Xunit;
 using Xunit.Should;
 
@@ -29,23 +29,23 @@ namespace Idecom.Bus.Tests
                 })
                 .CreateBus("app1")
                 .Start();
+            
             bus.Raise<IStartSimpleSagaEvent>();
-            sagaPersister.SagaStorage.Count().ShouldBeGreaterThan(0);
-            bus.Raise<IStopSimpleSagaEvent>();
-            sagaPersister.SagaStorage.Count().ShouldBeGreaterThan(0);
+            sagaPersister.SagaStorage.Count().ShouldBe(0);
         } 
     }
 
 
     public class SimpleSaga: Saga<SimpleSagaData>,
         IStartThisSagaWhenReceive<IStartSimpleSagaEvent>,
-        IHandle<IStopSimpleSagaEvent>
+        IHandle<ICompleteSimpleSagaEvent>
     {
         public void Handle(IStartSimpleSagaEvent command)
         {
+            Bus.Raise<ICompleteSimpleSagaEvent>();
         }
 
-        public void Handle(IStopSimpleSagaEvent command)
+        public void Handle(ICompleteSimpleSagaEvent command)
         {
             CloseSaga();
         }
@@ -55,7 +55,7 @@ namespace Idecom.Bus.Tests
     {
     }
 
-    public interface IStopSimpleSagaEvent
+    public interface ICompleteSimpleSagaEvent
     {
     }
 
