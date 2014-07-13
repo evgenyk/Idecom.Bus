@@ -154,9 +154,11 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 currentMessageContext.Attempt = e.Attempt;
                 currentMessageContext.MaxAttempts = e.MaxRetries + 1;
 
-                var handlerMethods = HandlerRoutingTable.ResolveRouteFor(e.TransportMessage.MessageType).ToList();
+                var message = e.TransportMessage.Message;
+                var type = e.TransportMessage.MessageType ?? message.GetType();
+                var handlerMethods = HandlerRoutingTable.ResolveRouteFor(type);
 
-                var executedHandlers = handlerMethods.Select(handler => ExecuteHandler(e, handler, currentMessageContext)).ToList();
+                var executedHandlers = handlerMethods.Select(handler => ExecuteHandler(message, handler, currentMessageContext)).ToList();
                 
                 if (executedHandlers.All(x => !x))
                     Console.WriteLine("Warning: Received a message of type {0}, but could not find a handler for it", e.TransportMessage.MessageType);
@@ -164,19 +166,19 @@ namespace Idecom.Bus.Implementations.UnicastBus
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine("Error while receiving a message: " + ex);
                 throw;
             }
             finally { Container.Release(currentMessageContext); }
         }
 
-        private bool ExecuteHandler(TransportMessageReceivedEventArgs e, MethodInfo handlerMethod, CurrentMessageContext currentMessageContext)
+        private bool ExecuteHandler(object message, MethodInfo handlerMethod, CurrentMessageContext currentMessageContext)
         {
 
             var handler = Container.Resolve(handlerMethod.DeclaringType);
-            Action executeHandler = () => handlerMethod.Invoke(handler, new[] {e.TransportMessage.Message});
+            Action executeHandler = () => handlerMethod.Invoke(handler, new[] {message});
 
-            var startSagaType = MessageToStartSagaMapping.ResolveRouteFor(e.TransportMessage.MessageType);
+            var startSagaType = MessageToStartSagaMapping.ResolveRouteFor(message.GetType());
             var inSaga = IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType) &&
                          (startSagaType != null || currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID));
 
