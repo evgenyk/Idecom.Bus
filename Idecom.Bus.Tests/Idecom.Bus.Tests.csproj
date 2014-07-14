@@ -69,7 +69,8 @@
     <Compile Include="InterfaceProxyGeneratorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BasicSendAndPublishTests.cs" />
-    <Compile Include="SimpleSagaTests.cs" />
+    <Compile Include="Sagas\SimpleSagaTests.cs" />
+    <Compile Include="Sagas\TwoSagasCommunicationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

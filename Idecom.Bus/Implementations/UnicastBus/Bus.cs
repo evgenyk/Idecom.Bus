@@ -158,7 +158,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 var type = e.TransportMessage.MessageType ?? message.GetType();
                 var handlerMethods = HandlerRoutingTable.ResolveRouteFor(type);
 
-                var executedHandlers = handlerMethods.Select(handler => ExecuteHandler(message, handler, currentMessageContext)).ToList();
+                var executedHandlers = handlerMethods.Select(handler => ExecuteHandler(message, type, handler, currentMessageContext)).ToList();
                 
                 if (executedHandlers.All(x => !x))
                     Console.WriteLine("Warning: Received a message of type {0}, but could not find a handler for it", e.TransportMessage.MessageType);
@@ -172,13 +172,13 @@ namespace Idecom.Bus.Implementations.UnicastBus
             finally { Container.Release(currentMessageContext); }
         }
 
-        private bool ExecuteHandler(object message, MethodInfo handlerMethod, CurrentMessageContext currentMessageContext)
+        private bool ExecuteHandler(object message, Type messageType, MethodInfo handlerMethod, CurrentMessageContext currentMessageContext)
         {
 
             var handler = Container.Resolve(handlerMethod.DeclaringType);
             Action executeHandler = () => handlerMethod.Invoke(handler, new[] {message});
 
-            var startSagaType = MessageToStartSagaMapping.ResolveRouteFor(message.GetType());
+            var startSagaType = MessageToStartSagaMapping.ResolveRouteFor(messageType);
             var inSaga = IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType) &&
                          (startSagaType != null || currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID));
 

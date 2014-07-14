@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Castle.Windsor;
 using Idecom.Bus.Implementations;
 using Idecom.Bus.Interfaces;
 using Idecom.Bus.Interfaces.Addons.Sagas;
@@ -9,7 +8,7 @@ using Idecom.Bus.Tests.InMemoryInfrastructure;
 using Xunit;
 using Xunit.Should;
 
-namespace Idecom.Bus.Tests
+namespace Idecom.Bus.Tests.Sagas
 {
     public class SimpleSagaTests
     {
