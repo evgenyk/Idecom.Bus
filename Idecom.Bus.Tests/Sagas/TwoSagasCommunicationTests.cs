@@ -12,7 +12,7 @@ namespace Idecom.Bus.Tests.Sagas
 {
     public class TwoSagasCommunicationTests
     {
-        [Fact(Skip = "Pending rewrite of saga handling")]
+        [Fact(Skip = "Still not in love")]
         public void TwoSagasCanTalkToEachOtherWhileKeepingStateSeparateTest()
         {
             InMemorySagaPersister sagaPersister1 = null;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Idecom.Bus.Addressing;
 using Idecom.Bus.Implementations.Internal;
 using Idecom.Bus.Interfaces;
@@ -160,7 +161,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 var handlerMethods = HandlerRoutingTable.ResolveRouteFor(type);
 
                 var executedHandlers = handlerMethods.Select(handler => ExecuteHandler(message, type, handler, currentMessageContext)).ToList();
-                
+
                 if (executedHandlers.All(x => !x))
                     Console.WriteLine("Warning: Received a message of type {0}, but could not find a handler for it", e.TransportMessage.MessageType);
 
@@ -177,16 +178,37 @@ namespace Idecom.Bus.Implementations.UnicastBus
         {
 
             var handler = Container.Resolve(handlerMethod.DeclaringType);
-            Action executeHandler = () => handlerMethod.Invoke(handler, new[] {message});
+            Action executeHandler = () => handlerMethod.Invoke(handler, new[] { message });
 
 
-            //TODO: Rewrite this whole thing. StateMachine = inSaga, pendingStartSaga, sagalessHandler?
+            if (IsSubclassOfRawGeneric(typeof(Saga<>), handlerMethod.DeclaringType)) //this must be a saga, whether existing or a new one is a diffirent question
+            {
+                ISagaStateInstance saga;
+                var sagaDataType = handlerMethod.DeclaringType.BaseType.GenericTypeArguments.First();
+                var startSagaTypes = MessageToStartSagaMapping.ResolveRouteFor(messageType);
+                if (startSagaTypes != null)
+                {
+                    saga = SagaManager.Start(sagaDataType, currentMessageContext);
+                }
+                else
+                {
+                    //trying to resume an existing saga, ignoring handler when no saga data present and log a warrning
+                    saga = SagaManager.Resume(sagaDataType, currentMessageContext);
+                }
+
+            }
+            else
+            {
+                //normal saga-less handler
+            }
+
 
             var startSagaType = MessageToStartSagaMapping.ResolveRouteFor(messageType);
-            var inSaga = IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType) &&
+
+            var inSaga = IsSubclassOfRawGeneric(typeof(Saga<>), handlerMethod.DeclaringType) &&
                          (startSagaType != null || currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID));
 
-            if (!inSaga && IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType))
+            if (!inSaga && IsSubclassOfRawGeneric(typeof(Saga<>), handlerMethod.DeclaringType))
                 return false;
 
 
@@ -225,7 +247,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 try { executeHandler(); }
                 finally
                 {
-                    if (((ISaga) handler).IsClosed)
+                    if (((ISaga)handler).IsClosed)
                         SagaStorage.Close(sagaId);
                     else
                         SagaStorage.Update(sagaId, sagaData);
@@ -241,7 +263,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
         private static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
         {
-            while (toCheck != null && toCheck != typeof (object))
+            while (toCheck != null && toCheck != typeof(object))
             {
                 var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
                 if (generic == cur) { return true; }
@@ -289,7 +311,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
             var handlers = allTypes.SelectMany(type => type.GetMethods()
                                                            .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
                                                                         .Where(type.GetInterfaces()
-                                                                                   .Where(intface => implementsType(intface, typeof (IHandle<>)))
+                                                                                   .Where(intface => implementsType(intface, typeof(IHandle<>)))
                                                                                    .SelectMany(intfs => intfs.GenericTypeArguments).Contains)
                                                                         .Any()));
 
@@ -298,8 +320,8 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 var firstParameter = methodInfo.GetParameters().FirstOrDefault();
                 if (firstParameter == null) continue;
 
-                HandlerRoutingTable.RouteTypes(new[] {firstParameter.ParameterType}, methodInfo);
-                
+                HandlerRoutingTable.RouteTypes(new[] { firstParameter.ParameterType }, methodInfo);
+
                 IEnumerable<MethodInfo> methods = HandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
                 foreach (var method in methods)
                     Container.Configure(method.DeclaringType, ComponentLifecycle.PerUnitOfWork);
@@ -307,12 +329,12 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
 
             var enumerable = allTypes.Where(x => x.GetInterfaces()
-                                                  .Any(intface => implementsType(intface, typeof (IStartThisSagaWhenReceive<>)))).ToList();
+                                                  .Any(intface => implementsType(intface, typeof(IStartThisSagaWhenReceive<>)))).ToList();
             var messageToStartSagaMapping = enumerable
                 .SelectMany(type => type.GetInterfaces()
-                                        .Where(intface => implementsType(intface, typeof (IStartThisSagaWhenReceive<>)))
+                                        .Where(intface => implementsType(intface, typeof(IStartThisSagaWhenReceive<>)))
                                         .Where(intfs => intfs.IsGenericType && intfs.GetGenericArguments().Any())
-                                        .Select(y => new {type, message = y.GenericTypeArguments.First()})).ToList();
+                                        .Select(y => new { type, message = y.GenericTypeArguments.First() })).ToList();
 
             messageToStartSagaMapping.ForEach(x => MessageToStartSagaMapping.RouteType(x.message, x.type));
         }
