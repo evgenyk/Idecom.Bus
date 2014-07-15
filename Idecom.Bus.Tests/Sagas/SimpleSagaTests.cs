@@ -15,8 +15,7 @@ namespace Idecom.Bus.Tests.Sagas
         [Fact]
         public void CanStartAndFinishSagaTest()
         {
-            InMemorySagaPersister sagaPersister = null;
-
+            InMemorySagaPersister inMemorySagaPersister = null;
             var bus = Configure.With()
                 .WindsorContainer()
                 .InMemoryTransport()
@@ -24,13 +23,14 @@ namespace Idecom.Bus.Tests.Sagas
                 .JsonNetSerializer()
                 .ExposeConfiguration(x =>
                 {
-                    sagaPersister = x.Container.Resolve<InMemorySagaPersister>();
+                    inMemorySagaPersister = x.Container.Resolve<InMemorySagaPersister>();
                 })
+                .DefineEventsAs(type => type == typeof(IStartSimpleSagaEvent) || type == typeof(ICompleteSimpleSagaEvent))
                 .CreateBus("app1")
                 .Start();
             
             bus.Raise<IStartSimpleSagaEvent>();
-            sagaPersister.SagaStorage.Count().ShouldBe(0);
+            inMemorySagaPersister.SagaStorage.Count().ShouldBe(0);
         } 
     }
 

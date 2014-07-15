@@ -7,7 +7,7 @@ namespace Idecom.Bus.Tests.InMemoryInfrastructure
 {
     public class InMemorySubscriptionStorage : ISubscriptionStorage
     {
-        private Dictionary<Type, List<Address>> _subscriptions;
+        private readonly Dictionary<Type, List<Address>> _subscriptions;
 
         public InMemorySubscriptionStorage()
         {

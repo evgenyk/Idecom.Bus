@@ -5,7 +5,7 @@ namespace Idecom.Bus.Tests.InMemoryInfrastructure
 {
     public class InMemorySagaPersister : ISagaStorage
     {
-        public readonly Dictionary<string, object> SagaStorage;
+        public Dictionary<string, object> SagaStorage;
 
         public InMemorySagaPersister()
         {

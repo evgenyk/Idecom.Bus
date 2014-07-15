@@ -52,7 +52,7 @@
     <Compile Include="Implementations\Internal\EffectiveConfiguration.cs" />
     <Compile Include="Implementations\InstanceCreator.cs" />
     <Compile Include="Implementations\Internal\NamespaceToEndpointMapping.cs" />
-    <Compile Include="Implementations\MultiRoutingTable.cs" />
+    <Compile Include="Implementations\PluralRoutingTable.cs" />
     <Compile Include="Implementations\NestedConfigurationBase.cs" />
     <Compile Include="Implementations\RoutingTable.cs" />
     <Compile Include="Implementations\Saga.cs" />
@@ -63,6 +63,7 @@
     <Compile Include="Interfaces\Addons\PubSub\ISubscriptionDistributor.cs" />
     <Compile Include="Interfaces\Addons\PubSub\ISubscriptionStorage.cs" />
     <Compile Include="Interfaces\Addons\Sagas\ISaga.cs" />
+    <Compile Include="Interfaces\Addons\Sagas\ISagaStateInstance.cs" />
     <Compile Include="Interfaces\Addons\Sagas\ISagaManager.cs" />
     <Compile Include="Interfaces\Addons\Sagas\ISagaState.cs" />
     <Compile Include="Interfaces\IBeforeBusStarted.cs" />

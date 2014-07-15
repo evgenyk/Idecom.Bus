@@ -12,11 +12,11 @@ namespace Idecom.Bus.Implementations
         void RouteType(Type type, TTarget routeTarget);
     }
 
-    public class MultiRoutingTable<TTarget> : IMultiRoutingTable<TTarget> where TTarget : class
+    public class PluralRoutingTable<TTarget> : IMultiRoutingTable<TTarget> where TTarget : class
     {
         private readonly Dictionary<Type, List<TTarget>> _routes;
 
-        public MultiRoutingTable()
+        public PluralRoutingTable()
         {
             _routes = new Dictionary<Type, List<TTarget>>();
         }

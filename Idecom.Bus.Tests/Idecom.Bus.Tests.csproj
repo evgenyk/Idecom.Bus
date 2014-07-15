@@ -71,6 +71,12 @@
     <Compile Include="BasicSendAndPublishTests.cs" />
     <Compile Include="Sagas\SimpleSagaTests.cs" />
     <Compile Include="Sagas\TwoSagasCommunicationTests.cs" />
+    <Compile Include="Sagas\TwoSagas\FirstSaga\Saga1.cs" />
+    <Compile Include="Sagas\TwoSagas\FirstSaga\Saga1State.cs" />
+    <Compile Include="Sagas\TwoSagas\Messages\IStartFirstSagaEvent.cs" />
+    <Compile Include="Sagas\TwoSagas\Messages\IStartSecondSagaEvent.cs" />
+    <Compile Include="Sagas\TwoSagas\SecondSaga\Saga2.cs" />
+    <Compile Include="Sagas\TwoSagas\SecondSaga\Saga2State.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -98,6 +104,7 @@
       <Name>Idecom.Bus</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

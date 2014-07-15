@@ -26,7 +26,7 @@
             internal set
             {
                 value.ConfigureInstance(new RoutingTable<Address>());
-                value.ConfigureInstance(new MultiRoutingTable<MethodInfo>());
+                value.ConfigureInstance(new PluralRoutingTable<MethodInfo>());
                 value.ConfigureInstance(new RoutingTable<Type>());
 
                 value.Configure<EffectiveConfiguration>(ComponentLifecycle.Singleton);
@@ -58,6 +58,19 @@
             Container.Release(bus);
             return bus;
         }
+
+        public Configure DefineEventsAs(Func<Type, bool> eventsDefenition)
+        {
+            Container.ConfigureProperty<EffectiveConfiguration>(x => x.IsEvent, eventsDefenition);
+            return this;
+        }
+
+        public Configure DefineCommandsAs(Func<Type, bool> commandsDefinition)
+        {
+            Container.ConfigureProperty<EffectiveConfiguration>(x => x.IsCommand, commandsDefinition);
+            return this;
+        }
+
 
         public Configure RouteMessagesFromNamespaceTo<T>(string address)
         {
