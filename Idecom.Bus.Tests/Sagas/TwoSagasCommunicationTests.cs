@@ -12,11 +12,10 @@ namespace Idecom.Bus.Tests.Sagas
 {
     public class TwoSagasCommunicationTests
     {
-        [Fact(Skip = "Can't talk to each other yet. In fact they hate each other.")]
+        [Fact(Skip = "Pending rewrite of saga handling")]
         public void TwoSagasCanTalkToEachOtherWhileKeepingStateSeparateTest()
         {
             InMemorySagaPersister sagaPersister1 = null;
-            InMemorySagaPersister sagaPersister2 = null;
 
             var bus1 = Configure.With()
                 .WindsorContainer()
@@ -30,10 +29,10 @@ namespace Idecom.Bus.Tests.Sagas
 
             var bus2 = Configure.With()
                 .WindsorContainer()
+                .ExposeConfiguration(x => x.Container.ConfigureInstance(sagaPersister1))
                 .InMemoryTransport()
                 .InMemoryPubSub()
                 .JsonNetSerializer()
-                .ExposeConfiguration(x => { sagaPersister2 = x.Container.Resolve<InMemorySagaPersister>(); })
                 .DefineEventsAs(type => type.Namespace != null && type.Namespace.Equals("Idecom.Bus.Tests.Sagas.TwoSagas.Messages", StringComparison.InvariantCultureIgnoreCase))
                 .CreateBus("app2")
                 .Start();

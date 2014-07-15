@@ -27,6 +27,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
         public Address LocalAddress { get; set; }
         public IEffectiveConfiguration EffectiveConfiguration { get; set; }
         public ISagaStorage SagaStorage { get; set; }
+        public ISagaManager SagaManager { get; set; }
 
 
         public IMessageContext CurrentMessageContext
@@ -177,6 +178,9 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
             var handler = Container.Resolve(handlerMethod.DeclaringType);
             Action executeHandler = () => handlerMethod.Invoke(handler, new[] {message});
+
+
+            //TODO: Rewrite this whole thing. StateMachine = inSaga, pendingStartSaga, sagalessHandler?
 
             var startSagaType = MessageToStartSagaMapping.ResolveRouteFor(messageType);
             var inSaga = IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType) &&

@@ -18,6 +18,7 @@ namespace Idecom.Bus.Tests.InMemoryInfrastructure
         {
             configure.Container.Configure<InMemorySubscriptionStorage>(ComponentLifecycle.Singleton);
             configure.Container.Configure<InMemorySagaPersister>(ComponentLifecycle.Singleton);
+            configure.Container.Configure<InMemorySagaManager>(ComponentLifecycle.Singleton);
 
             return configure;
         }

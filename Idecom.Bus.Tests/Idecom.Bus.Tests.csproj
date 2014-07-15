@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="InMemoryInfrastructure\InMemoryConfiguration.cs" />
+    <Compile Include="InMemoryInfrastructure\InMemorySagaManager.cs" />
     <Compile Include="InMemoryInfrastructure\InMemorySagaPersister.cs" />
     <Compile Include="InMemoryInfrastructure\InMemorySubscriptionStorage.cs" />
     <Compile Include="InMemoryInfrastructure\InMemoryTransport.cs" />
