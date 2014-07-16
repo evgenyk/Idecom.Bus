@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Idecom.Bus.Utility
 {
     using System;
@@ -6,6 +8,7 @@ namespace Idecom.Bus.Utility
     using System.Reflection;
     using System.Reflection.Emit;
 
+    [DebuggerStepThrough]
     public static class InterfaceImplementor
     {
         private static readonly Dictionary<Type, Type> ImplementationCache = new Dictionary<Type, Type>();

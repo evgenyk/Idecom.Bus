@@ -1,9 +1,12 @@
+using System.Diagnostics;
+
 namespace Idecom.Bus.Implementations
 {
     using System;
     using Interfaces;
     using Utility;
 
+    [DebuggerStepThrough]
     public class InstanceCreator : IInstanceCreator
     {
         public object CreateInstanceOf(Type type)

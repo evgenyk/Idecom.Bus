@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Idecom.Bus.Transport
 {
     public class TransportMessageReceivedEventArgs
@@ -6,6 +8,7 @@ namespace Idecom.Bus.Transport
         private readonly int _maxRetries;
         private readonly TransportMessage _transportMessage;
 
+        [DebuggerStepThrough]
         public TransportMessageReceivedEventArgs(TransportMessage transportMessage, int attempt, int maxRetries)
         {
             _transportMessage = transportMessage;

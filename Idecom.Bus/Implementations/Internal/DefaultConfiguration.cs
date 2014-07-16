@@ -13,5 +13,10 @@
         {
             get { return type => !type.IsInterface && type.Name.EndsWith("command", StringComparison.CurrentCultureIgnoreCase); }
         }
+
+        public static Func<Type, bool> DefaultHandlerConvention
+        {
+            get { return type => true; }
+        }
     }
 }

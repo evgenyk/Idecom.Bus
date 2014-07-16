@@ -12,7 +12,7 @@ namespace Idecom.Bus.Tests.Sagas
 {
     public class TwoSagasCommunicationTests
     {
-        [Fact(Skip = "Still not in love")]
+        [Fact]
         public void TwoSagasCanTalkToEachOtherWhileKeepingStateSeparateTest()
         {
             InMemorySagaPersister sagaPersister1 = null;
@@ -24,6 +24,7 @@ namespace Idecom.Bus.Tests.Sagas
                 .JsonNetSerializer()
                 .ExposeConfiguration(x => { sagaPersister1 = x.Container.Resolve<InMemorySagaPersister>(); })
                 .DefineEventsAs(type => type.Namespace != null && type.Namespace.Equals("Idecom.Bus.Tests.Sagas.TwoSagas.Messages", StringComparison.InvariantCultureIgnoreCase))
+                .DefineHandlersAs(type => type.Namespace != null && type.Namespace.Equals("Idecom.Bus.Tests.Sagas.TwoSagas.FirstSaga", StringComparison.InvariantCultureIgnoreCase))
                 .CreateBus("app1")
                 .Start();
 
@@ -34,6 +35,7 @@ namespace Idecom.Bus.Tests.Sagas
                 .InMemoryPubSub()
                 .JsonNetSerializer()
                 .DefineEventsAs(type => type.Namespace != null && type.Namespace.Equals("Idecom.Bus.Tests.Sagas.TwoSagas.Messages", StringComparison.InvariantCultureIgnoreCase))
+                .DefineHandlersAs(type => type.Namespace != null && type.Namespace.Equals("Idecom.Bus.Tests.Sagas.TwoSagas.SecondSaga", StringComparison.InvariantCultureIgnoreCase))
                 .CreateBus("app2")
                 .Start();
 

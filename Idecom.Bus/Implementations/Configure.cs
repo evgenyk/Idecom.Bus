@@ -33,6 +33,7 @@
 
                 value.ConfigureProperty<EffectiveConfiguration>(x => x.IsEvent, DefaultConfiguration.DefaultEventNamingConvention);
                 value.ConfigureProperty<EffectiveConfiguration>(x => x.IsCommand, DefaultConfiguration.DefaultCommandNamingConvention);
+                value.ConfigureProperty<EffectiveConfiguration>(x => x.IsHandler, DefaultConfiguration.DefaultHandlerConvention);
                 value.ConfigureProperty<EffectiveConfiguration>(x => x.NamespaceToEndpointMappings, _namespaceToEndpoints);
 
                 value.Configure<InstanceCreator>(ComponentLifecycle.Singleton);
@@ -68,6 +69,12 @@
         public Configure DefineCommandsAs(Func<Type, bool> commandsDefinition)
         {
             Container.ConfigureProperty<EffectiveConfiguration>(x => x.IsCommand, commandsDefinition);
+            return this;
+        }
+
+        public Configure DefineHandlersAs(Func<Type, bool> handlerDefinition)
+        {
+            Container.ConfigureProperty<EffectiveConfiguration>(x => x.IsHandler, handlerDefinition);
             return this;
         }
 

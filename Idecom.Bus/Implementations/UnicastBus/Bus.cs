@@ -163,7 +163,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 var executedHandlers = handlerMethods.Select(handler => ExecuteHandler(message, type, handler, currentMessageContext)).ToList();
 
                 if (executedHandlers.All(x => !x))
-                    Console.WriteLine("Warning: Received a message of type {0}, but could not find a handler for it", e.TransportMessage.MessageType);
+                    Console.WriteLine("Warning: {1} received a message of type {0}, but could not find a handler for it", e.TransportMessage.MessageType, LocalAddress);
 
             }
             catch (Exception ex)
@@ -183,78 +183,26 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
             if (IsSubclassOfRawGeneric(typeof(Saga<>), handlerMethod.DeclaringType)) //this must be a saga, whether existing or a new one is a diffirent question
             {
-                ISagaStateInstance saga;
                 var sagaDataType = handlerMethod.DeclaringType.BaseType.GenericTypeArguments.First();
                 var startSagaTypes = MessageToStartSagaMapping.ResolveRouteFor(messageType);
-                if (startSagaTypes != null)
+                var sagaData = startSagaTypes != null ? SagaManager.Start(sagaDataType, currentMessageContext) : SagaManager.Resume(sagaDataType, currentMessageContext);
+
+                var sagaDataProperty = handler.GetType().GetProperty("Data");
+                sagaDataProperty.SetValue(handler, sagaData.SagaState);
+
+                try { executeHandler(); }
+                finally
                 {
-                    saga = SagaManager.Start(sagaDataType, currentMessageContext);
-                }
-                else
-                {
-                    //trying to resume an existing saga, ignoring handler when no saga data present and log a warrning
-                    saga = SagaManager.Resume(sagaDataType, currentMessageContext);
+                    if (((ISaga)handler).IsClosed)
+                        SagaStorage.Close(sagaData.SagaId);
+                    else
+                        SagaStorage.Update(sagaData.SagaId, sagaData.SagaState);
                 }
 
             }
             else
             {
                 //normal saga-less handler
-            }
-
-
-            var startSagaType = MessageToStartSagaMapping.ResolveRouteFor(messageType);
-
-            var inSaga = IsSubclassOfRawGeneric(typeof(Saga<>), handlerMethod.DeclaringType) &&
-                         (startSagaType != null || currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID));
-
-            if (!inSaga && IsSubclassOfRawGeneric(typeof(Saga<>), handlerMethod.DeclaringType))
-                return false;
-
-
-            string sagaId = null;
-
-            if (currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID))
-                sagaId = currentMessageContext.TransportMessage.Headers[SystemHeaders.SAGA_ID];
-
-            var isSagaSingleton = inSaga && handlerMethod.DeclaringType.GetCustomAttribute<SingleInstanceSagaAttribute>() != null;
-
-            if (sagaId == null && isSagaSingleton)
-                sagaId = startSagaType.FullName.ToLowerInvariant();
-
-
-            if (inSaga)
-            {
-                if (sagaId != null)
-                    currentMessageContext.ResumeSaga(sagaId);
-
-
-                object sagaData = null;
-
-                if (sagaId != null)
-                    sagaData = SagaStorage.Get(sagaId);
-
-                if (sagaData == null)
-                {
-                    sagaId = currentMessageContext.StartSaga(sagaId);
-                    var sagaStateClass = startSagaType.BaseType.GenericTypeArguments.FirstOrDefault();
-                    sagaData = InstanceCreator.CreateInstanceOf(sagaStateClass);
-                }
-
-                var sagaDataProperty = handler.GetType().GetProperty("Data");
-                sagaDataProperty.SetValue(handler, sagaData);
-
-                try { executeHandler(); }
-                finally
-                {
-                    if (((ISaga)handler).IsClosed)
-                        SagaStorage.Close(sagaId);
-                    else
-                        SagaStorage.Update(sagaId, sagaData);
-                }
-            }
-            else
-            {
                 executeHandler();
             }
 
@@ -272,27 +220,18 @@ namespace Idecom.Bus.Implementations.UnicastBus
             return false;
         }
 
+        /// <summary>
+        /// TODO: Don't have use fot this event now
+        /// </summary>
         private void TransportOnTransportMessageFinished(object sender, TransportMessageFinishedEventArgs transportMessageFinishedEventArgs)
         {
-            var currentMessageContext = CurrentMessageContextInternal();
-
-            //Track the saga through handlers
-            foreach (DelayedSend action in currentMessageContext.DelayedSends)
-            {
-                if (currentMessageContext.Headers.ContainsKey(SystemHeaders.SAGA_ID))
-                    // attaching to a new saga created in this message
-                    action.TransportMessage.Headers[SystemHeaders.SAGA_ID] = currentMessageContext.Headers[SystemHeaders.SAGA_ID];
-                else if (currentMessageContext.TransportMessage != null && currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SAGA_ID))
-                    // attaching to saga in the incoming message
-                    action.TransportMessage.Headers[SystemHeaders.SAGA_ID] = currentMessageContext.TransportMessage.Headers[SystemHeaders.SAGA_ID];
-                Transport.Send(action.TransportMessage);
-            }
+            
         }
 
 
         private void ApplyHandlerMapping(IEnumerable<Type> events, IEnumerable<Type> commands, IEnumerable<Type> allTypes)
         {
-            var eventsAndCommands = events.Union(commands).ToList();
+            var eventsAndCommands = events.Union(commands).ToArray();
 
             foreach (NamespaceToEndpointMapping mapping in EffectiveConfiguration.NamespaceToEndpointMappings)
             {
@@ -308,7 +247,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
             Func<Type, Type, bool> implementsType = (y, compareType) => y.IsGenericType && y.GetGenericTypeDefinition() == compareType;
 
-            var handlers = allTypes.SelectMany(type => type.GetMethods()
+            var handlers = allTypes.Where(EffectiveConfiguration.IsHandler).SelectMany(type => type.GetMethods()
                                                            .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
                                                                         .Where(type.GetInterfaces()
                                                                                    .Where(intface => implementsType(intface, typeof(IHandle<>)))

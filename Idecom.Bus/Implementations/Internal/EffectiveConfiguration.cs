@@ -7,6 +7,7 @@
     {
         Func<Type, bool> IsEvent { get; }
         Func<Type, bool> IsCommand { get; }
+        Func<Type, bool> IsHandler { get; }
         List<NamespaceToEndpointMapping> NamespaceToEndpointMappings { get; }
     }
 
@@ -14,6 +15,7 @@
     {
         public Func<Type, bool> IsEvent { get; set; }
         public Func<Type, bool> IsCommand { get; set; }
+        public Func<Type, bool> IsHandler { get; set; }
         public List<NamespaceToEndpointMapping> NamespaceToEndpointMappings { get; set; }
     }
 }

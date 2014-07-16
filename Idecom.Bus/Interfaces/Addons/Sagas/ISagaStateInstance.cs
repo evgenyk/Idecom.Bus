@@ -1,4 +1,5 @@
-﻿using Idecom.Bus.Addressing;
+﻿using System.Diagnostics;
+using Idecom.Bus.Addressing;
 
 namespace Idecom.Bus.Interfaces.Addons.Sagas
 {
@@ -9,6 +10,7 @@ namespace Idecom.Bus.Interfaces.Addons.Sagas
         ISagaState SagaState { get; }
     }
 
+    [DebuggerStepThrough]
     public class SagaStateInstance : ISagaStateInstance
     {
         public SagaStateInstance(Address endpoint, string sagaId, ISagaState sagaState)

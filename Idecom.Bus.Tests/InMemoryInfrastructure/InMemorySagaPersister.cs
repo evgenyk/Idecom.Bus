@@ -19,7 +19,7 @@ namespace Idecom.Bus.Tests.InMemoryInfrastructure
 
         public object Get(string sagaId)
         {
-            return SagaStorage[sagaId];
+            return SagaStorage.ContainsKey(sagaId) ? SagaStorage[sagaId] : null;
         }
 
         public void Close(string sagaId)
