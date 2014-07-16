@@ -1,4 +1,5 @@
 ﻿using System;
+using Idecom.Bus.Addressing;
 using Idecom.Bus.Implementations.UnicastBus;
 using Idecom.Bus.Interfaces;
 using Idecom.Bus.Transport;
@@ -27,6 +28,7 @@ namespace Idecom.Bus.Tests.InMemoryInfrastructure
         public int Retries { get; set; }
         public int WorkersCount { get; set; }
         public IContainer Container { get; set; }
+        public Address Address { get; set; }
 
         public InMemoryTransport()
         {
@@ -35,6 +37,9 @@ namespace Idecom.Bus.Tests.InMemoryInfrastructure
 
         void SortOfInMemoryQueue_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
+            if (e.TransportMessage.TargetAddress != Address)
+                return;
+            
             using (Container.BeginUnitOfWork())
             {
                 TransportMessageReceived(this, new TransportMessageReceivedEventArgs(e.TransportMessage, 1, Retries));

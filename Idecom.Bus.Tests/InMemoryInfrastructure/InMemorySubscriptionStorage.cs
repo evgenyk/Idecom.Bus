@@ -31,7 +31,8 @@ namespace Idecom.Bus.Tests.InMemoryInfrastructure
 
         public void Unsubscribe(Address subscriber, Type type)
         {
-            throw new NotImplementedException();
+            if (_subscriptions.ContainsKey(type))
+                _subscriptions[type].Remove(subscriber);
         }
     }
 }

@@ -15,14 +15,14 @@ namespace Idecom.Bus.Tests.Sagas
         [Fact]
         public void TwoSagasCanTalkToEachOtherWhileKeepingStateSeparateTest()
         {
-            InMemorySagaPersister sagaPersister1 = null;
+            InMemorySubscriptionStorage subscriptionStorage = null;
 
             var bus1 = Configure.With()
                 .WindsorContainer()
                 .InMemoryTransport()
                 .InMemoryPubSub()
                 .JsonNetSerializer()
-                .ExposeConfiguration(x => { sagaPersister1 = x.Container.Resolve<InMemorySagaPersister>(); })
+                .ExposeConfiguration(x => { subscriptionStorage = x.Container.Resolve<InMemorySubscriptionStorage>(); })
                 .DefineEventsAs(type => type.Namespace != null && type.Namespace.Equals("Idecom.Bus.Tests.Sagas.TwoSagas.Messages", StringComparison.InvariantCultureIgnoreCase))
                 .DefineHandlersAs(type => type.Namespace != null && type.Namespace.Equals("Idecom.Bus.Tests.Sagas.TwoSagas.FirstSaga", StringComparison.InvariantCultureIgnoreCase))
                 .CreateBus("app1")
@@ -30,7 +30,7 @@ namespace Idecom.Bus.Tests.Sagas
 
             var bus2 = Configure.With()
                 .WindsorContainer()
-                .ExposeConfiguration(x => x.Container.ConfigureInstance(sagaPersister1))
+                .ExposeConfiguration(x => x.Container.ConfigureInstance(subscriptionStorage))
                 .InMemoryTransport()
                 .InMemoryPubSub()
                 .JsonNetSerializer()

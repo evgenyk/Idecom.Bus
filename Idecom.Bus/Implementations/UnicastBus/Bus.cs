@@ -57,7 +57,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 var commands = allTypes.Where(EffectiveConfiguration.IsCommand).ToList();
                 ApplyHandlerMapping(events, commands, allTypes);
 
-                var eventsWithHandlers = events.Where(e => HandlerRoutingTable.ResolveRouteFor(e) != null).ToList();
+                var eventsWithHandlers = events.Where(e => HandlerRoutingTable.ResolveRouteFor(e).Any()).ToList();
 
 
                 Transport.TransportMessageReceived += TransportMessageReceived;
