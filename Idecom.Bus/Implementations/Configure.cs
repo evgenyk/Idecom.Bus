@@ -1,14 +1,13 @@
-﻿namespace Idecom.Bus.Implementations
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Reflection;
-    using Addons.PubSub;
-    using Addressing;
-    using Interfaces;
-    using Internal;
-    using UnicastBus;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using Idecom.Bus.Addressing;
+using Idecom.Bus.Implementations.Addons.PubSub;
+using Idecom.Bus.Implementations.Internal;
+using Idecom.Bus.Interfaces;
 
+namespace Idecom.Bus.Implementations
+{
     public class Configure
     {
         private readonly List<NamespaceToEndpointMapping> _namespaceToEndpoints;
@@ -37,7 +36,7 @@
                 value.ConfigureProperty<EffectiveConfiguration>(x => x.NamespaceToEndpointMappings, _namespaceToEndpoints);
 
                 value.Configure<InstanceCreator>(ComponentLifecycle.Singleton);
-                value.Configure<Bus>(ComponentLifecycle.Singleton);
+                value.Configure<UnicastBus.Bus>(ComponentLifecycle.Singleton);
                 value.Configure<SubscriptionDistributor>(ComponentLifecycle.Singleton);
                 value.Configure<SagaManager>(ComponentLifecycle.Singleton);
 

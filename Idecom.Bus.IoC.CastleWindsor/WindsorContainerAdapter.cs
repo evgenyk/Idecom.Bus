@@ -53,12 +53,8 @@ namespace Idecom.Bus.IoC.CastleWindsor
 
         public T Resolve<T>()
         {
-            try
-            {
-                return _container.Resolve<T>();
-            }
-            catch (Exception)
-            {
+            try { return _container.Resolve<T>(); }
+            catch (Exception) {
                 return default(T);
             }
         }

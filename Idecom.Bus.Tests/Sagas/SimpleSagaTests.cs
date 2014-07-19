@@ -17,36 +17,33 @@ namespace Idecom.Bus.Tests.Sagas
         {
             InMemorySagaPersister inMemorySagaPersister = null;
             var bus = Configure.With()
-                .WindsorContainer()
-                .InMemoryTransport()
-                .InMemoryPubSub()
-                .JsonNetSerializer()
-                .ExposeConfiguration(x =>
-                {
-                    inMemorySagaPersister = x.Container.Resolve<InMemorySagaPersister>();
-                })
-                .DefineEventsAs(type => type == typeof(IStartSimpleSagaEvent) || type == typeof(ICompleteSimpleSagaEvent))
-                .CreateBus("app1")
-                .Start();
-            
+                               .WindsorContainer()
+                               .InMemoryTransport()
+                               .InMemoryPubSub()
+                               .JsonNetSerializer()
+                               .ExposeConfiguration(x => { inMemorySagaPersister = x.Container.Resolve<InMemorySagaPersister>(); })
+                               .DefineEventsAs(type => type == typeof (IStartSimpleSagaEvent) || type == typeof (ICompleteSimpleSagaEvent))
+                               .CreateBus("app1")
+                               .Start();
+
             bus.Raise<IStartSimpleSagaEvent>();
             inMemorySagaPersister.SagaStorage.Count().ShouldBe(0);
-        } 
+        }
     }
 
 
-    public class SimpleSaga: Saga<SimpleSagaData>,
-        IStartThisSagaWhenReceive<IStartSimpleSagaEvent>,
-        IHandle<ICompleteSimpleSagaEvent>
+    public class SimpleSaga : Saga<SimpleSagaData>,
+                              IStartThisSagaWhenReceive<IStartSimpleSagaEvent>,
+                              IHandle<ICompleteSimpleSagaEvent>
     {
-        public void Handle(IStartSimpleSagaEvent command)
-        {
-            Bus.Raise<ICompleteSimpleSagaEvent>();
-        }
-
         public void Handle(ICompleteSimpleSagaEvent command)
         {
             CloseSaga();
+        }
+
+        public void Handle(IStartSimpleSagaEvent command)
+        {
+            Bus.Raise<ICompleteSimpleSagaEvent>();
         }
     }
 

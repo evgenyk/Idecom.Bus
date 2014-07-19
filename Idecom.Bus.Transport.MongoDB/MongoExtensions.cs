@@ -1,7 +1,7 @@
+using Idecom.Bus.Addressing;
+
 namespace Idecom.Bus.Transport.MongoDB
 {
-    using Addressing;
-
     internal static class MongoExtensions
     {
         public static MongoTransportMessageEntity.MongoAddress ToMongoAddress(this Address address)

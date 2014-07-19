@@ -7,7 +7,7 @@ namespace Idecom.Bus.Utility
         public const string SagaIdPrefix = "_SAGAID_";
 
         /// <summary>
-        /// TODO: Implement saga data name override with an attribute
+        ///     TODO: Implement saga data name override with an attribute
         /// </summary>
         /// <param name="sagaDatatype"></param>
         /// <returns></returns>

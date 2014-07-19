@@ -27,12 +27,12 @@ namespace Idecom.Bus.Tests
         public void SendingASimpleMessageShouldHandleAMessage()
         {
             var bus = Configure.With()
-                .WindsorContainer()
-                .InMemoryTransport()
-                .InMemoryPubSub()
-                .JsonNetSerializer()
-                .CreateBus("app1")
-                .Start();
+                               .WindsorContainer()
+                               .InMemoryTransport()
+                               .InMemoryPubSub()
+                               .JsonNetSerializer()
+                               .CreateBus("app1")
+                               .Start();
 
             bus.SendLocal(new ACommand());
             _commandsHandled.ShouldBeGreaterThan(0);
@@ -42,12 +42,12 @@ namespace Idecom.Bus.Tests
         public void RaisingASimpleeventShouldHandleThisEvent()
         {
             var bus = Configure.With()
-                .WindsorContainer()
-                .InMemoryTransport()
-                .InMemoryPubSub()
-                .JsonNetSerializer()
-                .CreateBus("app1")
-                .Start();
+                               .WindsorContainer()
+                               .InMemoryTransport()
+                               .InMemoryPubSub()
+                               .JsonNetSerializer()
+                               .CreateBus("app1")
+                               .Start();
 
             bus.Raise<IEvent>(e => { });
             _eventsHandled.ShouldBeGreaterThan(0);

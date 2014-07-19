@@ -1,15 +1,15 @@
-﻿namespace Idecom.Bus.Transport.MongoDB
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Addressing;
-    using global::MongoDB.Driver;
-    using global::MongoDB.Driver.Builders;
-    using Implementations;
-    using Implementations.UnicastBus;
-    using Interfaces;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Idecom.Bus.Addressing;
+using Idecom.Bus.Implementations;
+using Idecom.Bus.Implementations.UnicastBus;
+using Idecom.Bus.Interfaces;
+using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 
+namespace Idecom.Bus.Transport.MongoDB
+{
     public class MongoDbTransport : ITransport, IBeforeBusStarted, IBeforeBusStopped
     {
         private MongoDatabase _database;
@@ -69,12 +69,8 @@
             foreach (string collectionName in targetQueues.Select(queue => queue.ToString()))
             {
                 if (!_database.CollectionExists(collectionName))
-                    try
-                    {
-                        _database.CreateCollection(collectionName);
-                    }
-                    catch (Exception e)
-                    {
+                    try { _database.CreateCollection(collectionName); }
+                    catch (Exception e) {
                         Console.WriteLine("Could not create collection {0} with exception {1}", collectionName, e);
                     }
                 var mongoCollection = _database.GetCollection(collectionName);

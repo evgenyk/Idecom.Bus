@@ -1,7 +1,7 @@
-﻿namespace Idecom.Bus.Interfaces
-{
-    using System;
+﻿using System;
 
+namespace Idecom.Bus.Interfaces
+{
     public interface IBus
     {
         IMessageContext CurrentMessageContext { get; }

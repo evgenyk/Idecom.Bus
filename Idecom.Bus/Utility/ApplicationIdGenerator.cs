@@ -1,13 +1,13 @@
-﻿namespace Idecom.Bus.Utility
-{
-    using System;
-    using System.Diagnostics;
-    using System.Net;
-    using System.Net.NetworkInformation;
-    using System.Reflection;
-    using System.Security.Cryptography;
-    using System.Text;
+﻿using System;
+using System.Diagnostics;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 
+namespace Idecom.Bus.Utility
+{
     public static class ApplicationIdGenerator
     {
         private static string _machineIdCache;

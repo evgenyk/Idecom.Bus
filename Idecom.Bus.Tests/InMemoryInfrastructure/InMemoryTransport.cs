@@ -6,13 +6,13 @@ using Idecom.Bus.Transport;
 
 namespace Idecom.Bus.Tests.InMemoryInfrastructure
 {
-    static class SortOfInMemoryQueue
+    internal static class SortOfInMemoryQueue
     {
         public static event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
 
         private static void OnTransportMessageReceived(TransportMessageReceivedEventArgs e)
         {
-            EventHandler<TransportMessageReceivedEventArgs> handler = TransportMessageReceived;
+            var handler = TransportMessageReceived;
             if (handler != null) handler(null, e);
         }
 
@@ -25,27 +25,15 @@ namespace Idecom.Bus.Tests.InMemoryInfrastructure
 
     public class InMemoryTransport : ITransport
     {
-        public int Retries { get; set; }
-        public int WorkersCount { get; set; }
-        public IContainer Container { get; set; }
-        public Address Address { get; set; }
-
         public InMemoryTransport()
         {
             SortOfInMemoryQueue.TransportMessageReceived += SortOfInMemoryQueue_TransportMessageReceived;
         }
 
-        void SortOfInMemoryQueue_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
-        {
-            if (e.TransportMessage.TargetAddress != Address)
-                return;
-            
-            using (Container.BeginUnitOfWork())
-            {
-                TransportMessageReceived(this, new TransportMessageReceivedEventArgs(e.TransportMessage, 1, Retries));
-                TransportMessageFinished(this, new TransportMessageFinishedEventArgs(e.TransportMessage));
-            }
-        }
+        public int Retries { get; set; }
+        public IContainer Container { get; set; }
+        public Address Address { get; set; }
+        public int WorkersCount { get; set; }
 
         public void ChangeWorkerCount(int workers)
         {
@@ -58,5 +46,17 @@ namespace Idecom.Bus.Tests.InMemoryInfrastructure
 
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
         public event EventHandler<TransportMessageFinishedEventArgs> TransportMessageFinished;
+
+        private void SortOfInMemoryQueue_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
+        {
+            if (e.TransportMessage.TargetAddress != Address)
+                return;
+
+            using (Container.BeginUnitOfWork())
+            {
+                TransportMessageReceived(this, new TransportMessageReceivedEventArgs(e.TransportMessage, 1, Retries));
+                TransportMessageFinished(this, new TransportMessageFinishedEventArgs(e.TransportMessage));
+            }
+        }
     }
 }

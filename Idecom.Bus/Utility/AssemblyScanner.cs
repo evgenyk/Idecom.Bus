@@ -1,12 +1,12 @@
-﻿namespace Idecom.Bus.Utility
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
+namespace Idecom.Bus.Utility
+{
     public static class AssemblyScanner
     {
         private static List<Type> _typesCache = new List<Type>();

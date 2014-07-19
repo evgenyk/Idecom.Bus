@@ -1,13 +1,12 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Idecom.Bus.Utility
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using System.Reflection.Emit;
-
     [DebuggerStepThrough]
     public static class InterfaceImplementor
     {
@@ -18,7 +17,6 @@ namespace Idecom.Bus.Utility
 
         static InterfaceImplementor()
         {
-            
             lock (SyncRoot)
             {
                 if (ModuleBuilder != null) return;
@@ -82,7 +80,7 @@ namespace Idecom.Bus.Utility
 
             //Setter
             var getterName = String.Format("set_{0}", propertyName);
-            var set = typeBuilder.DefineMethod(getterName, methodAttributes, null, new[] { propertyType });
+            var set = typeBuilder.DefineMethod(getterName, methodAttributes, null, new[] {propertyType});
 
             var setGen = set.GetILGenerator();
             setGen.Emit(OpCodes.Ldarg_0);

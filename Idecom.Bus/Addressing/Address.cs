@@ -1,8 +1,8 @@
-﻿namespace Idecom.Bus.Addressing
-{
-    using System;
-    using System.Net;
+﻿using System;
+using System.Net;
 
+namespace Idecom.Bus.Addressing
+{
     [Serializable]
     public class Address
     {

@@ -1,14 +1,14 @@
-﻿namespace Idecom.Bus.PubSub.MongoDB
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Addressing;
-    using global::MongoDB.Driver;
-    using global::MongoDB.Driver.Builders;
-    using Interfaces;
-    using Interfaces.Addons.PubSub;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Idecom.Bus.Addressing;
+using Idecom.Bus.Interfaces;
+using Idecom.Bus.Interfaces.Addons.PubSub;
+using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 
+namespace Idecom.Bus.PubSub.MongoDB
+{
     public class SubscriptionStorage : ISubscriptionStorage, IBeforeBusStarted, IBeforeBusStopped
     {
         private const string SUBSCRIPTION_STORAGE_COLLECTION_NAME = "SubscriptionStorage";
@@ -31,7 +31,7 @@
         {
             var type = typeof (T);
             var typeWithNamespace = GetTypeNameWithNamespace(type);
-            var query = Query.And(Query<SubscriptionStorageEntity>.EQ(x => x.MessageType, typeWithNamespace), Query<SubscriptionStorageEntity>.EQ(x=>x.Subscribed, true));
+            var query = Query.And(Query<SubscriptionStorageEntity>.EQ(x => x.MessageType, typeWithNamespace), Query<SubscriptionStorageEntity>.EQ(x => x.Subscribed, true));
             var subscribers = _collection.FindAs<SubscriptionStorageEntity>(query).Select(x => Address.Parse(x.SubscriberAddress)).Distinct();
             return subscribers;
         }
@@ -57,7 +57,7 @@
             var update = Update<SubscriptionStorageEntity>
                 .Set(x => x.SubscriberAddress, subscriberAddress)
                 .Set(x => x.MessageType, typeWithNamespace)
-                .Set(x=>x.Subscribed, false);
+                .Set(x => x.Subscribed, false);
             _collection.Update(query, update, UpdateFlags.Upsert, WriteConcern.Acknowledged);
         }
 

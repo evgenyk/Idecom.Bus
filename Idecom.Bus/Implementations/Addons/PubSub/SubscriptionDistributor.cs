@@ -27,10 +27,10 @@ namespace Idecom.Bus.Implementations.Addons.PubSub
 
             foreach (var subscriber in subscribers)
             {
-                var transportMessage = new TransportMessage(message, LocalAddress, subscriber, MessageIntent.Publish, typeof(T));
+                var transportMessage = new TransportMessage(message, LocalAddress, subscriber, MessageIntent.Publish, typeof (T));
                 if (currentMessageContext != null)
                     currentMessageContext.DelayedSend(transportMessage);
-                else 
+                else
                     Transport.Send(transportMessage);
             }
         }

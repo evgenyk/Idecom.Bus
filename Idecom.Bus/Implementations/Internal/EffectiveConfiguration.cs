@@ -1,8 +1,8 @@
-﻿namespace Idecom.Bus.Implementations.Internal
-{
-    using System;
-    using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
+namespace Idecom.Bus.Implementations.Internal
+{
     internal interface IEffectiveConfiguration
     {
         Func<Type, bool> IsEvent { get; }

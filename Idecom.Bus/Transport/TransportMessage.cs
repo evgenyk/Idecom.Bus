@@ -1,11 +1,10 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using Idecom.Bus.Addressing;
 
 namespace Idecom.Bus.Transport
 {
-    using System;
-    using System.Collections.Generic;
-    using Addressing;
-
     [DebuggerStepThrough]
     public class TransportMessage
     {

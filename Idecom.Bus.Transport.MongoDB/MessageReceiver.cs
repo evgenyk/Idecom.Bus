@@ -1,13 +1,13 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Idecom.Bus.Interfaces;
+using Idecom.Bus.Utility;
+using MongoDB.Driver;
+using MongoDB.Driver.Builders;
+
 namespace Idecom.Bus.Transport.MongoDB
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using global::MongoDB.Driver;
-    using global::MongoDB.Driver.Builders;
-    using Interfaces;
-    using Utility;
-
     internal class MessageReceiver
     {
         private readonly IContainer _container;
@@ -34,7 +34,6 @@ namespace Idecom.Bus.Transport.MongoDB
             _localCollection = localCollection;
             _retries = retries;
             _container = container;
-
         }
 
         public int WorkersCount { get; private set; }
@@ -44,7 +43,7 @@ namespace Idecom.Bus.Transport.MongoDB
             _stopReaderThread = false;
 
             ReturnUnfinishedMessagesToQueue(ApplicationIdGenerator.GenerateId());
-            
+
             _scheduler = new MaxWorkersTaskScheduler(_workersCount);
             _queueReaderThread = new Thread(() =>
             {
@@ -64,13 +63,7 @@ namespace Idecom.Bus.Transport.MongoDB
                         continue;
                     }
                     lastEmptyQueueSleepMs = 5;
-                    new Task(() =>
-                    {
-                        using (_container.BeginUnitOfWork())
-                        {
-                            ProcessWithRetry(mongoTransportMessageEntity.ToTransportMessage(_serializer), mongoTransportMessageEntity);
-                        }
-                    }).Start(_scheduler);
+                    new Task(() => { using (_container.BeginUnitOfWork()) { ProcessWithRetry(mongoTransportMessageEntity.ToTransportMessage(_serializer), mongoTransportMessageEntity); } }).Start(_scheduler);
                 }
             });
             _queueReaderThread.Start();

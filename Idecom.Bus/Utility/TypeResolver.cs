@@ -1,9 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Idecom.Bus.Utility
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
     public static class TypeResolver
     {
         private static readonly Dictionary<string, Type> ResolutionCache = new Dictionary<string, Type>(StringComparer.CurrentCultureIgnoreCase);

@@ -1,7 +1,7 @@
-﻿namespace Idecom.Bus.Interfaces
-{
-    using Transport;
+﻿using Idecom.Bus.Transport;
 
+namespace Idecom.Bus.Interfaces
+{
     public interface IMessageContext
     {
         TransportMessage TransportMessage { get; }

@@ -1,8 +1,8 @@
-﻿namespace Idecom.Bus.PubSub.MongoDB
-{
-    using Implementations;
-    using Interfaces;
+﻿using Idecom.Bus.Implementations;
+using Idecom.Bus.Interfaces;
 
+namespace Idecom.Bus.PubSub.MongoDB
+{
     public static class BootstrapMongoDbPubSub
     {
         public static Configure MongoPublisher(this Configure configure, string mongodbConnectionString, string databaseName)

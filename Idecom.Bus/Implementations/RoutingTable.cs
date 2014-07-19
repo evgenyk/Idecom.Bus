@@ -1,9 +1,9 @@
-﻿namespace Idecom.Bus.Implementations
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
+namespace Idecom.Bus.Implementations
+{
     public interface IRoutingTable<TTarget> where TTarget : class
     {
         void RouteTypes(IEnumerable<Type> types, TTarget routeTarget);
@@ -54,5 +54,4 @@
             return !_routes.Any();
         }
     }
-
 }

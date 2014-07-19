@@ -1,9 +1,9 @@
-﻿namespace Idecom.Bus.Interfaces
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq.Expressions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
+namespace Idecom.Bus.Interfaces
+{
     public interface IContainer
     {
         IContainer ParentContainer { get; }

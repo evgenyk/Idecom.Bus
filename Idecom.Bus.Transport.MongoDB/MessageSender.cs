@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using Idecom.Bus.Interfaces;
+using MongoDB.Driver;
 
 namespace Idecom.Bus.Transport.MongoDB
 {
-    using System;
-    using Addressing;
-    using global::MongoDB.Driver;
-    using Interfaces;
-
     internal class MessageSender
     {
         private readonly MongoDatabase _database;
@@ -19,14 +16,14 @@ namespace Idecom.Bus.Transport.MongoDB
             _serializer = serializer;
         }
 
-        public void Start()
-        {
-            _isStarted = true;
-        }
-
         public bool IsStarted
         {
             get { return _isStarted; }
+        }
+
+        public void Start()
+        {
+            _isStarted = true;
         }
 
         public void Send(TransportMessage transportMessage)

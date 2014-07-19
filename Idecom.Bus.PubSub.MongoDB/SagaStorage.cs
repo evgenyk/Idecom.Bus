@@ -33,36 +33,36 @@ namespace Idecom.Bus.PubSub.MongoDB
 
         public void Update(string sagaId, object sagaData)
         {
-            var byIdQuery = Query<SagaStorageEntity>.EQ(x=>x.Id, GetInternalSagaId(sagaId));
+            var byIdQuery = Query<SagaStorageEntity>.EQ(x => x.Id, GetInternalSagaId(sagaId));
             var sagaDataWithDiscriminator = sagaData.ToBsonDocument().Set("_t", sagaData.GetType().Name);
 
             var update = Update<SagaStorageEntity>
                 .Set(e => e.Data, sagaDataWithDiscriminator)
                 .Set(e => e.OwnerEndpoint, Address.ToString())
-                .Set(e=>e.DateUpdated, DateTime.UtcNow)
-                .SetOnInsert(e=>e.DateStarted, DateTime.UtcNow);
+                .Set(e => e.DateUpdated, DateTime.UtcNow)
+                .SetOnInsert(e => e.DateStarted, DateTime.UtcNow);
 
             _collection.Update(byIdQuery, update, UpdateFlags.Upsert, WriteConcern.Acknowledged);
         }
 
         public object Get(string sagaId)
         {
-            var byIdQuery = Query<SagaStorageEntity>.EQ(x=>x.Id, GetInternalSagaId(sagaId));
+            var byIdQuery = Query<SagaStorageEntity>.EQ(x => x.Id, GetInternalSagaId(sagaId));
             var result = _collection.FindOneAs<SagaStorageEntity>(byIdQuery);
             var resultOrNull = result == null ? null : result.Data;
 
             return resultOrNull;
         }
 
-        private string GetInternalSagaId(string sagaId)
-        {
-            return sagaId + "_" + Address;
-        }
-
         public void Close(string sagaId)
         {
             var query = Query<SagaStorageEntity>.EQ(x => x.Id, GetInternalSagaId(sagaId));
             _collection.Remove(query);
+        }
+
+        private string GetInternalSagaId(string sagaId)
+        {
+            return sagaId + "_" + Address;
         }
 
         private void MapSagaDataClasses()

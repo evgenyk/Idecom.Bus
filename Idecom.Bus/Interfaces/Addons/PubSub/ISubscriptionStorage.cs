@@ -1,9 +1,9 @@
-﻿namespace Idecom.Bus.Interfaces.Addons.PubSub
-{
-    using System;
-    using System.Collections.Generic;
-    using Addressing;
+﻿using System;
+using System.Collections.Generic;
+using Idecom.Bus.Addressing;
 
+namespace Idecom.Bus.Interfaces.Addons.PubSub
+{
     public interface ISubscriptionStorage
     {
         IEnumerable<Address> GetSubscribersFor<T>() where T : class;

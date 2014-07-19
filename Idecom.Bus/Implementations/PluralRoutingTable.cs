@@ -28,7 +28,7 @@ namespace Idecom.Bus.Implementations
                 if (_routes.ContainsKey(type))
                     _routes[type].Add(routeTarget);
                 else
-                    _routes.Add(type, new List<TTarget> { routeTarget });
+                    _routes.Add(type, new List<TTarget> {routeTarget});
             }
         }
 
@@ -37,7 +37,7 @@ namespace Idecom.Bus.Implementations
             if (_routes.ContainsKey(type))
                 _routes[type].Add(routeTarget);
             else
-                _routes.Add(type, new List<TTarget> { routeTarget });
+                _routes.Add(type, new List<TTarget> {routeTarget});
         }
 
         public IEnumerable<TTarget> ResolveRouteFor(Type type)

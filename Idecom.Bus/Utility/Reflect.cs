@@ -1,9 +1,9 @@
+using System;
+using System.Linq.Expressions;
+using System.Reflection;
+
 namespace Idecom.Bus.Utility
 {
-    using System;
-    using System.Linq.Expressions;
-    using System.Reflection;
-
     public static class Reflect<T>
     {
         public static PropertyInfo GetProperty(Expression<Func<T, object>> property)
