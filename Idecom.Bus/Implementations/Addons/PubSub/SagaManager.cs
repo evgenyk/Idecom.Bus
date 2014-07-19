@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Castle.Core.Internal;
 using Idecom.Bus.Addressing;
 using Idecom.Bus.Implementations.UnicastBus;
 using Idecom.Bus.Interfaces;
@@ -10,9 +9,9 @@ using Idecom.Bus.Interfaces.Addons.Sagas;
 using Idecom.Bus.Transport;
 using Idecom.Bus.Utility;
 
-namespace Idecom.Bus.Tests.InMemoryInfrastructure
+namespace Idecom.Bus.Implementations.Addons.PubSub
 {
-    public class InMemorySagaManager: ISagaManager
+    public class SagaManager : ISagaManager
     {
         public ISagaStorage SagaStorage { get; set; }
         public IInstanceCreator InstanceCreator { get; set; }
@@ -20,6 +19,9 @@ namespace Idecom.Bus.Tests.InMemoryInfrastructure
 
         public ISagaStateInstance Resume(Type sagaDataType, CurrentMessageContext currentMessageContext)
         {
+            if (!currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SagaIdHeaderKey(sagaDataType)))
+                return null;
+
             var runningSagaId = currentMessageContext.TransportMessage.Headers[SystemHeaders.SagaIdHeaderKey(sagaDataType)];
             var sagaState = SagaStorage.Get(runningSagaId) as ISagaState;
             return new SagaStateInstance(Address, runningSagaId, sagaState);
@@ -39,10 +41,8 @@ namespace Idecom.Bus.Tests.InMemoryInfrastructure
 
         public TransportMessage PrepareSend(TransportMessage transportMessage, Dictionary<string, string> incomingHeaders, Dictionary<string, string> outgoingHeaders)
         {
-            incomingHeaders.Concat(outgoingHeaders).Where(keyValuePair => keyValuePair.Key.StartsWith(SystemHeaders.SagaIdPrefix)).ForEach(x =>
-            {
-                transportMessage.Headers[x.Key] = x.Value;
-            });
+            foreach (var header in incomingHeaders.Concat(outgoingHeaders).Where(keyValuePair => keyValuePair.Key.StartsWith(SystemHeaders.SagaIdPrefix)))
+                transportMessage.Headers[header.Key] = header.Value;
             return transportMessage;
         }
 

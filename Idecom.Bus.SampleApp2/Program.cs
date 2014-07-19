@@ -31,13 +31,6 @@ namespace Idecom.Bus.SampleApp2
                 x.Uri = new Uri("http://www.com");
             });
 
-//            for (int i = 0; i < 10; i++)
-//            {
-//                int i1 = i;
-//                bus.Raise<IMetAFriendEvent>(x => { x.Name = "sdfsdfs " + i1; });
-//            }
-
-
 
             Console.WriteLine("Bus configured. Press any key to close the app.");
             Console.ReadKey();

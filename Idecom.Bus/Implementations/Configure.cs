@@ -39,6 +39,8 @@
                 value.Configure<InstanceCreator>(ComponentLifecycle.Singleton);
                 value.Configure<Bus>(ComponentLifecycle.Singleton);
                 value.Configure<SubscriptionDistributor>(ComponentLifecycle.Singleton);
+                value.Configure<SagaManager>(ComponentLifecycle.Singleton);
+
                 _container = value;
             }
         }
