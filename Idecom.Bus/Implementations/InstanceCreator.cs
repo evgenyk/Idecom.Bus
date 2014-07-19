@@ -1,10 +1,10 @@
-using System;
-using System.Diagnostics;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Utility;
-
 namespace Idecom.Bus.Implementations
 {
+    using System;
+    using System.Diagnostics;
+    using Interfaces;
+    using Utility;
+
     [DebuggerStepThrough]
     public class InstanceCreator : IInstanceCreator
     {

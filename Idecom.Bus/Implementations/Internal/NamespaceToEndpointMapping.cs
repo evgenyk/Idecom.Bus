@@ -1,8 +1,8 @@
-using Idecom.Bus.Addressing;
-
 namespace Idecom.Bus.Implementations.Internal
 {
-    internal class NamespaceToEndpointMapping
+    using Addressing;
+
+    class NamespaceToEndpointMapping
     {
         public NamespaceToEndpointMapping(string ns, Address address)
         {

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using Idecom.Bus.Implementations.UnicastBus;
-using Idecom.Bus.Transport;
-
-namespace Idecom.Bus.Interfaces.Addons.Sagas
+﻿namespace Idecom.Bus.Interfaces.Addons.Sagas
 {
+    using System;
+    using System.Collections.Generic;
+    using Implementations.UnicastBus;
+    using Transport;
+
     public interface ISagaManager
     {
         ISagaStateInstance Resume(Type sagaDataType, CurrentMessageContext currentMessageContext);

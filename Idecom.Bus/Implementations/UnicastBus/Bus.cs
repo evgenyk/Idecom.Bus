@@ -1,21 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using Idecom.Bus.Addressing;
-using Idecom.Bus.Implementations.Internal;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Interfaces.Addons.PubSub;
-using Idecom.Bus.Interfaces.Addons.Sagas;
-using Idecom.Bus.Transport;
-using Idecom.Bus.Utility;
-
-namespace Idecom.Bus.Implementations.UnicastBus
+﻿namespace Idecom.Bus.Implementations.UnicastBus
 {
-    internal class Bus : IBusInstance
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Reflection;
+    using Addressing;
+    using Interfaces;
+    using Interfaces.Addons.PubSub;
+    using Interfaces.Addons.Sagas;
+    using Internal;
+    using Transport;
+    using Utility;
+
+    class Bus : IBusInstance
     {
-        private bool _isStarted;
+        bool _isStarted;
         public IContainer Container { get; set; }
         public IMultiRoutingTable<MethodInfo> HandlerRoutingTable { get; set; }
         public IRoutingTable<Address> MessageRoutingTable { get; set; }
@@ -62,7 +62,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 Transport.TransportMessageReceived += TransportMessageReceived;
                 Transport.TransportMessageFinished += TransportOnTransportMessageFinished;
 
-                foreach (IBeforeBusStarted beforeBusStarted in Container.ResolveAll<IBeforeBusStarted>())
+                foreach (var beforeBusStarted in Container.ResolveAll<IBeforeBusStarted>())
                 {
                     beforeBusStarted.BeforeBusStarted();
                     Container.Release(beforeBusStarted);
@@ -88,7 +88,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
             lock (this)
             {
-                foreach (IBeforeBusStopped beforeBusStopped in Container.ResolveAll<IBeforeBusStopped>())
+                foreach (var beforeBusStopped in Container.ResolveAll<IBeforeBusStopped>())
                 {
                     beforeBusStopped.BeforeBusStopped();
                     Container.Release(beforeBusStopped);
@@ -99,7 +99,8 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
         public void Send(object message)
         {
-            ExecuteOnlyWhenStarted(() => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send), CurrentMessageContextInternal()));
+            ExecuteOnlyWhenStarted(
+                () => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send), CurrentMessageContextInternal()));
         }
 
         public void SendLocal(object message)
@@ -110,7 +111,8 @@ namespace Idecom.Bus.Implementations.UnicastBus
         public void Reply(object message)
         {
             if (LocalAddress.Equals(CurrentMessageContext.TransportMessage.SourceAddress))
-                throw new Exception(string.Format("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: {0}", CurrentMessageContext.TransportMessage.SourceAddress));
+                throw new Exception(string.Format("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: {0}",
+                    CurrentMessageContext.TransportMessage.SourceAddress));
 
             ExecuteOnlyWhenStarted(
                 () => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Reply), CurrentMessageContextInternal()));
@@ -126,7 +128,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
         }
 
         [DebuggerStepThrough]
-        private CurrentMessageContext CurrentMessageContextInternal()
+        CurrentMessageContext CurrentMessageContextInternal()
         {
             var currentMessageContext = Container.Resolve<CurrentMessageContext>();
             Container.Release(currentMessageContext);
@@ -134,7 +136,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
         }
 
         [DebuggerStepThrough]
-        private void ExecuteOnlyWhenStarted(Action todo)
+        void ExecuteOnlyWhenStarted(Action todo)
         {
             if (_isStarted || CurrentMessageContext != null)
                 todo();
@@ -142,7 +144,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 throw new Exception("Can not send or receive messages while the bus is stopped.");
         }
 
-        private void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
+        void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
             CurrentMessageContext currentMessageContext = null;
             try
@@ -169,10 +171,12 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 Console.WriteLine("Error while receiving a message: " + ex);
                 throw;
             }
-            finally { Container.Release(currentMessageContext); }
+            finally {
+                Container.Release(currentMessageContext);
+            }
         }
 
-        private bool ExecuteHandler(object message, Type messageType, MethodInfo handlerMethod, CurrentMessageContext currentMessageContext)
+        bool ExecuteHandler(object message, Type messageType, MethodInfo handlerMethod, CurrentMessageContext currentMessageContext)
         {
             var handler = Container.Resolve(handlerMethod.DeclaringType);
             Action executeHandler = () => handlerMethod.Invoke(handler, new[] {message});
@@ -193,7 +197,9 @@ namespace Idecom.Bus.Implementations.UnicastBus
                 var sagaDataProperty = handler.GetType().GetProperty("Data");
                 sagaDataProperty.SetValue(handler, sagaData.SagaState);
 
-                try { executeHandler(); }
+                try {
+                    executeHandler();
+                }
                 finally
                 {
                     if (((ISaga) handler).IsClosed)
@@ -211,7 +217,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
             return true;
         }
 
-        private static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
+        static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
         {
             while (toCheck != null && toCheck != typeof (object))
             {
@@ -225,16 +231,16 @@ namespace Idecom.Bus.Implementations.UnicastBus
         /// <summary>
         ///     TODO: Don't have use fot this event now
         /// </summary>
-        private void TransportOnTransportMessageFinished(object sender, TransportMessageFinishedEventArgs transportMessageFinishedEventArgs)
+        void TransportOnTransportMessageFinished(object sender, TransportMessageFinishedEventArgs transportMessageFinishedEventArgs)
         {
         }
 
 
-        private void ApplyHandlerMapping(IEnumerable<Type> events, IEnumerable<Type> commands, IEnumerable<Type> allTypes)
+        void ApplyHandlerMapping(IEnumerable<Type> events, IEnumerable<Type> commands, IEnumerable<Type> allTypes)
         {
             var eventsAndCommands = events.Union(commands).ToArray();
 
-            foreach (NamespaceToEndpointMapping mapping in EffectiveConfiguration.NamespaceToEndpointMappings)
+            foreach (var mapping in EffectiveConfiguration.NamespaceToEndpointMappings)
             {
                 var types = eventsAndCommands.Where(type => type.Namespace != null && type.Namespace.Equals(mapping.Namespace, StringComparison.InvariantCultureIgnoreCase)).ToList();
                 var eventsAndCommandsInANamespace = eventsAndCommands.Intersect(types).Distinct().ToList();
@@ -255,7 +261,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
                                                                                                                            .SelectMany(intfs => intfs.GenericTypeArguments).Contains)
                                                                                                                 .Any()));
 
-            foreach (MethodInfo methodInfo in handlers)
+            foreach (var methodInfo in handlers)
             {
                 var firstParameter = methodInfo.GetParameters().FirstOrDefault();
                 if (firstParameter == null) continue;

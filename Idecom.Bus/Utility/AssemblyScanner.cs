@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-
-namespace Idecom.Bus.Utility
+﻿namespace Idecom.Bus.Utility
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+
     public static class AssemblyScanner
     {
-        private static List<Type> _typesCache = new List<Type>();
+        static List<Type> _typesCache = new List<Type>();
 
         /// <summary>
         ///     Gets a list with assemblies that can be scanned
@@ -22,7 +22,7 @@ namespace Idecom.Bus.Utility
             var assemblyFiles = directoryInfo.GetFiles("*.dll", SearchOption.AllDirectories).Union(directoryInfo.GetFiles("*.exe", SearchOption.AllDirectories));
 
 
-            foreach (FileInfo assemblyFile in assemblyFiles)
+            foreach (var assemblyFile in assemblyFiles)
             {
                 Assembly assembly;
 

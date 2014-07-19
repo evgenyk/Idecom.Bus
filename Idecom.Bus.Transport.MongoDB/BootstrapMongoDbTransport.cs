@@ -1,8 +1,8 @@
-﻿using Idecom.Bus.Implementations;
-using Idecom.Bus.Interfaces;
-
-namespace Idecom.Bus.Transport.MongoDB
+﻿namespace Idecom.Bus.Transport.MongoDB
 {
+    using Implementations;
+    using Interfaces;
+
     public static class BootstrapMongoDbTransport
     {
         public static Configure MongoDbTransport(this Configure configure, string mongodbConnectionString, string databaseName, int workersCount = 1, int retries = 1)

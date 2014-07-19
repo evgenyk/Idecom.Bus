@@ -1,20 +1,20 @@
-﻿using System;
-using System.Linq;
-using Idecom.Bus.Addressing;
-using Idecom.Bus.Implementations;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Interfaces.Addons.PubSub;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver;
-using MongoDB.Driver.Builders;
-
-namespace Idecom.Bus.PubSub.MongoDB
+﻿namespace Idecom.Bus.PubSub.MongoDB
 {
+    using System;
+    using System.Linq;
+    using Addressing;
+    using global::MongoDB.Bson;
+    using global::MongoDB.Bson.Serialization;
+    using global::MongoDB.Driver;
+    using global::MongoDB.Driver.Builders;
+    using Implementations;
+    using Interfaces;
+    using Interfaces.Addons.PubSub;
+
     public class SagaStorage : ISagaStorage, IBeforeBusStarted, IBeforeBusStopped
     {
-        private const string SAGA_STORAGE_COLLECTION_NAME = "SagaStorage";
-        private MongoCollection<SagaStorageEntity> _collection;
+        const string SAGA_STORAGE_COLLECTION_NAME = "SagaStorage";
+        MongoCollection<SagaStorageEntity> _collection;
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }
         public IRoutingTable<Type> SagaRoutingTable { get; set; }
@@ -60,12 +60,12 @@ namespace Idecom.Bus.PubSub.MongoDB
             _collection.Remove(query);
         }
 
-        private string GetInternalSagaId(string sagaId)
+        string GetInternalSagaId(string sagaId)
         {
             return sagaId + "_" + Address;
         }
 
-        private void MapSagaDataClasses()
+        void MapSagaDataClasses()
         {
             var destinations = SagaRoutingTable.GetDestinations().ToList();
             var sagaDataTypes = destinations.SelectMany(x => x.BaseType.GenericTypeArguments);

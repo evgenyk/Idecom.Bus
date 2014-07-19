@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-namespace Idecom.Bus.SampleApp2
+﻿namespace Idecom.Bus.SampleApp2
 {
     using System;
     using Castle.Windsor;
@@ -11,9 +9,9 @@ namespace Idecom.Bus.SampleApp2
     using Serializer.JsonNet;
     using Transport.MongoDB;
 
-    internal class Program
+    class Program
     {
-        private static void Main(string[] args)
+        static void Main(string[] args)
         {
             var container = new WindsorContainer();
             var busInstance = Configure.With()
@@ -26,10 +24,10 @@ namespace Idecom.Bus.SampleApp2
 
             var bus = busInstance.Start();
             bus.Raise<IMetAFriendEvent>(x =>
-            {
-                x.Name = "sdfsdfs";
-                x.Uri = new Uri("http://www.com");
-            });
+                                        {
+                                            x.Name = "sdfsdfs";
+                                            x.Uri = new Uri("http://www.com");
+                                        });
 
 
             Console.WriteLine("Bus configured. Press any key to close the app.");

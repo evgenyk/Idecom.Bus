@@ -1,8 +1,8 @@
-﻿using Idecom.Bus.Interfaces;
-using Idecom.Bus.Interfaces.Addons.Sagas;
-
-namespace Idecom.Bus.Implementations
+﻿namespace Idecom.Bus.Implementations
 {
+    using Interfaces;
+    using Interfaces.Addons.Sagas;
+
     public abstract class Saga<TSagaState> : ISaga<TSagaState> where TSagaState : ISagaState
     {
         protected Saga()

@@ -1,14 +1,14 @@
-﻿using System;
-using Idecom.Bus.Interfaces;
-using MongoDB.Driver;
-
-namespace Idecom.Bus.Transport.MongoDB
+﻿namespace Idecom.Bus.Transport.MongoDB
 {
-    internal class MessageSender
+    using System;
+    using global::MongoDB.Driver;
+    using Interfaces;
+
+    class MessageSender
     {
-        private readonly MongoDatabase _database;
-        private readonly IMessageSerializer _serializer;
-        private bool _isStarted;
+        readonly MongoDatabase _database;
+        readonly IMessageSerializer _serializer;
+        bool _isStarted;
 
         public MessageSender(MongoDatabase database, IMessageSerializer serializer)
         {
@@ -36,7 +36,8 @@ namespace Idecom.Bus.Transport.MongoDB
 
 
             var serializedMessage = _serializer.Serialize(transportMessage.Message);
-            var mongoMessage = new MongoTransportMessageEntity(transportMessage.SourceAddress, transportMessage.TargetAddress, transportMessage.Intent, serializedMessage, type, transportMessage.Headers);
+            var mongoMessage = new MongoTransportMessageEntity(transportMessage.SourceAddress, transportMessage.TargetAddress, transportMessage.Intent, serializedMessage, type,
+                transportMessage.Headers);
             targetCollection.Insert(mongoMessage, WriteConcern.Acknowledged);
         }
 

@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Idecom.Bus.Addressing;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Interfaces.Addons.PubSub;
-using MongoDB.Driver;
-using MongoDB.Driver.Builders;
-
-namespace Idecom.Bus.PubSub.MongoDB
+﻿namespace Idecom.Bus.PubSub.MongoDB
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Addressing;
+    using global::MongoDB.Driver;
+    using global::MongoDB.Driver.Builders;
+    using Interfaces;
+    using Interfaces.Addons.PubSub;
+
     public class SubscriptionStorage : ISubscriptionStorage, IBeforeBusStarted, IBeforeBusStopped
     {
-        private const string SUBSCRIPTION_STORAGE_COLLECTION_NAME = "SubscriptionStorage";
-        private MongoCollection<SubscriptionStorageEntity> _collection;
+        const string SUBSCRIPTION_STORAGE_COLLECTION_NAME = "SubscriptionStorage";
+        MongoCollection<SubscriptionStorageEntity> _collection;
 
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }
@@ -61,7 +61,7 @@ namespace Idecom.Bus.PubSub.MongoDB
             _collection.Update(query, update, UpdateFlags.Upsert, WriteConcern.Acknowledged);
         }
 
-        private static string GetTypeNameWithNamespace(Type type)
+        static string GetTypeNameWithNamespace(Type type)
         {
             return string.Format("{0}.{1}", type.Namespace, type.Name).ToLowerInvariant();
         }

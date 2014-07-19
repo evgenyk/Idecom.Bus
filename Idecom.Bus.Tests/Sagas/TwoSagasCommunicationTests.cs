@@ -1,15 +1,15 @@
-﻿using System;
-using Idecom.Bus.Implementations;
-using Idecom.Bus.IoC.CastleWindsor;
-using Idecom.Bus.Serializer.JsonNet;
-using Idecom.Bus.Tests.InMemoryInfrastructure;
-using Idecom.Bus.Tests.Sagas.TwoSagas.FirstSaga;
-using Idecom.Bus.Tests.Sagas.TwoSagas.Messages;
-using Idecom.Bus.Tests.Sagas.TwoSagas.SecondSaga;
-using Xunit;
-
-namespace Idecom.Bus.Tests.Sagas
+﻿namespace Idecom.Bus.Tests.Sagas
 {
+    using System;
+    using Implementations;
+    using InMemoryInfrastructure;
+    using IoC.CastleWindsor;
+    using Serializer.JsonNet;
+    using TwoSagas.FirstSaga;
+    using TwoSagas.Messages;
+    using TwoSagas.SecondSaga;
+    using Xunit;
+
     public class TwoSagasCommunicationTests
     {
         [Fact]

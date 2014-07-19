@@ -1,15 +1,14 @@
-﻿using Idecom.Bus.Implementations;
-using Idecom.Bus.Interfaces.Addons.Sagas;
-
-namespace Idecom.Bus.SampleApp2.Handlers
+﻿namespace Idecom.Bus.SampleApp2.Handlers
 {
     using System;
+    using Implementations;
     using Interfaces;
+    using Interfaces.Addons.Sagas;
     using SampleMessages;
 
-    public class SayHelloApp2Saga : Saga<SayHelloSagaInApp2State>, 
-        IStartThisSagaWhenReceive<SayHelloCommand>, 
-        IHandle<SayGoodByeCommand>
+    public class SayHelloApp2Saga : Saga<SayHelloSagaInApp2State>,
+                                    IStartThisSagaWhenReceive<SayHelloCommand>,
+                                    IHandle<SayGoodByeCommand>
     {
         public void Handle(SayGoodByeCommand command)
         {

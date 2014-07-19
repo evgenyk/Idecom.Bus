@@ -1,8 +1,8 @@
-﻿using System;
-
-namespace Idecom.Bus.Implementations.Internal
+﻿namespace Idecom.Bus.Implementations.Internal
 {
-    internal class DefaultConfiguration
+    using System;
+
+    class DefaultConfiguration
     {
         public static Func<Type, bool> DefaultEventNamingConvention
         {

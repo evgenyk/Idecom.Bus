@@ -1,16 +1,16 @@
-﻿using System;
-using System.Diagnostics;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
-
-namespace Idecom.Bus.Utility
+﻿namespace Idecom.Bus.Utility
 {
+    using System;
+    using System.Diagnostics;
+    using System.Net;
+    using System.Net.NetworkInformation;
+    using System.Reflection;
+    using System.Security.Cryptography;
+    using System.Text;
+
     public static class ApplicationIdGenerator
     {
-        private static string _machineIdCache;
+        static string _machineIdCache;
 
         /// <summary>
         ///     Generated a persistent ID for the running application bu using FQDN and current assembly entry point file name

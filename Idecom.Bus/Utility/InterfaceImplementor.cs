@@ -1,19 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-
 namespace Idecom.Bus.Utility
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Reflection;
+    using System.Reflection.Emit;
+
     [DebuggerStepThrough]
     public static class InterfaceImplementor
     {
-        private static readonly Dictionary<Type, Type> ImplementationCache = new Dictionary<Type, Type>();
-        private static readonly object SyncRoot = new object();
+        static readonly Dictionary<Type, Type> ImplementationCache = new Dictionary<Type, Type>();
+        static readonly object SyncRoot = new object();
 
-        private static readonly ModuleBuilder ModuleBuilder;
+        static readonly ModuleBuilder ModuleBuilder;
 
         static InterfaceImplementor()
         {
@@ -35,12 +35,13 @@ namespace Idecom.Bus.Utility
 
             if (ImplementationCache.ContainsKey(@interface)) { return ImplementationCache[@interface]; }
 
-            var typeBuilder = ModuleBuilder.DefineType(string.Format("{0}_{1}", @interface.Name, Guid.NewGuid().ToString("N")), TypeAttributes.Serializable | TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed);
+            var typeBuilder = ModuleBuilder.DefineType(string.Format("{0}_{1}", @interface.Name, Guid.NewGuid().ToString("N")),
+                TypeAttributes.Serializable | TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed);
 
             typeBuilder.AddInterfaceImplementation(@interface);
 
             var props = GetAllProperties(@interface);
-            foreach (PropertyInfo prop in props)
+            foreach (var prop in props)
                 DefineProperty(typeBuilder, prop);
 
             var newType = typeBuilder.CreateType();
@@ -51,17 +52,17 @@ namespace Idecom.Bus.Utility
             return newType;
         }
 
-        private static IEnumerable<PropertyInfo> GetAllProperties(Type type)
+        static IEnumerable<PropertyInfo> GetAllProperties(Type type)
         {
             var allPropertiesWithInheritance = new List<PropertyInfo>(type.GetProperties());
-            foreach (Type interfaceType in type.GetInterfaces())
+            foreach (var interfaceType in type.GetInterfaces())
                 allPropertiesWithInheritance.AddRange(GetAllProperties(interfaceType));
 
             var result = allPropertiesWithInheritance.Select(x => x.Name).Distinct().Select(x => allPropertiesWithInheritance.First(y => y.Name.Equals(x)));
             return result;
         }
 
-        private static void DefineProperty(TypeBuilder typeBuilder, PropertyInfo propertyInfo)
+        static void DefineProperty(TypeBuilder typeBuilder, PropertyInfo propertyInfo)
         {
             var propertyName = propertyInfo.Name;
             var propertyType = propertyInfo.GetMethod.ReturnType;

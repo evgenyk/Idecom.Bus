@@ -1,16 +1,16 @@
-﻿using System;
-using Idecom.Bus.Addressing;
-using Idecom.Bus.Implementations.UnicastBus;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Transport;
-
-namespace Idecom.Bus.Tests.InMemoryInfrastructure
+﻿namespace Idecom.Bus.Tests.InMemoryInfrastructure
 {
-    internal static class SortOfInMemoryQueue
+    using System;
+    using Addressing;
+    using Implementations.UnicastBus;
+    using Interfaces;
+    using Transport;
+
+    static class SortOfInMemoryQueue
     {
         public static event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
 
-        private static void OnTransportMessageReceived(TransportMessageReceivedEventArgs e)
+        static void OnTransportMessageReceived(TransportMessageReceivedEventArgs e)
         {
             var handler = TransportMessageReceived;
             if (handler != null) handler(null, e);
@@ -47,7 +47,7 @@ namespace Idecom.Bus.Tests.InMemoryInfrastructure
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
         public event EventHandler<TransportMessageFinishedEventArgs> TransportMessageFinished;
 
-        private void SortOfInMemoryQueue_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
+        void SortOfInMemoryQueue_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
             if (e.TransportMessage.TargetAddress != Address)
                 return;

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Idecom.Bus.Addressing;
-
-namespace Idecom.Bus.Transport
+﻿namespace Idecom.Bus.Transport
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using Addressing;
+
     [DebuggerStepThrough]
     public class TransportMessage
     {
@@ -17,7 +17,7 @@ namespace Idecom.Bus.Transport
             MessageType = messageType;
         }
 
-        private TransportMessage(object message, Dictionary<string, string> headers)
+        TransportMessage(object message, Dictionary<string, string> headers)
         {
             Message = message;
             Headers = new Dictionary<string, string>(headers ?? new Dictionary<string, string>());

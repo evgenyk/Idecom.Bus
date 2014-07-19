@@ -1,13 +1,13 @@
-﻿using System;
-using System.Net;
-
-namespace Idecom.Bus.Addressing
+﻿namespace Idecom.Bus.Addressing
 {
+    using System;
+    using System.Net;
+
     [Serializable]
     public class Address
     {
-        private readonly string _datacenterLowerCased;
-        private readonly string _queueLowerCased;
+        readonly string _datacenterLowerCased;
+        readonly string _queueLowerCased;
 
         public Address(string queueName, string datacenter = null)
         {
@@ -21,7 +21,7 @@ namespace Idecom.Bus.Addressing
         {
         }
 
-        private bool LocalDatacenter
+        bool LocalDatacenter
         {
             get { return Datacenter == null; }
         }
@@ -81,7 +81,7 @@ namespace Idecom.Bus.Addressing
             return Equals((Address) obj);
         }
 
-        private bool Equals(Address other)
+        bool Equals(Address other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;

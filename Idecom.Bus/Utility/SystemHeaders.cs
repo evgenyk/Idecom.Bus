@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Idecom.Bus.Utility
+﻿namespace Idecom.Bus.Utility
 {
+    using System;
+
     public static class SystemHeaders
     {
         public const string SagaIdPrefix = "_SAGAID_";

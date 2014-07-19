@@ -1,8 +1,8 @@
-using System;
-using Newtonsoft.Json;
-
 namespace Idecom.Bus.Serializer.JsonNet.Converters
 {
+    using System;
+    using Newtonsoft.Json;
+
     public class UriConverter : JsonConverter
     {
         /// <inheritdoc />

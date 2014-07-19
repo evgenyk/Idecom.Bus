@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Idecom.Bus.Implementations
+﻿namespace Idecom.Bus.Implementations
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public interface IRoutingTable<TTarget> where TTarget : class
     {
         void RouteTypes(IEnumerable<Type> types, TTarget routeTarget);
@@ -14,7 +14,7 @@ namespace Idecom.Bus.Implementations
 
     public class RoutingTable<TTarget> : IRoutingTable<TTarget> where TTarget : class
     {
-        private readonly Dictionary<Type, TTarget> _routes;
+        readonly Dictionary<Type, TTarget> _routes;
 
         public RoutingTable()
         {
@@ -23,7 +23,7 @@ namespace Idecom.Bus.Implementations
 
         public void RouteTypes(IEnumerable<Type> types, TTarget routeTarget)
         {
-            foreach (Type type in types)
+            foreach (var type in types)
             {
                 if (_routes.ContainsKey(type))
                     throw new Exception(string.Format("Can not assign type {0} to an endpoint {1} as it has already been mapped to {2}", type.FullName, routeTarget, _routes[type]));

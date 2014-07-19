@@ -1,10 +1,10 @@
-﻿using Idecom.Bus.Interfaces;
-
-namespace Idecom.Bus.Implementations
+﻿namespace Idecom.Bus.Implementations
 {
+    using Interfaces;
+
     public abstract class NestedConfigurationBase
     {
-        private readonly Configure _rootConfiguration;
+        readonly Configure _rootConfiguration;
 
         protected NestedConfigurationBase(Configure rootConfiguration)
         {

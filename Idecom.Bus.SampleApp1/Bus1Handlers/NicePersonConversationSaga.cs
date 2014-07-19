@@ -1,10 +1,10 @@
-﻿using System;
-using Idecom.Bus.Implementations;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.SampleMessages;
-
-namespace Idecom.Bus.SampleApp1.Bus1Handlers
+﻿namespace Idecom.Bus.SampleApp1.Bus1Handlers
 {
+    using System;
+    using Implementations;
+    using Interfaces;
+    using SampleMessages;
+
     [SingleInstanceSaga]
     public class NicePersonConversationSaga : Saga<NicePersonConversationState>,
                                               IStartThisSagaWhenReceive<IMetAFriendEvent>,
@@ -15,6 +15,14 @@ namespace Idecom.Bus.SampleApp1.Bus1Handlers
         {
             Console.WriteLine("Said goodbuy to a friend");
             Bus.Reply(new SayGoodByeCommand("See you"));
+        }
+
+        public void Handle(SeeYouCommand command)
+        {
+            Data.Started = false;
+            Console.WriteLine("Received See you back");
+            CloseSaga();
+            Console.WriteLine("Closed saga");
         }
 
         public void Handle(IMetAFriendEvent command)
@@ -29,14 +37,6 @@ namespace Idecom.Bus.SampleApp1.Bus1Handlers
             var sayHelloCommand = new SayHelloCommand("Hi");
             Bus.Send(sayHelloCommand);
             Data.FriendSaidHello = true;
-        }
-
-        public void Handle(SeeYouCommand command)
-        {
-            Data.Started = false;
-            Console.WriteLine("Received See you back");
-            CloseSaga();
-            Console.WriteLine("Closed saga");
         }
     }
 }

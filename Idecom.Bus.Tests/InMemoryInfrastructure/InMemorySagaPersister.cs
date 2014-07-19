@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using Idecom.Bus.Interfaces.Addons.PubSub;
-
-namespace Idecom.Bus.Tests.InMemoryInfrastructure
+﻿namespace Idecom.Bus.Tests.InMemoryInfrastructure
 {
+    using System.Collections.Generic;
+    using Interfaces.Addons.PubSub;
+
     public class InMemorySagaPersister : ISagaStorage
     {
         public Dictionary<string, object> SagaStorage;

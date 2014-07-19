@@ -1,7 +1,7 @@
-﻿using Idecom.Bus.Interfaces.Addons.Sagas;
-
-namespace Idecom.Bus.SampleApp1.Bus1Handlers
+﻿namespace Idecom.Bus.SampleApp1.Bus1Handlers
 {
+    using Interfaces.Addons.Sagas;
+
     public class NicePersonConversationState : ISagaState
     {
         public bool FriendSaidHello { get; set; }

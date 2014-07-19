@@ -1,8 +1,8 @@
-using System;
-using MongoDB.Bson.Serialization.Attributes;
-
 namespace Idecom.Bus.PubSub.MongoDB
 {
+    using System;
+    using global::MongoDB.Bson.Serialization.Attributes;
+
     public class SagaStorageEntity
     {
         public SagaStorageEntity(string id, object data)

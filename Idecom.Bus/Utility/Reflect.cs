@@ -1,9 +1,9 @@
-using System;
-using System.Linq.Expressions;
-using System.Reflection;
-
 namespace Idecom.Bus.Utility
 {
+    using System;
+    using System.Linq.Expressions;
+    using System.Reflection;
+
     public static class Reflect<T>
     {
         public static PropertyInfo GetProperty(Expression<Func<T, object>> property)
@@ -18,7 +18,7 @@ namespace Idecom.Bus.Utility
             return GetMemberInfo(property, checkForSingleDot) as PropertyInfo;
         }
 
-        private static MemberInfo GetMemberInfo(Expression member, bool checkForSingleDot)
+        static MemberInfo GetMemberInfo(Expression member, bool checkForSingleDot)
         {
             if (member == null) throw new ArgumentNullException("member");
             var lambda = member as LambdaExpression;

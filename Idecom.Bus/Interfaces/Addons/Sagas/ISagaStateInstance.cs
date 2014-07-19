@@ -1,8 +1,8 @@
-﻿using System.Diagnostics;
-using Idecom.Bus.Addressing;
-
-namespace Idecom.Bus.Interfaces.Addons.Sagas
+﻿namespace Idecom.Bus.Interfaces.Addons.Sagas
 {
+    using System.Diagnostics;
+    using Addressing;
+
     public interface ISagaStateInstance
     {
         Address Endpoint { get; }

@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Idecom.Bus.Addressing;
-using Idecom.Bus.Implementations.UnicastBus;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Interfaces.Addons.PubSub;
-using Idecom.Bus.Interfaces.Addons.Sagas;
-using Idecom.Bus.Transport;
-using Idecom.Bus.Utility;
-
-namespace Idecom.Bus.Implementations.Addons.PubSub
+﻿namespace Idecom.Bus.Implementations.Addons.PubSub
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Addressing;
+    using Interfaces;
+    using Interfaces.Addons.PubSub;
+    using Interfaces.Addons.Sagas;
+    using Transport;
+    using UnicastBus;
+    using Utility;
+
     public class SagaManager : ISagaManager
     {
         public ISagaStorage SagaStorage { get; set; }
@@ -46,7 +46,7 @@ namespace Idecom.Bus.Implementations.Addons.PubSub
             return transportMessage;
         }
 
-        private void AddSagaIdToHeaders(string sagaId, Type sagaDataType, CurrentMessageContext currentMessageContext)
+        void AddSagaIdToHeaders(string sagaId, Type sagaDataType, CurrentMessageContext currentMessageContext)
         {
             var headerKey = SystemHeaders.SagaIdHeaderKey(sagaDataType);
             currentMessageContext.SetHeader(headerKey, sagaId);

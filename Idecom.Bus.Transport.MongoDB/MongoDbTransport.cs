@@ -1,20 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Idecom.Bus.Addressing;
-using Idecom.Bus.Implementations;
-using Idecom.Bus.Implementations.UnicastBus;
-using Idecom.Bus.Interfaces;
-using MongoDB.Driver;
-using MongoDB.Driver.Builders;
-
-namespace Idecom.Bus.Transport.MongoDB
+﻿namespace Idecom.Bus.Transport.MongoDB
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Addressing;
+    using global::MongoDB.Driver;
+    using global::MongoDB.Driver.Builders;
+    using Implementations;
+    using Implementations.UnicastBus;
+    using Interfaces;
+
     public class MongoDbTransport : ITransport, IBeforeBusStarted, IBeforeBusStopped
     {
-        private MongoDatabase _database;
-        private MessageReceiver _receiver;
-        private MessageSender _sender;
+        MongoDatabase _database;
+        MessageReceiver _receiver;
+        MessageSender _sender;
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }
         public IContainer Container { get; set; }
@@ -53,7 +53,8 @@ namespace Idecom.Bus.Transport.MongoDB
         public void Send(TransportMessage transportMessage, CurrentMessageContext currentMessageContext = null)
         {
             if (transportMessage.TargetAddress == null)
-                throw new InvalidOperationException(string.Format("Can not send a message of type {0} as the target address could not be found. did you forget to configure routing?", (transportMessage.MessageType ?? transportMessage.Message.GetType()).Name));
+                throw new InvalidOperationException(string.Format("Can not send a message of type {0} as the target address could not be found. did you forget to configure routing?",
+                    (transportMessage.MessageType ?? transportMessage.Message.GetType()).Name));
 
             if (currentMessageContext == null)
                 _sender.Send(transportMessage);
@@ -64,12 +65,14 @@ namespace Idecom.Bus.Transport.MongoDB
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
         public event EventHandler<TransportMessageFinishedEventArgs> TransportMessageFinished;
 
-        private void CreateQueues(IEnumerable<Address> targetQueues)
+        void CreateQueues(IEnumerable<Address> targetQueues)
         {
-            foreach (string collectionName in targetQueues.Select(queue => queue.ToString()))
+            foreach (var collectionName in targetQueues.Select(queue => queue.ToString()))
             {
                 if (!_database.CollectionExists(collectionName))
-                    try { _database.CreateCollection(collectionName); }
+                    try {
+                        _database.CreateCollection(collectionName);
+                    }
                     catch (Exception e) {
                         Console.WriteLine("Could not create collection {0} with exception {1}", collectionName, e);
                     }

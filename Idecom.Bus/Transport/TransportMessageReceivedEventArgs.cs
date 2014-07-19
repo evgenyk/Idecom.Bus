@@ -1,12 +1,12 @@
-using System.Diagnostics;
-
 namespace Idecom.Bus.Transport
 {
+    using System.Diagnostics;
+
     public class TransportMessageReceivedEventArgs
     {
-        private readonly int _attempt;
-        private readonly int _maxRetries;
-        private readonly TransportMessage _transportMessage;
+        readonly int _attempt;
+        readonly int _maxRetries;
+        readonly TransportMessage _transportMessage;
 
         [DebuggerStepThrough]
         public TransportMessageReceivedEventArgs(TransportMessage transportMessage, int attempt, int maxRetries)

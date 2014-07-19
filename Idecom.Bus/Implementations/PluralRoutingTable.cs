@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Idecom.Bus.Implementations
+﻿namespace Idecom.Bus.Implementations
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public interface IMultiRoutingTable<TTarget> where TTarget : class
     {
         void RouteTypes(IEnumerable<Type> types, TTarget routeTarget);
@@ -14,7 +14,7 @@ namespace Idecom.Bus.Implementations
 
     public class PluralRoutingTable<TTarget> : IMultiRoutingTable<TTarget> where TTarget : class
     {
-        private readonly Dictionary<Type, List<TTarget>> _routes;
+        readonly Dictionary<Type, List<TTarget>> _routes;
 
         public PluralRoutingTable()
         {
@@ -23,7 +23,7 @@ namespace Idecom.Bus.Implementations
 
         public void RouteTypes(IEnumerable<Type> types, TTarget routeTarget)
         {
-            foreach (Type type in types)
+            foreach (var type in types)
             {
                 if (_routes.ContainsKey(type))
                     _routes[type].Add(routeTarget);

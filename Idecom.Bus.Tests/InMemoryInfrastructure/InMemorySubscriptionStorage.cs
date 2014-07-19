@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Generic;
-using Idecom.Bus.Addressing;
-using Idecom.Bus.Interfaces.Addons.PubSub;
-
 namespace Idecom.Bus.Tests.InMemoryInfrastructure
 {
+    using System;
+    using System.Collections.Generic;
+    using Addressing;
+    using Interfaces.Addons.PubSub;
+
     public class InMemorySubscriptionStorage : ISubscriptionStorage
     {
-        private readonly Dictionary<Type, List<Address>> _subscriptions;
+        readonly Dictionary<Type, List<Address>> _subscriptions;
 
         public InMemorySubscriptionStorage()
         {

@@ -1,20 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using Castle.Core;
-using Castle.MicroKernel.Lifestyle;
-using Castle.MicroKernel.Registration;
-using Castle.Windsor;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Utility;
-
-namespace Idecom.Bus.IoC.CastleWindsor
+﻿namespace Idecom.Bus.IoC.CastleWindsor
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using Castle.Core;
+    using Castle.MicroKernel.Lifestyle;
+    using Castle.MicroKernel.Registration;
+    using Castle.Windsor;
+    using Interfaces;
+    using Utility;
+
     public class WindsorContainerAdapter : IContainer
     {
-        private readonly IWindsorContainer _container;
-        private Func<IDisposable> _beginScopeFunction;
+        readonly IWindsorContainer _container;
+        Func<IDisposable> _beginScopeFunction;
 
         public WindsorContainerAdapter(IWindsorContainer container = null)
         {
@@ -95,7 +95,7 @@ namespace Idecom.Bus.IoC.CastleWindsor
             ConfigureProperty<T>(prop.Name, value);
         }
 
-        private void ConfigureProperty<T>(string property, object value)
+        void ConfigureProperty<T>(string property, object value)
         {
             var component = typeof (T);
             var registration = _container.Kernel.GetAssignableHandlers(component).Select(x => x.ComponentModel).SingleOrDefault();
@@ -110,7 +110,7 @@ namespace Idecom.Bus.IoC.CastleWindsor
                     new DependencyModel(property, value.GetType(), false, true, value)));
         }
 
-        private LifestyleType GetLifestyleTypeFrom(ComponentLifecycle componentLifecycle)
+        LifestyleType GetLifestyleTypeFrom(ComponentLifecycle componentLifecycle)
         {
             switch (componentLifecycle)
             {

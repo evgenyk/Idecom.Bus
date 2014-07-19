@@ -1,8 +1,8 @@
-﻿using Idecom.Bus.Implementations;
-using Idecom.Bus.Interfaces;
-
-namespace Idecom.Bus.Tests.InMemoryInfrastructure
+﻿namespace Idecom.Bus.Tests.InMemoryInfrastructure
 {
+    using Implementations;
+    using Interfaces;
+
     public static class InMemoryConfiguration
     {
         public static Configure InMemoryTransport(this Configure configure, int workersCount = 1, int retries = 1)

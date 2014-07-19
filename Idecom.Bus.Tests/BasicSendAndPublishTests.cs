@@ -1,17 +1,17 @@
-﻿using Idecom.Bus.Implementations;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.IoC.CastleWindsor;
-using Idecom.Bus.Serializer.JsonNet;
-using Idecom.Bus.Tests.InMemoryInfrastructure;
-using Xunit;
-using Xunit.Should;
-
-namespace Idecom.Bus.Tests
+﻿namespace Idecom.Bus.Tests
 {
+    using Implementations;
+    using InMemoryInfrastructure;
+    using Interfaces;
+    using IoC.CastleWindsor;
+    using Serializer.JsonNet;
+    using Xunit;
+    using Xunit.Should;
+
     public class BasicSendAndPublishTests : IHandle<ACommand>, IHandle<IEvent>
     {
-        private static volatile int _commandsHandled;
-        private static volatile int _eventsHandled;
+        static volatile int _commandsHandled;
+        static volatile int _eventsHandled;
 
         public void Handle(ACommand command)
         {

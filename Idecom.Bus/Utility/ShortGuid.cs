@@ -1,13 +1,13 @@
-﻿using System;
-
-namespace Idecom.Bus.Utility
+﻿namespace Idecom.Bus.Utility
 {
+    using System;
+
     public class ShortGuid
     {
         public static readonly ShortGuid Empty = new ShortGuid(Guid.Empty);
 
-        private Guid _guid;
-        private string _value;
+        Guid _guid;
+        string _value;
 
         public ShortGuid(string value)
         {

@@ -1,15 +1,15 @@
-﻿using System.Linq;
-using Idecom.Bus.Implementations;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Interfaces.Addons.Sagas;
-using Idecom.Bus.IoC.CastleWindsor;
-using Idecom.Bus.Serializer.JsonNet;
-using Idecom.Bus.Tests.InMemoryInfrastructure;
-using Xunit;
-using Xunit.Should;
-
-namespace Idecom.Bus.Tests.Sagas
+﻿namespace Idecom.Bus.Tests.Sagas
 {
+    using System.Linq;
+    using Implementations;
+    using InMemoryInfrastructure;
+    using Interfaces;
+    using Interfaces.Addons.Sagas;
+    using IoC.CastleWindsor;
+    using Serializer.JsonNet;
+    using Xunit;
+    using Xunit.Should;
+
     public class SimpleSagaTests
     {
         [Fact]

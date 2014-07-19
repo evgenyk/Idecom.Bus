@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Idecom.Bus.SampleMessages
+﻿namespace Idecom.Bus.SampleMessages
 {
+    using System;
+
     public class SayHelloCommand
     {
         public SayHelloCommand(string greeting)

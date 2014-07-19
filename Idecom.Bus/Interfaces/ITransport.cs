@@ -1,9 +1,9 @@
-﻿using System;
-using Idecom.Bus.Implementations.UnicastBus;
-using Idecom.Bus.Transport;
-
-namespace Idecom.Bus.Interfaces
+﻿namespace Idecom.Bus.Interfaces
 {
+    using System;
+    using Implementations.UnicastBus;
+    using Transport;
+
     public interface ITransport
     {
         int WorkersCount { get; }

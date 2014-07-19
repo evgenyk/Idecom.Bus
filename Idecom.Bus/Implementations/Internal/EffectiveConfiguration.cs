@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Idecom.Bus.Implementations.Internal
+﻿namespace Idecom.Bus.Implementations.Internal
 {
-    internal interface IEffectiveConfiguration
+    using System;
+    using System.Collections.Generic;
+
+    interface IEffectiveConfiguration
     {
         Func<Type, bool> IsEvent { get; }
         Func<Type, bool> IsCommand { get; }
@@ -11,7 +11,7 @@ namespace Idecom.Bus.Implementations.Internal
         List<NamespaceToEndpointMapping> NamespaceToEndpointMappings { get; }
     }
 
-    internal class EffectiveConfiguration : IEffectiveConfiguration
+    class EffectiveConfiguration : IEffectiveConfiguration
     {
         public Func<Type, bool> IsEvent { get; set; }
         public Func<Type, bool> IsCommand { get; set; }

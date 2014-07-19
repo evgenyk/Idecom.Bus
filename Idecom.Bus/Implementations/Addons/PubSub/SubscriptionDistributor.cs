@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using Idecom.Bus.Addressing;
-using Idecom.Bus.Implementations.UnicastBus;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Interfaces.Addons.PubSub;
-using Idecom.Bus.Transport;
-
-namespace Idecom.Bus.Implementations.Addons.PubSub
+﻿namespace Idecom.Bus.Implementations.Addons.PubSub
 {
-    internal class SubscriptionDistributor : ISubscriptionDistributor
+    using System;
+    using System.Collections.Generic;
+    using Addressing;
+    using Interfaces;
+    using Interfaces.Addons.PubSub;
+    using Transport;
+    using UnicastBus;
+
+    class SubscriptionDistributor : ISubscriptionDistributor
     {
         public SubscriptionDistributor(ISubscriptionStorage storage, Address localAddress, ITransport transport)
         {

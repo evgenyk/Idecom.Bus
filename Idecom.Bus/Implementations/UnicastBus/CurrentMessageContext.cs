@@ -1,17 +1,17 @@
-using System.Collections.Generic;
-using System.Linq;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Interfaces.Addons.Sagas;
-using Idecom.Bus.Transport;
-
 namespace Idecom.Bus.Implementations.UnicastBus
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using Interfaces;
+    using Interfaces.Addons.Sagas;
+    using Transport;
+
     public class CurrentMessageContext : IMessageContext
     {
-        private readonly Queue<TransportMessage> _delayedSends; //outgoing messages
-        private readonly Dictionary<string, string> _headers; //outgoing headers
-        private readonly ISagaManager _sagaManager;
-        private readonly ITransport _transport;
+        readonly Queue<TransportMessage> _delayedSends; //outgoing messages
+        readonly Dictionary<string, string> _headers; //outgoing headers
+        readonly ISagaManager _sagaManager;
+        readonly ITransport _transport;
 
         public CurrentMessageContext(ITransport transport, ISagaManager sagaManager)
         {
@@ -27,7 +27,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
         public int Attempt { get; set; }
         public int MaxAttempts { get; set; }
 
-        private void SendOutgoingMessages(object sender, TransportMessageFinishedEventArgs e)
+        void SendOutgoingMessages(object sender, TransportMessageFinishedEventArgs e)
         {
             while (_delayedSends.Any())
             {

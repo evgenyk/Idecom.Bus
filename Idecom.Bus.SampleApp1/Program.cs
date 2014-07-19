@@ -1,17 +1,17 @@
-﻿using System;
-using Castle.Windsor;
-using Idecom.Bus.Implementations;
-using Idecom.Bus.IoC.CastleWindsor;
-using Idecom.Bus.PubSub.MongoDB;
-using Idecom.Bus.SampleMessages;
-using Idecom.Bus.Serializer.JsonNet;
-using Idecom.Bus.Transport.MongoDB;
-
-namespace Idecom.Bus.SampleApp1
+﻿namespace Idecom.Bus.SampleApp1
 {
-    internal class Program
+    using System;
+    using Castle.Windsor;
+    using Implementations;
+    using IoC.CastleWindsor;
+    using PubSub.MongoDB;
+    using SampleMessages;
+    using Serializer.JsonNet;
+    using Transport.MongoDB;
+
+    class Program
     {
-        private static void Main()
+        static void Main()
         {
             var container = new WindsorContainer();
             var busInstance = Configure.With()

@@ -1,11 +1,10 @@
-﻿using System;
-using Castle.MicroKernel;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.SampleMessages;
-
-namespace Idecom.Bus.SampleApp1.Bus1Handlers
+﻿namespace Idecom.Bus.SampleApp1.Bus1Handlers
 {
-    public class SayHelloTyMyselfHandler: IHandle<SayHelloCommand>
+    using System;
+    using Interfaces;
+    using SampleMessages;
+
+    public class SayHelloTyMyselfHandler : IHandle<SayHelloCommand>
     {
         public void Handle(SayHelloCommand command)
         {

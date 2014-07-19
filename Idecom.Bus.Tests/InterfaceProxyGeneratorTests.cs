@@ -1,9 +1,9 @@
-﻿using Idecom.Bus.Implementations;
-using Xunit;
-using Xunit.Should;
-
-namespace Idecom.Bus.Tests
+﻿namespace Idecom.Bus.Tests
 {
+    using Implementations;
+    using Xunit;
+    using Xunit.Should;
+
     public class InterfaceProxyGeneratorTests
     {
         [Fact]

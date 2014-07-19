@@ -1,12 +1,12 @@
-﻿using System;
-using System.Runtime.Serialization;
-using Idecom.Bus.Interfaces;
-
-namespace Idecom.Bus.Serializer.JsonNet
+﻿namespace Idecom.Bus.Serializer.JsonNet
 {
+    using System;
+    using System.Runtime.Serialization;
+    using Interfaces;
+
     public class InterfaceSupportingBinder : SerializationBinder
     {
-        private readonly IInstanceCreator _instanceCreator;
+        readonly IInstanceCreator _instanceCreator;
 
         public InterfaceSupportingBinder(IInstanceCreator instanceCreator)
         {

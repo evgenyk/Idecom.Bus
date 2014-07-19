@@ -1,9 +1,9 @@
-using Idecom.Bus.Implementations;
-using Idecom.Bus.Interfaces;
-using Idecom.Bus.Tests.Sagas.TwoSagas.Messages;
-
 namespace Idecom.Bus.Tests.Sagas.TwoSagas.FirstSaga
 {
+    using Implementations;
+    using Interfaces;
+    using Messages;
+
     public class Saga1 : Saga<Saga1State>, IStartThisSagaWhenReceive<IStartFirstSagaEvent>
     {
         public static bool Started;
