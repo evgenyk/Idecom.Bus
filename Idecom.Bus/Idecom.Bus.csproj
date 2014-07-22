@@ -62,6 +62,9 @@
     <Compile Include="Interfaces\Addons\Sagas\ISagaStateInstance.cs" />
     <Compile Include="Interfaces\Addons\Sagas\ISagaManager.cs" />
     <Compile Include="Interfaces\Addons\Sagas\ISagaState.cs" />
+    <Compile Include="Interfaces\Behaviors\Chain.cs" />
+    <Compile Include="Interfaces\Behaviors\INode.cs" />
+    <Compile Include="Interfaces\Behaviors\Node.cs" />
     <Compile Include="Interfaces\IBeforeBusStarted.cs" />
     <Compile Include="Interfaces\IBeforeBusStopped.cs" />
     <Compile Include="Interfaces\IBus.cs" />
