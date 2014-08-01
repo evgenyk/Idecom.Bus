@@ -10,7 +10,7 @@
 
     public class OutgoingMessageValidationTests
     {
-        [Fact]
+        [Fact(Skip = "Waiting for behaviors")]
         public void CanValidateWhileSendingAMessageTest()
         {
             var bus = Configure.With()
