@@ -5,7 +5,9 @@
     using System.Reflection;
     using Addons.PubSub;
     using Addressing;
+    using Behaviors;
     using Interfaces;
+    using Interfaces.Behaviors;
     using Internal;
     using UnicastBus;
 
@@ -40,6 +42,8 @@
                 value.Configure<Bus>(ComponentLifecycle.Singleton);
                 value.Configure<SubscriptionDistributor>(ComponentLifecycle.Singleton);
                 value.Configure<SagaManager>(ComponentLifecycle.Singleton);
+                
+                value.Configure<ChainExecutor>(ComponentLifecycle.PerUnitOfWork);
 
                 _container = value;
             }
@@ -62,9 +66,9 @@
             return bus;
         }
 
-        public Configure DefineEventsAs(Func<Type, bool> eventsDefenition)
+        public Configure DefineEventsAs(Func<Type, bool> eventsDefinition)
         {
-            Container.ConfigureProperty<EffectiveConfiguration>(x => x.IsEvent, eventsDefenition);
+            Container.ConfigureProperty<EffectiveConfiguration>(x => x.IsEvent, eventsDefinition);
             return this;
         }
 

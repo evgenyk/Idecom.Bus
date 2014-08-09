@@ -43,6 +43,8 @@
     <Compile Include="Addressing\Address.cs" />
     <Compile Include="Implementations\Addons\PubSub\SagaManager.cs" />
     <Compile Include="Implementations\Addons\PubSub\SubscriptionDistributor.cs" />
+    <Compile Include="Implementations\Behaviors\BehaviorChain.cs" />
+    <Compile Include="Implementations\Behaviors\ChainExecutor.cs" />
     <Compile Include="Implementations\Configure.cs" />
     <Compile Include="Implementations\ConfigureContainer.cs" />
     <Compile Include="Implementations\Internal\DefaultConfiguration.cs" />
@@ -64,6 +66,8 @@
     <Compile Include="Interfaces\Addons\Sagas\ISagaManager.cs" />
     <Compile Include="Interfaces\Addons\Sagas\ISagaState.cs" />
     <Compile Include="Interfaces\Behaviors\IBehavior.cs" />
+    <Compile Include="Interfaces\Behaviors\IBehaviorChain.cs" />
+    <Compile Include="Interfaces\Behaviors\IChainExecutor.cs" />
     <Compile Include="Interfaces\IBeforeBusStarted.cs" />
     <Compile Include="Interfaces\IBeforeBusStopped.cs" />
     <Compile Include="Interfaces\IBus.cs" />
@@ -87,9 +91,7 @@
     <Compile Include="Utility\SystemHeaders.cs" />
     <Compile Include="Utility\TypeResolver.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Implementations\Behaviors\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

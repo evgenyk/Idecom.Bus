@@ -53,6 +53,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BehaviorTests\OutgoingMessageValidationTests.cs" />
     <Compile Include="InMemoryInfrastructure\InMemoryConfiguration.cs" />
     <Compile Include="InMemoryInfrastructure\InMemorySagaPersister.cs" />
     <Compile Include="InMemoryInfrastructure\InMemorySubscriptionStorage.cs" />
@@ -68,7 +69,6 @@
     <Compile Include="Sagas\TwoSagas\Messages\IStartSecondSagaEvent.cs" />
     <Compile Include="Sagas\TwoSagas\SecondSaga\Saga2.cs" />
     <Compile Include="Sagas\TwoSagas\SecondSaga\Saga2State.cs" />
-    <Compile Include="Validation\OutgoingMessageValidationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

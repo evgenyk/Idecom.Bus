@@ -6,9 +6,11 @@
     using System.Linq;
     using System.Reflection;
     using Addressing;
+    using Behaviors;
     using Interfaces;
     using Interfaces.Addons.PubSub;
     using Interfaces.Addons.Sagas;
+    using Interfaces.Behaviors;
     using Internal;
     using Transport;
     using Utility;
@@ -55,9 +57,10 @@
                 var events = allTypes.Where(EffectiveConfiguration.IsEvent).ToList();
                 var commands = allTypes.Where(EffectiveConfiguration.IsCommand).ToList();
                 ApplyHandlerMapping(events, commands, allTypes);
-
                 var eventsWithHandlers = events.Where(e => HandlerRoutingTable.ResolveRouteFor(e).Any()).ToList();
-
+                
+                var behaviors = allTypes.Where(x => typeof (IBehavior).IsAssignableFrom(x) && !x.IsInterface).ToList();
+                behaviors.ForEach(x=>Container.Configure(x, ComponentLifecycle.PerUnitOfWork));
 
                 Transport.TransportMessageReceived += TransportMessageReceived;
                 Transport.TransportMessageFinished += TransportOnTransportMessageFinished;
@@ -97,10 +100,39 @@
             }
         }
 
+        class TransportSendBHehavior : IBehavior
+        {
+            readonly CurrentMessageContext _context;
+
+            public TransportSendBHehavior(CurrentMessageContext context)
+            {
+                _context = context;
+            }
+
+            public void Execute(Action next)
+            {
+                throw new Exception("Need to figure out the best way to pass transport message here....");
+//                Transport.Send(transportMessage, context);
+            }
+        }
+
         public void Send(object message)
         {
+            var sendChain = new BehaviorChain();
+            sendChain.WrapWith<TransportSendBHehavior>();
+
+
             ExecuteOnlyWhenStarted(
-                () => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send), CurrentMessageContextInternal()));
+                () =>
+                {
+                    using (Container.BeginUnitOfWork())
+                    {
+                        var executor = Container.Resolve<IChainExecutor>();
+                        executor.RunWithIt(sendChain);
+                    }
+
+                    var transportMessage = new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send);
+                });
         }
 
         public void SendLocal(object message)
