@@ -7,7 +7,6 @@
     using Addressing;
     using Behaviors;
     using Interfaces;
-    using Interfaces.Behaviors;
     using Internal;
     using UnicastBus;
 

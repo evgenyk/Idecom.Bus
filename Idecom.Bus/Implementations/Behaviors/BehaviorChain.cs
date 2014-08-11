@@ -7,7 +7,7 @@ namespace Idecom.Bus.Implementations.Behaviors
 
     public class BehaviorChain : IBehaviorChain
     {
-        readonly List<Type> _chain = new List<Type>();
+        readonly Stack<Type> _chain = new Stack<Type>();
 
         public IEnumerator<Type> GetEnumerator()
         {
@@ -21,7 +21,7 @@ namespace Idecom.Bus.Implementations.Behaviors
 
         public BehaviorChain WrapWith<T>() where T : IBehavior
         {
-            _chain.Add(typeof (T));
+            _chain.Push(typeof (T));
             return this;
         }
 

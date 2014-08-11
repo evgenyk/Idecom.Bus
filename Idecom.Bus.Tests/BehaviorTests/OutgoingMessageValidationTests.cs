@@ -34,7 +34,7 @@
                                .CreateBus("app1")
                                .Start();
 
-            Assert.Throws<Exception>(() => bus.Send(new Tests.ACommand()));
+            Assert.Throws<ValidationException>(() => bus.Send(new ACommand()));
         }
 
         public class ACommand

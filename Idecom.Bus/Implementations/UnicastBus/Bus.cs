@@ -12,6 +12,7 @@
     using Interfaces.Addons.Sagas;
     using Interfaces.Behaviors;
     using Internal;
+    using Internal.Behaviors;
     using Transport;
     using Utility;
 
@@ -51,6 +52,7 @@
                     throw new ArgumentException("Can not create bus. Message serializer hasn't been provided.");
 
                 Container.Configure<CurrentMessageContext>(ComponentLifecycle.PerUnitOfWork);
+                Container.Configure<OutgoingMessageContext>(ComponentLifecycle.PerUnitOfWork);
 
 
                 var allTypes = AssemblyScanner.GetTypes().ToList();
@@ -100,26 +102,15 @@
             }
         }
 
-        class TransportSendBHehavior : IBehavior
-        {
-            readonly CurrentMessageContext _context;
 
-            public TransportSendBHehavior(CurrentMessageContext context)
-            {
-                _context = context;
-            }
 
-            public void Execute(Action next)
-            {
-                throw new Exception("Need to figure out the best way to pass transport message here....");
-//                Transport.Send(transportMessage, context);
-            }
-        }
+
 
         public void Send(object message)
         {
             var sendChain = new BehaviorChain();
-            sendChain.WrapWith<TransportSendBHehavior>();
+            sendChain.WrapWith<TransportSendBehavior>();
+            sendChain.WrapWith<OutgoingMessageValidationBehavior>();
 
 
             ExecuteOnlyWhenStarted(
@@ -127,11 +118,13 @@
                 {
                     using (Container.BeginUnitOfWork())
                     {
+                        var outgoingMessage = Container.Resolve<OutgoingMessageContext>();
+                        var transportMessage = new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send);
+                        outgoingMessage.OutgoingMessage = transportMessage;
+                        
                         var executor = Container.Resolve<IChainExecutor>();
                         executor.RunWithIt(sendChain);
                     }
-
-                    var transportMessage = new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send);
                 });
         }
 

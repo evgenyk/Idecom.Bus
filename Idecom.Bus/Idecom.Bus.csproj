@@ -34,6 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
@@ -47,6 +48,8 @@
     <Compile Include="Implementations\Behaviors\ChainExecutor.cs" />
     <Compile Include="Implementations\Configure.cs" />
     <Compile Include="Implementations\ConfigureContainer.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\OutgoingMessageValidationBehavior.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\TransportSendBehavior.cs" />
     <Compile Include="Implementations\Internal\DefaultConfiguration.cs" />
     <Compile Include="Implementations\Internal\EffectiveConfiguration.cs" />
     <Compile Include="Implementations\InstanceCreator.cs" />
@@ -58,6 +61,7 @@
     <Compile Include="Implementations\SingleInstanceSagaAttribute.cs" />
     <Compile Include="Implementations\UnicastBus\Bus.cs" />
     <Compile Include="Implementations\UnicastBus\CurrentMessageContext.cs" />
+    <Compile Include="Implementations\UnicastBus\OutgoingMessageContext.cs" />
     <Compile Include="Interfaces\Addons\PubSub\ISagaStorage.cs" />
     <Compile Include="Interfaces\Addons\PubSub\ISubscriptionDistributor.cs" />
     <Compile Include="Interfaces\Addons\PubSub\ISubscriptionStorage.cs" />
