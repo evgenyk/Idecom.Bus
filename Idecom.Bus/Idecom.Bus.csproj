@@ -48,6 +48,7 @@
     <Compile Include="Implementations\Behaviors\ChainExecutor.cs" />
     <Compile Include="Implementations\Configure.cs" />
     <Compile Include="Implementations\ConfigureContainer.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\OutgoingMessageContextCreatorBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\OutgoingMessageValidationBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\TransportSendBehavior.cs" />
     <Compile Include="Implementations\Internal\DefaultConfiguration.cs" />

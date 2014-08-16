@@ -18,6 +18,7 @@
         {
             var vc = new ValidationContext(_outgoingMessageContext.OutgoingMessage.Message, null, null);
             Validator.ValidateObject(_outgoingMessageContext.OutgoingMessage.Message, vc);
+            next();
         }
     }
 }

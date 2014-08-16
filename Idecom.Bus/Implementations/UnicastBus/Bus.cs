@@ -31,6 +31,7 @@
         public IEffectiveConfiguration EffectiveConfiguration { get; set; }
         public ISagaStorage SagaStorage { get; set; }
         public ISagaManager SagaManager { get; set; }
+        public IBehaviorChains Chains { get; set; }
 
 
         public IMessageContext CurrentMessageContext
@@ -60,9 +61,9 @@
                 var commands = allTypes.Where(EffectiveConfiguration.IsCommand).ToList();
                 ApplyHandlerMapping(events, commands, allTypes);
                 var eventsWithHandlers = events.Where(e => HandlerRoutingTable.ResolveRouteFor(e).Any()).ToList();
-                
+
                 var behaviors = allTypes.Where(x => typeof (IBehavior).IsAssignableFrom(x) && !x.IsInterface).ToList();
-                behaviors.ForEach(x=>Container.Configure(x, ComponentLifecycle.PerUnitOfWork));
+                behaviors.ForEach(x => Container.Configure(x, ComponentLifecycle.PerUnitOfWork));
 
                 Transport.TransportMessageReceived += TransportMessageReceived;
                 Transport.TransportMessageFinished += TransportOnTransportMessageFinished;
@@ -103,34 +104,26 @@
         }
 
 
-
-
-
         public void Send(object message)
         {
-            var sendChain = new BehaviorChain();
-            sendChain.WrapWith<TransportSendBehavior>();
-            sendChain.WrapWith<OutgoingMessageValidationBehavior>();
-
-
             ExecuteOnlyWhenStarted(
                 () =>
                 {
-                    using (Container.BeginUnitOfWork())
-                    {
-                        var outgoingMessage = Container.Resolve<OutgoingMessageContext>();
-                        var transportMessage = new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send);
-                        outgoingMessage.OutgoingMessage = transportMessage;
-                        
-                        var executor = Container.Resolve<IChainExecutor>();
-                        executor.RunWithIt(sendChain);
-                    }
+                    var transportMessage = new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send);
+                    var executor = new ChainExecutor(Container);
+                    executor.RunWithIt(Chains.GetChainFor(MessageIntent.Send), new ChainExecutionContext {OutgoingMessage = transportMessage});
                 });
         }
 
         public void SendLocal(object message)
         {
-            ExecuteOnlyWhenStarted(() => Transport.Send(new TransportMessage(message, LocalAddress, LocalAddress, MessageIntent.SendLocal), CurrentMessageContextInternal()));
+            ExecuteOnlyWhenStarted(
+                () =>
+                {
+                    var transportMessage = new TransportMessage(message, LocalAddress, LocalAddress, MessageIntent.SendLocal);
+                    var executor = new ChainExecutor(Container);
+                    executor.RunWithIt(Chains.GetChainFor(MessageIntent.Send), new ChainExecutionContext { OutgoingMessage = transportMessage });
+                });
         }
 
         public void Reply(object message)
@@ -196,9 +189,7 @@
                 Console.WriteLine("Error while receiving a message: " + ex);
                 throw;
             }
-            finally {
-                Container.Release(currentMessageContext);
-            }
+            finally { Container.Release(currentMessageContext); }
         }
 
         bool ExecuteHandler(object message, Type messageType, MethodInfo handlerMethod, CurrentMessageContext currentMessageContext)
@@ -222,9 +213,7 @@
                 var sagaDataProperty = handler.GetType().GetProperty("Data");
                 sagaDataProperty.SetValue(handler, sagaData.SagaState);
 
-                try {
-                    executeHandler();
-                }
+                try { executeHandler(); }
                 finally
                 {
                     if (((ISaga) handler).IsClosed)
@@ -308,6 +297,43 @@
                                         .Select(y => new {type, message = y.GenericTypeArguments.First()})).ToList();
 
             messageToStartSagaMapping.ForEach(x => MessageToStartSagaMapping.RouteType(x.message, x.type));
+        }
+    }
+
+    public interface IBehaviorChains
+    {
+        IBehaviorChain GetChainFor(MessageIntent intent);
+    }
+
+    class BehaviorChains : IBehaviorChains
+    {
+        Dictionary<MessageIntent, BehaviorChain> _chains;
+
+        public BehaviorChains()
+        {
+            _chains = new Dictionary<MessageIntent, BehaviorChain>
+                      {
+                          {
+                              MessageIntent.Send,
+                                  new BehaviorChain()
+                                    .WrapWith<TransportSendBehavior>()
+                                    .WrapWith<OutgoingMessageValidationBehavior>()
+                          },
+                          {
+                              MessageIntent.SendLocal,
+                                  new BehaviorChain()
+                                    .WrapWith<TransportSendBehavior>()
+                                    .WrapWith<OutgoingMessageValidationBehavior>()
+                          },
+
+                      };
+        }
+
+        public IBehaviorChain GetChainFor(MessageIntent intent)
+        {
+            BehaviorChain chain;
+            var tryGetValue = _chains.TryGetValue(intent, out chain);
+            return tryGetValue ? chain : new BehaviorChain();
         }
     }
 }

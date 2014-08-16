@@ -21,6 +21,7 @@
         public void Execute(Action next)
         {
             _transport.Send(_outgoingMessageContext.OutgoingMessage, _context);
+            next();
         }
     }
 }

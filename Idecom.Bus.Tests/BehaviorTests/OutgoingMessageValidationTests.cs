@@ -35,6 +35,7 @@
                                .Start();
 
             Assert.Throws<ValidationException>(() => bus.Send(new ACommand()));
+            Assert.Throws<ValidationException>(() => bus.SendLocal(new ACommand()));
         }
 
         public class ACommand

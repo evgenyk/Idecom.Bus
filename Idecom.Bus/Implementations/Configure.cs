@@ -43,6 +43,7 @@
                 value.Configure<SagaManager>(ComponentLifecycle.Singleton);
                 
                 value.Configure<ChainExecutor>(ComponentLifecycle.PerUnitOfWork);
+                value.Configure<BehaviorChains>(ComponentLifecycle.Singleton);
 
                 _container = value;
             }

@@ -1,9 +1,19 @@
 namespace Idecom.Bus.Interfaces.Behaviors
 {
-    using Implementations.Behaviors;
+    using Transport;
 
     public interface IChainExecutor
     {
-        void RunWithIt(BehaviorChain chain);
+        void RunWithIt(IBehaviorChain chain, IChainExecutionContext context);
+    }
+
+    public interface IChainExecutionContext
+    {
+        TransportMessage OutgoingMessage { get; set; }
+    }
+
+    public class ChainExecutionContext : IChainExecutionContext
+    {
+        public TransportMessage OutgoingMessage { get; set; }
     }
 }
