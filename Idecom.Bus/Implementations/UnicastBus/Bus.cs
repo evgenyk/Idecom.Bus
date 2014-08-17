@@ -111,7 +111,11 @@
                 {
                     var transportMessage = new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send);
                     var executor = new ChainExecutor(Container);
-                    executor.RunWithIt(Chains.GetChainFor(MessageIntent.Send), new ChainExecutionContext {OutgoingMessage = transportMessage});
+                    executor.RunWithIt(Chains.GetChainFor(MessageIntent.Send), new ChainExecutionContext
+                                                                               {
+                                                                                   OutgoingMessage = message,
+                                                                                   Intent = MessageIntent.Send
+                                                                               });
                 });
         }
 
@@ -122,7 +126,7 @@
                 {
                     var transportMessage = new TransportMessage(message, LocalAddress, LocalAddress, MessageIntent.SendLocal);
                     var executor = new ChainExecutor(Container);
-                    executor.RunWithIt(Chains.GetChainFor(MessageIntent.Send), new ChainExecutionContext { OutgoingMessage = transportMessage });
+                    executor.RunWithIt(Chains.GetChainFor(MessageIntent.Send), new ChainExecutionContext {OutgoingMessage = transportMessage});
                 });
         }
 
@@ -138,11 +142,17 @@
 
         public void Raise<T>(Action<T> action) where T : class
         {
-            var message = InstanceCreator.CreateInstanceOf<T>();
-            if (action != null)
-                action(message);
+            ExecuteOnlyWhenStarted(
+                () =>
+                {
+                    var message = InstanceCreator.CreateInstanceOf<T>();
+                    if (action != null) action(message);
 
-            SubscriptionDistributor.NotifySubscribersOf<T>(message, CurrentMessageContextInternal());
+                    var executor = new ChainExecutor(Container);
+                    executor.RunWithIt(Chains.GetChainFor(MessageIntent.Send), new ChainExecutionContext { OutgoingMessage = message});
+
+                    SubscriptionDistributor.NotifySubscribersOf<T>(message, CurrentMessageContextInternal());
+                });
         }
 
         [DebuggerStepThrough]
@@ -189,7 +199,9 @@
                 Console.WriteLine("Error while receiving a message: " + ex);
                 throw;
             }
-            finally { Container.Release(currentMessageContext); }
+            finally {
+                Container.Release(currentMessageContext);
+            }
         }
 
         bool ExecuteHandler(object message, Type messageType, MethodInfo handlerMethod, CurrentMessageContext currentMessageContext)
@@ -213,7 +225,9 @@
                 var sagaDataProperty = handler.GetType().GetProperty("Data");
                 sagaDataProperty.SetValue(handler, sagaData.SagaState);
 
-                try { executeHandler(); }
+                try {
+                    executeHandler();
+                }
                 finally
                 {
                     if (((ISaga) handler).IsClosed)
@@ -307,7 +321,7 @@
 
     class BehaviorChains : IBehaviorChains
     {
-        Dictionary<MessageIntent, BehaviorChain> _chains;
+        readonly Dictionary<MessageIntent, BehaviorChain> _chains;
 
         public BehaviorChains()
         {
@@ -315,17 +329,16 @@
                       {
                           {
                               MessageIntent.Send,
-                                  new BehaviorChain()
-                                    .WrapWith<TransportSendBehavior>()
-                                    .WrapWith<OutgoingMessageValidationBehavior>()
+                              new BehaviorChain()
+                              .WrapWith<TransportSendBehavior>()
+                              .WrapWith<OutgoingMessageValidationBehavior>()
                           },
                           {
                               MessageIntent.SendLocal,
-                                  new BehaviorChain()
-                                    .WrapWith<TransportSendBehavior>()
-                                    .WrapWith<OutgoingMessageValidationBehavior>()
+                              new BehaviorChain()
+                              .WrapWith<TransportSendBehavior>()
+                              .WrapWith<OutgoingMessageValidationBehavior>()
                           },
-
                       };
         }
 

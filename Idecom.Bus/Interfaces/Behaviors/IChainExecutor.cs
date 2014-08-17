@@ -9,11 +9,13 @@ namespace Idecom.Bus.Interfaces.Behaviors
 
     public interface IChainExecutionContext
     {
-        TransportMessage OutgoingMessage { get; set; }
+        object OutgoingMessage { get; set; }
+        MessageIntent Intent { get; set; }
     }
 
     public class ChainExecutionContext : IChainExecutionContext
     {
-        public TransportMessage OutgoingMessage { get; set; }
+        public object OutgoingMessage { get; set; }
+        public MessageIntent Intent { get; set; }
     }
 }
