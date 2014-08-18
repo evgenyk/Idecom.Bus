@@ -16,8 +16,8 @@
 
         public void Execute(Action next)
         {
-            var vc = new ValidationContext(_outgoingMessageContext.OutgoingMessage.Message, null, null);
-            Validator.ValidateObject(_outgoingMessageContext.OutgoingMessage.Message, vc);
+            var vc = new ValidationContext(_outgoingMessageContext.Message, null, null);
+            Validator.ValidateObject(_outgoingMessageContext.Message, vc);
             next();
         }
     }

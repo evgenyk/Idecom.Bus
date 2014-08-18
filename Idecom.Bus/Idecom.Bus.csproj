@@ -48,9 +48,10 @@
     <Compile Include="Implementations\Behaviors\ChainExecutor.cs" />
     <Compile Include="Implementations\Configure.cs" />
     <Compile Include="Implementations\ConfigureContainer.cs" />
-    <Compile Include="Implementations\Internal\Behaviors\OutgoingMessageContextCreatorBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\OutgoingMessageValidationBehavior.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\TransportPublishBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\TransportSendBehavior.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\TransportSendLocalBehavior.cs" />
     <Compile Include="Implementations\Internal\DefaultConfiguration.cs" />
     <Compile Include="Implementations\Internal\EffectiveConfiguration.cs" />
     <Compile Include="Implementations\InstanceCreator.cs" />
@@ -60,6 +61,7 @@
     <Compile Include="Implementations\RoutingTable.cs" />
     <Compile Include="Implementations\Saga.cs" />
     <Compile Include="Implementations\SingleInstanceSagaAttribute.cs" />
+    <Compile Include="Implementations\UnicastBus\BehaviorChains.cs" />
     <Compile Include="Implementations\UnicastBus\Bus.cs" />
     <Compile Include="Implementations\UnicastBus\CurrentMessageContext.cs" />
     <Compile Include="Implementations\UnicastBus\OutgoingMessageContext.cs" />

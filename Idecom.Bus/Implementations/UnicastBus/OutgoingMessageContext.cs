@@ -1,9 +1,10 @@
 namespace Idecom.Bus.Implementations.UnicastBus
 {
-    using Transport;
+    using System;
 
     public class OutgoingMessageContext
     {
-        public TransportMessage OutgoingMessage { get; set; }
+        public object Message { get; set; }
+        public Type MessageType { get; set; }
     }
 }

@@ -12,7 +12,6 @@
     using Interfaces.Addons.Sagas;
     using Interfaces.Behaviors;
     using Internal;
-    using Internal.Behaviors;
     using Transport;
     using Utility;
 
@@ -106,28 +105,12 @@
 
         public void Send(object message)
         {
-            ExecuteOnlyWhenStarted(
-                () =>
-                {
-                    var transportMessage = new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send);
-                    var executor = new ChainExecutor(Container);
-                    executor.RunWithIt(Chains.GetChainFor(MessageIntent.Send), new ChainExecutionContext
-                                                                               {
-                                                                                   OutgoingMessage = message,
-                                                                                   Intent = MessageIntent.Send
-                                                                               });
-                });
+            ExecuteOnlyWhenStarted(() => new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(MessageIntent.Send), new ChainExecutionContext(message)));
         }
 
         public void SendLocal(object message)
         {
-            ExecuteOnlyWhenStarted(
-                () =>
-                {
-                    var transportMessage = new TransportMessage(message, LocalAddress, LocalAddress, MessageIntent.SendLocal);
-                    var executor = new ChainExecutor(Container);
-                    executor.RunWithIt(Chains.GetChainFor(MessageIntent.Send), new ChainExecutionContext {OutgoingMessage = transportMessage});
-                });
+            ExecuteOnlyWhenStarted(() => new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(MessageIntent.SendLocal), new ChainExecutionContext(message)));
         }
 
         public void Reply(object message)
@@ -149,9 +132,7 @@
                     if (action != null) action(message);
 
                     var executor = new ChainExecutor(Container);
-                    executor.RunWithIt(Chains.GetChainFor(MessageIntent.Send), new ChainExecutionContext { OutgoingMessage = message});
-
-                    SubscriptionDistributor.NotifySubscribersOf<T>(message, CurrentMessageContextInternal());
+                    executor.RunWithIt(Chains.GetChainFor(MessageIntent.Publish), new ChainExecutionContext(message){ MessageType = typeof(T)});
                 });
         }
 
@@ -314,39 +295,4 @@
         }
     }
 
-    public interface IBehaviorChains
-    {
-        IBehaviorChain GetChainFor(MessageIntent intent);
-    }
-
-    class BehaviorChains : IBehaviorChains
-    {
-        readonly Dictionary<MessageIntent, BehaviorChain> _chains;
-
-        public BehaviorChains()
-        {
-            _chains = new Dictionary<MessageIntent, BehaviorChain>
-                      {
-                          {
-                              MessageIntent.Send,
-                              new BehaviorChain()
-                              .WrapWith<TransportSendBehavior>()
-                              .WrapWith<OutgoingMessageValidationBehavior>()
-                          },
-                          {
-                              MessageIntent.SendLocal,
-                              new BehaviorChain()
-                              .WrapWith<TransportSendBehavior>()
-                              .WrapWith<OutgoingMessageValidationBehavior>()
-                          },
-                      };
-        }
-
-        public IBehaviorChain GetChainFor(MessageIntent intent)
-        {
-            BehaviorChain chain;
-            var tryGetValue = _chains.TryGetValue(intent, out chain);
-            return tryGetValue ? chain : new BehaviorChain();
-        }
-    }
 }

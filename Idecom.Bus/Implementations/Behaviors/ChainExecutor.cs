@@ -2,11 +2,13 @@ namespace Idecom.Bus.Implementations.Behaviors
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using Interfaces;
     using Interfaces.Behaviors;
     using UnicastBus;
 
+    [DebuggerNonUserCode]
     public class ChainExecutor : IChainExecutor
     {
         readonly IContainer _container;
@@ -37,7 +39,10 @@ namespace Idecom.Bus.Implementations.Behaviors
             using (_container.BeginUnitOfWork())
             {
                 //so far it's the only way I couild maintain a nice interface for behaviors
-                _container.Resolve<OutgoingMessageContext>().OutgoingMessage = context.OutgoingMessage;
+                var outgoingMessageContext = _container.Resolve<OutgoingMessageContext>();
+                outgoingMessageContext.Message = context.OutgoingMessage;
+                outgoingMessageContext.MessageType = context.MessageType ?? context.OutgoingMessage.GetType();
+
 
                 var behaviorQueue = new Queue<Type>(chain);
                 IBehavior behavior = null;

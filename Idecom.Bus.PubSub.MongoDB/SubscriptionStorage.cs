@@ -27,9 +27,8 @@
             _collection.Database.Server.Disconnect();
         }
 
-        public IEnumerable<Address> GetSubscribersFor<T>() where T : class
+        public IEnumerable<Address> GetSubscribersFor(Type type)
         {
-            var type = typeof (T);
             var typeWithNamespace = GetTypeNameWithNamespace(type);
             var query = Query.And(Query<SubscriptionStorageEntity>.EQ(x => x.MessageType, typeWithNamespace), Query<SubscriptionStorageEntity>.EQ(x => x.Subscribed, true));
             var subscribers = _collection.FindAs<SubscriptionStorageEntity>(query).Select(x => Address.Parse(x.SubscriberAddress)).Distinct();
