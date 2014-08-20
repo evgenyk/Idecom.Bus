@@ -7,8 +7,8 @@
 
     public interface ISagaManager
     {
-        ISagaStateInstance Resume(Type sagaDataType, CurrentMessageContext currentMessageContext);
-        ISagaStateInstance Start(Type sagaDataType, CurrentMessageContext currentMessageContext);
+        ISagaStateInstance Resume(Type sagaDataType, MessageContext messageContext);
+        ISagaStateInstance Start(Type sagaDataType, MessageContext messageContext);
         TransportMessage PrepareSend(TransportMessage transportMessage, Dictionary<string, string> incomingHeaders, Dictionary<string, string> outgoingHeaders);
     }
 }

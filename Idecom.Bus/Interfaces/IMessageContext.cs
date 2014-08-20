@@ -4,7 +4,7 @@
 
     public interface IMessageContext
     {
-        TransportMessage TransportMessage { get; }
+        TransportMessage IncomingTransportMessage { get; }
         int Attempt { get; }
         int MaxAttempts { get; }
     }

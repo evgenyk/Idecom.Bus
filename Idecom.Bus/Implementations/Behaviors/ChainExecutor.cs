@@ -18,43 +18,60 @@ namespace Idecom.Bus.Implementations.Behaviors
             _container = container;
         }
 
-        protected void ExecuteNext(IContainer container, Queue<Type> behaviorQueue)
+        protected void ExecuteNext(Queue<Type> behaviorQueue)
         {
             if (!behaviorQueue.Any()) { return; }
-            var nextType = behaviorQueue.Dequeue();
             
             IBehavior behavior = null;
             try
             {
-                behavior = container.Resolve(nextType) as IBehavior;
-                if (behavior != null) behavior.Execute(() => ExecuteNext(container, behaviorQueue));
+                behavior = ExecuteNextBehavior(_container, behaviorQueue);
             }
             finally {
                 _container.Release(behavior);
             }
         }
 
+        IBehavior ExecuteNextBehavior(IContainer container, Queue<Type> behaviorQueue)
+        {
+            var nextType = behaviorQueue.Dequeue();
+            var behavior = container.Resolve(nextType) as IBehavior;
+            if (behavior != null) behavior.Execute(() => ExecuteNext(behaviorQueue));
+            return behavior;
+        }
+
         public virtual void RunWithIt(IBehaviorChain chain, IChainExecutionContext context)
         {
             using (_container.BeginUnitOfWork())
             {
-                //so far it's the only way I couild maintain a nice interface for behaviors
-                var outgoingMessageContext = _container.Resolve<OutgoingMessageContext>();
-                outgoingMessageContext.Message = context.OutgoingMessage;
-                outgoingMessageContext.MessageType = context.MessageType ?? context.OutgoingMessage.GetType();
-
+                PopulateCurrentExecutionContexts(context);
 
                 var behaviorQueue = new Queue<Type>(chain);
                 IBehavior behavior = null;
                 try
                 {
-                    var typeToBuild = behaviorQueue.Dequeue();
-                    behavior = _container.Resolve(typeToBuild) as IBehavior;
-                    if (behavior != null) behavior.Execute(() => ExecuteNext(_container, behaviorQueue));
+                    behavior = ExecuteNextBehavior(_container, behaviorQueue);
                 }
                 finally { _container.Release(behavior); }
             }
         }
 
+        void PopulateCurrentExecutionContexts(IChainExecutionContext context)
+        {
+            //so far it's the only way I couild maintain a nice interface for behaviors
+            if (context.OutgoingMessage != null)
+            {
+                var outgoingMessageContext = _container.Resolve<OutgoingMessageContext>();
+                outgoingMessageContext.Message = context.OutgoingMessage;
+                outgoingMessageContext.MessageType = context.MessageType ?? context.OutgoingMessage.GetType();
+            }
+
+
+            if (context.IncomingTransportMessage != null)
+            {
+                var incomingMessageContext = _container.Resolve<MessageContext>();
+                incomingMessageContext.IncomingTransportMessage = context.IncomingTransportMessage;
+            }
+        }
     }
 }

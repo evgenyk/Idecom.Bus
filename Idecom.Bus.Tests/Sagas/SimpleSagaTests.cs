@@ -21,7 +21,10 @@
                                .InMemoryTransport()
                                .InMemoryPubSub()
                                .JsonNetSerializer()
-                               .ExposeConfiguration(x => { inMemorySagaPersister = x.Container.Resolve<InMemorySagaPersister>(); })
+                               .ExposeConfiguration(x =>
+                                                    {
+                                                        inMemorySagaPersister = x.Container.Resolve<InMemorySagaPersister>();
+                                                    })
                                .DefineEventsAs(type => type == typeof (IStartSimpleSagaEvent) || type == typeof (ICompleteSimpleSagaEvent))
                                .CreateBus("app1")
                                .Start();

@@ -9,13 +9,13 @@
 
     public class TransportSendBehavior : IBehavior
     {
-        readonly CurrentMessageContext _context;
+        readonly MessageContext _context;
         readonly OutgoingMessageContext _outgoingMessageContext;
         readonly ITransport _transport;
         readonly Address _localAddress;
         readonly IRoutingTable<Address> _messageRoutingTable;
 
-        public TransportSendBehavior(CurrentMessageContext context, OutgoingMessageContext outgoingMessageContext, ITransport transport, Address localAddress, IRoutingTable<Address> messageRoutingTable)
+        public TransportSendBehavior(MessageContext context, OutgoingMessageContext outgoingMessageContext, ITransport transport, Address localAddress, IRoutingTable<Address> messageRoutingTable)
         {
             _context = context;
             _outgoingMessageContext = outgoingMessageContext;

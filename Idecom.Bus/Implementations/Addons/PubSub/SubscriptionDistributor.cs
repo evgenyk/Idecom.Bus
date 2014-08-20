@@ -21,15 +21,15 @@
         public Address LocalAddress { get; private set; }
         public ITransport Transport { get; private set; }
 
-        public void NotifySubscribersOf(Type messageType, object message, CurrentMessageContext currentMessageContext)
+        public void NotifySubscribersOf(Type messageType, object message, MessageContext messageContext)
         {
             var subscribers = Storage.GetSubscribersFor(messageType);
 
             foreach (var subscriber in subscribers)
             {
                 var transportMessage = new TransportMessage(message, LocalAddress, subscriber, MessageIntent.Publish, messageType);
-                if (currentMessageContext.TransportMessage != null)
-                    currentMessageContext.DelayedSend(transportMessage);
+                if (messageContext.IncomingTransportMessage != null)
+                    messageContext.DelayedSend(transportMessage);
                 else
                     Transport.Send(transportMessage);
             }

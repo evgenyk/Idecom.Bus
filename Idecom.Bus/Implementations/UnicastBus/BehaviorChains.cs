@@ -5,44 +5,59 @@ namespace Idecom.Bus.Implementations.UnicastBus
     using Behaviors;
     using Interfaces.Behaviors;
     using Internal.Behaviors;
-    using Transport;
 
+
+    public enum ChainIntent
+    {
+        Send,
+        SendLocal,
+        Reply,
+        Publish,
+        Receive
+    }
+    
     public interface IBehaviorChains
     {
-        IBehaviorChain GetChainFor(MessageIntent intent);
+        IBehaviorChain GetChainFor(ChainIntent intent);
     }
 
     class BehaviorChains : IBehaviorChains
     {
-        readonly Dictionary<MessageIntent, BehaviorChain> _chains;
+        readonly Dictionary<ChainIntent, BehaviorChain> _chains;
 
         public BehaviorChains()
         {
-            _chains = new Dictionary<MessageIntent, BehaviorChain>
+            _chains = new Dictionary<ChainIntent, BehaviorChain>
                       {
                           {
-                              MessageIntent.Send,
+                              ChainIntent.Send,
                               new BehaviorChain()
                               .WrapWith<TransportSendBehavior>()
                               .WrapWith<OutgoingMessageValidationBehavior>()
                           },
                           {
-                              MessageIntent.SendLocal,
+                              ChainIntent.SendLocal,
                               new BehaviorChain()
                               .WrapWith<TransportSendLocalBehavior>()
                               .WrapWith<OutgoingMessageValidationBehavior>()
                           },
                           {
-                              MessageIntent.Publish,
+                              ChainIntent.Publish,
                               new BehaviorChain()
                               .WrapWith<TransportPublishBehavior>()
                               .WrapWith<OutgoingMessageValidationBehavior>()
+                          },
+                          {
+                              ChainIntent.Receive,
+                              new BehaviorChain()
+                              .WrapWith<DispachMessageToHandlerBehavior>()
+                              .WrapWith<DispatcherMessageSagaBehavior>()
                           },
                       };
         }
 
         [DebuggerStepThrough]
-        public IBehaviorChain GetChainFor(MessageIntent intent)
+        public IBehaviorChain GetChainFor(ChainIntent intent)
         {
             BehaviorChain chain;
             var tryGetValue = _chains.TryGetValue(intent, out chain);

@@ -102,7 +102,6 @@ namespace Idecom.Bus.Transport.MongoDB
                 }
             }
             //sending messages after current message been handled only.
-            _transport.ProcessMessageFinishedEvent(transportMessage);
         }
 
         void FailMessage(MongoTransportMessageEntity mongoTransportMessageEntity, Exception exception)

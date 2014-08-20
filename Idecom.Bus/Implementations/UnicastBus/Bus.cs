@@ -51,7 +51,7 @@
                 if (Serializer == null)
                     throw new ArgumentException("Can not create bus. Message serializer hasn't been provided.");
 
-                Container.Configure<CurrentMessageContext>(ComponentLifecycle.PerUnitOfWork);
+                Container.Configure<MessageContext>(ComponentLifecycle.PerUnitOfWork);
                 Container.Configure<OutgoingMessageContext>(ComponentLifecycle.PerUnitOfWork);
 
 
@@ -65,7 +65,6 @@
                 behaviors.ForEach(x => Container.Configure(x, ComponentLifecycle.PerUnitOfWork));
 
                 Transport.TransportMessageReceived += TransportMessageReceived;
-                Transport.TransportMessageFinished += TransportOnTransportMessageFinished;
 
                 foreach (var beforeBusStarted in Container.ResolveAll<IBeforeBusStarted>())
                 {
@@ -105,19 +104,19 @@
 
         public void Send(object message)
         {
-            ExecuteOnlyWhenStarted(() => new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(MessageIntent.Send), new ChainExecutionContext(message)));
+            ExecuteOnlyWhenStarted(() => new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.Send), new ChainExecutionContext { OutgoingMessage = message }));
         }
 
         public void SendLocal(object message)
         {
-            ExecuteOnlyWhenStarted(() => new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(MessageIntent.SendLocal), new ChainExecutionContext(message)));
+            ExecuteOnlyWhenStarted(() => new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.SendLocal), new ChainExecutionContext { OutgoingMessage = message }));
         }
 
         public void Reply(object message)
         {
-            if (LocalAddress.Equals(CurrentMessageContext.TransportMessage.SourceAddress))
+            if (LocalAddress.Equals(CurrentMessageContext.IncomingTransportMessage.SourceAddress))
                 throw new Exception(string.Format("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: {0}",
-                    CurrentMessageContext.TransportMessage.SourceAddress));
+                    CurrentMessageContext.IncomingTransportMessage.SourceAddress));
 
             ExecuteOnlyWhenStarted(
                 () => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Reply), CurrentMessageContextInternal()));
@@ -132,14 +131,14 @@
                     if (action != null) action(message);
 
                     var executor = new ChainExecutor(Container);
-                    executor.RunWithIt(Chains.GetChainFor(MessageIntent.Publish), new ChainExecutionContext(message){ MessageType = typeof(T)});
+                    executor.RunWithIt(Chains.GetChainFor(ChainIntent.Publish), new ChainExecutionContext(){ OutgoingMessage = message, MessageType = typeof(T)});
                 });
         }
 
         [DebuggerStepThrough]
-        CurrentMessageContext CurrentMessageContextInternal()
+        MessageContext CurrentMessageContextInternal()
         {
-            var currentMessageContext = Container.Resolve<CurrentMessageContext>();
+            var currentMessageContext = Container.Resolve<MessageContext>();
             Container.Release(currentMessageContext);
             return currentMessageContext;
         }
@@ -155,22 +154,22 @@
 
         void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            CurrentMessageContext currentMessageContext = null;
+            MessageContext messageContext = null;
             try
             {
-                currentMessageContext = Container.Resolve<CurrentMessageContext>();
-                if (currentMessageContext == null)
+                messageContext = Container.Resolve<MessageContext>();
+                if (messageContext == null)
                     throw new Exception("Could not resolve current message context");
 
-                currentMessageContext.TransportMessage = e.TransportMessage;
-                currentMessageContext.Attempt = e.Attempt;
-                currentMessageContext.MaxAttempts = e.MaxRetries + 1;
+                messageContext.IncomingTransportMessage = e.TransportMessage;
+                messageContext.Attempt = e.Attempt;
+                messageContext.MaxAttempts = e.MaxRetries + 1;
 
                 var message = e.TransportMessage.Message;
                 var type = e.TransportMessage.MessageType ?? message.GetType();
                 var handlerMethods = HandlerRoutingTable.ResolveRouteFor(type);
 
-                var executedHandlers = handlerMethods.Select(handler => ExecuteHandler(message, type, handler, currentMessageContext)).ToList();
+                var executedHandlers = handlerMethods.Select(handler => ExecuteHandler(message, type, handler, messageContext)).ToList();
 
                 if (executedHandlers.All(x => !x))
                     Console.WriteLine("Warning: {1} received a message of type {0}, but could not find a handler for it", e.TransportMessage.MessageType, LocalAddress);
@@ -181,11 +180,11 @@
                 throw;
             }
             finally {
-                Container.Release(currentMessageContext);
+                Container.Release(messageContext);
             }
         }
 
-        bool ExecuteHandler(object message, Type messageType, MethodInfo handlerMethod, CurrentMessageContext currentMessageContext)
+        bool ExecuteHandler(object message, Type messageType, MethodInfo handlerMethod, MessageContext messageContext)
         {
             var handler = Container.Resolve(handlerMethod.DeclaringType);
             Action executeHandler = () => handlerMethod.Invoke(handler, new[] {message});
@@ -195,7 +194,9 @@
             {
                 var sagaDataType = handlerMethod.DeclaringType.BaseType.GenericTypeArguments.First();
                 var startSagaTypes = MessageToStartSagaMapping.ResolveRouteFor(messageType);
-                var sagaData = startSagaTypes != null ? SagaManager.Start(sagaDataType, currentMessageContext) : SagaManager.Resume(sagaDataType, currentMessageContext);
+                ISagaStateInstance sagaData;
+                if (startSagaTypes != null) sagaData = SagaManager.Start(sagaDataType, messageContext);
+                else sagaData = SagaManager.Resume(sagaDataType, messageContext);
 
                 if (sagaData == null)
                 {
@@ -236,14 +237,6 @@
             }
             return false;
         }
-
-        /// <summary>
-        ///     TODO: Don't have use fot this event now
-        /// </summary>
-        void TransportOnTransportMessageFinished(object sender, TransportMessageFinishedEventArgs transportMessageFinishedEventArgs)
-        {
-        }
-
 
         void ApplyHandlerMapping(IEnumerable<Type> events, IEnumerable<Type> commands, IEnumerable<Type> allTypes)
         {

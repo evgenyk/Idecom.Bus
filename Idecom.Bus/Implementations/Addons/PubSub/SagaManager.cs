@@ -17,24 +17,24 @@
         public IInstanceCreator InstanceCreator { get; set; }
         public Address Address { get; set; }
 
-        public ISagaStateInstance Resume(Type sagaDataType, CurrentMessageContext currentMessageContext)
+        public ISagaStateInstance Resume(Type sagaDataType, MessageContext messageContext)
         {
-            if (!currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SagaIdHeaderKey(sagaDataType)))
+            if (!messageContext.IncomingTransportMessage.Headers.ContainsKey(SystemHeaders.SagaIdHeaderKey(sagaDataType)))
                 return null;
 
-            var runningSagaId = currentMessageContext.TransportMessage.Headers[SystemHeaders.SagaIdHeaderKey(sagaDataType)];
+            var runningSagaId = messageContext.IncomingTransportMessage.Headers[SystemHeaders.SagaIdHeaderKey(sagaDataType)];
             var sagaState = SagaStorage.Get(runningSagaId) as ISagaState;
             return new SagaStateInstance(Address, runningSagaId, sagaState);
         }
 
-        public ISagaStateInstance Start(Type sagaDataType, CurrentMessageContext currentMessageContext)
+        public ISagaStateInstance Start(Type sagaDataType, MessageContext messageContext)
         {
             var sagaId = ShortGuid.NewGuid().ToString();
             var instance = InstanceCreator.CreateInstanceOf(sagaDataType) as ISagaState;
             if (instance == null)
                 throw new Exception("SagaState has to be inherited from ISagaState");
 
-            AddSagaIdToHeaders(sagaId, sagaDataType, currentMessageContext);
+            AddSagaIdToHeaders(sagaId, sagaDataType, messageContext);
 
             return new SagaStateInstance(Address, sagaId, instance);
         }
@@ -46,10 +46,10 @@
             return transportMessage;
         }
 
-        void AddSagaIdToHeaders(string sagaId, Type sagaDataType, CurrentMessageContext currentMessageContext)
+        void AddSagaIdToHeaders(string sagaId, Type sagaDataType, MessageContext messageContext)
         {
             var headerKey = SystemHeaders.SagaIdHeaderKey(sagaDataType);
-            currentMessageContext.SetHeader(headerKey, sagaId);
+            messageContext.SetHeader(headerKey, sagaId);
         }
     }
 }

@@ -50,20 +50,19 @@
             _receiver.ChangeWorkersCount(workers);
         }
 
-        public void Send(TransportMessage transportMessage, CurrentMessageContext currentMessageContext = null)
+        public void Send(TransportMessage transportMessage, MessageContext messageContext = null)
         {
             if (transportMessage.TargetAddress == null)
                 throw new InvalidOperationException(string.Format("Can not send a message of type {0} as the target address could not be found. did you forget to configure routing?",
                     (transportMessage.MessageType ?? transportMessage.Message.GetType()).Name));
 
-            if (currentMessageContext == null)
+            if (messageContext == null)
                 _sender.Send(transportMessage);
             else
-                currentMessageContext.DelayedSend(transportMessage);
+                messageContext.DelayedSend(transportMessage);
         }
 
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
-        public event EventHandler<TransportMessageFinishedEventArgs> TransportMessageFinished;
 
         void CreateQueues(IEnumerable<Address> targetQueues)
         {
@@ -86,11 +85,6 @@
         public void ProcessMessageReceivedEvent(TransportMessage transportMessage, int attempt, int maxRetries)
         {
             TransportMessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage, attempt, maxRetries));
-        }
-
-        public void ProcessMessageFinishedEvent(TransportMessage transportMessage)
-        {
-            TransportMessageFinished(this, new TransportMessageFinishedEventArgs(transportMessage));
         }
     }
 }
