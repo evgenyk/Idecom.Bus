@@ -44,6 +44,10 @@
                 
                 value.Configure<ChainExecutor>(ComponentLifecycle.PerUnitOfWork);
                 value.Configure<BehaviorChains>(ComponentLifecycle.Singleton);
+                
+                value.Configure<MessageToEndpointRoutingTable>(ComponentLifecycle.Singleton);
+                value.Configure<MessageToHandlerRoutingTable>(ComponentLifecycle.Singleton);
+
 
                 _container = value;
             }

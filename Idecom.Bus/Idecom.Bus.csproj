@@ -48,6 +48,7 @@
     <Compile Include="Implementations\Behaviors\ChainExecutor.cs" />
     <Compile Include="Implementations\Configure.cs" />
     <Compile Include="Implementations\ConfigureContainer.cs" />
+    <Compile Include="Implementations\MessageToEndpointRoutingTable.cs" />
     <Compile Include="Implementations\Internal\Behaviors\OutgoingMessageValidationBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\TransportPublishBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\TransportSendBehavior.cs" />
@@ -56,6 +57,7 @@
     <Compile Include="Implementations\Internal\EffectiveConfiguration.cs" />
     <Compile Include="Implementations\InstanceCreator.cs" />
     <Compile Include="Implementations\Internal\NamespaceToEndpointMapping.cs" />
+    <Compile Include="Implementations\MessageToHandlerRoutingTable.cs" />
     <Compile Include="Implementations\PluralRoutingTable.cs" />
     <Compile Include="Implementations\NestedConfigurationBase.cs" />
     <Compile Include="Implementations\RoutingTable.cs" />
@@ -81,8 +83,10 @@
     <Compile Include="Interfaces\IBusInstance.cs" />
     <Compile Include="Interfaces\IContainer.cs" />
     <Compile Include="Interfaces\IHandle.cs" />
+    <Compile Include="Interfaces\IMessageToEndpointRoutingTable.cs" />
     <Compile Include="Interfaces\IInstanceCreator.cs" />
     <Compile Include="Interfaces\IMessageContext.cs" />
+    <Compile Include="Interfaces\IMessageToHandlerRoutingTable.cs" />
     <Compile Include="Interfaces\IMessageSerializer.cs" />
     <Compile Include="Interfaces\IStartThisSagaWhenReceive.cs" />
     <Compile Include="Interfaces\ITransport.cs" />

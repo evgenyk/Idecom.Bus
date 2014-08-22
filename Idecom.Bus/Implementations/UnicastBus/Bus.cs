@@ -19,9 +19,11 @@
     {
         bool _isStarted;
         public IContainer Container { get; set; }
-        public IMultiRoutingTable<MethodInfo> HandlerRoutingTable { get; set; }
-        public IRoutingTable<Address> MessageRoutingTable { get; set; }
+
+        public IMessageToHandlerRoutingTable HandlerToHandlerRoutingTable { get; set; }
+        public IMessageToEndpointRoutingTable MessageRoutingTable { get; set; }
         public IRoutingTable<Type> MessageToStartSagaMapping { get; set; }
+        
         public IMessageSerializer Serializer { get; set; }
         public IInstanceCreator InstanceCreator { get; set; }
         public ISubscriptionDistributor SubscriptionDistributor { get; set; }
@@ -59,7 +61,7 @@
                 var events = allTypes.Where(EffectiveConfiguration.IsEvent).ToList();
                 var commands = allTypes.Where(EffectiveConfiguration.IsCommand).ToList();
                 ApplyHandlerMapping(events, commands, allTypes);
-                var eventsWithHandlers = events.Where(e => HandlerRoutingTable.ResolveRouteFor(e).Any()).ToList();
+                var eventsWithHandlers = events.Where(e => HandlerToHandlerRoutingTable.ResolveRouteFor(e).Any()).ToList();
 
                 var behaviors = allTypes.Where(x => typeof (IBehavior).IsAssignableFrom(x) && !x.IsInterface).ToList();
                 behaviors.ForEach(x => Container.Configure(x, ComponentLifecycle.PerUnitOfWork));
@@ -167,7 +169,7 @@
 
                 var message = e.TransportMessage.Message;
                 var type = e.TransportMessage.MessageType ?? message.GetType();
-                var handlerMethods = HandlerRoutingTable.ResolveRouteFor(type);
+                var handlerMethods = HandlerToHandlerRoutingTable.ResolveRouteFor(type);
 
                 var executedHandlers = handlerMethods.Select(handler => ExecuteHandler(message, type, handler, messageContext)).ToList();
 
@@ -268,9 +270,9 @@
                 var firstParameter = methodInfo.GetParameters().FirstOrDefault();
                 if (firstParameter == null) continue;
 
-                HandlerRoutingTable.RouteTypes(new[] {firstParameter.ParameterType}, methodInfo);
+                HandlerToHandlerRoutingTable.RouteTypes(new[] {firstParameter.ParameterType}, methodInfo);
 
-                var methods = HandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
+                var methods = HandlerToHandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
                 foreach (var method in methods)
                     Container.Configure(method.DeclaringType, ComponentLifecycle.PerUnitOfWork);
             }
