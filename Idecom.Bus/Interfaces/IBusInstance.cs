@@ -4,5 +4,6 @@
     {
         IBusInstance Start();
         void Stop();
+        bool IsStarted { get; }
     }
 }

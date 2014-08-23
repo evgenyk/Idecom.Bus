@@ -1,7 +1,6 @@
 ﻿namespace Idecom.Bus.Implementations.Internal.Behaviors
 {
     using System;
-    using Interfaces;
     using Interfaces.Addons.PubSub;
     using Interfaces.Behaviors;
     using UnicastBus;
@@ -26,23 +25,6 @@
         }
     }
 
-
-    public class DispachMessageToHandlerBehavior: IBehavior
-    {
-        readonly IMessageToHandlerRoutingTable _messageToHandlerRoutingTable;
-        readonly MessageContext _messageContext;
-
-        public DispachMessageToHandlerBehavior(IMessageToHandlerRoutingTable messageToHandlerRoutingTable, MessageContext messageContext)
-        {
-            _messageToHandlerRoutingTable = messageToHandlerRoutingTable;
-            _messageContext = messageContext;
-        }
-
-        public void Execute(Action next)
-        {
-            next();
-        }
-    }
 
     public class DispatcherMessageSagaBehavior: IBehavior
     {

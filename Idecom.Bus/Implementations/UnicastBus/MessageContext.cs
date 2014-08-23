@@ -1,40 +1,24 @@
 namespace Idecom.Bus.Implementations.UnicastBus
 {
     using System.Collections.Generic;
-    using System.Linq;
     using Interfaces;
-    using Interfaces.Addons.Sagas;
     using Transport;
 
     public class MessageContext : IMessageContext
     {
-        readonly Queue<TransportMessage> _delayedSends; //outgoing messages
-        readonly Dictionary<string, string> _headers; //outgoing headers
-        readonly ISagaManager _sagaManager;
-        readonly ITransport _transport;
+        readonly Queue<TransportMessage> _delayedSends;
+        readonly Dictionary<string, string> _headers;
 
-        public MessageContext(ITransport transport, ISagaManager sagaManager)
+        public MessageContext()
         {
-            _transport = transport;
-            _sagaManager = sagaManager;
             _delayedSends = new Queue<TransportMessage>();
             _headers = new Dictionary<string, string>();
         }
 
-        public TransportMessage IncomingTransportMessage { get; set; } //incomming message
+        public TransportMessage IncomingTransportMessage { get; set; }
 
         public int Attempt { get; set; }
         public int MaxAttempts { get; set; }
-
-        void SendOutgoingMessages(object sender, TransportMessageFinishedEventArgs e)
-        {
-            while (_delayedSends.Any())
-            {
-                var toSend = _delayedSends.Dequeue();
-                var outgoingMessage = _sagaManager.PrepareSend(toSend, IncomingTransportMessage.Headers, _headers);
-                _transport.Send(outgoingMessage);
-            }
-        }
 
         public void DelayedSend(TransportMessage transportMessage)
         {

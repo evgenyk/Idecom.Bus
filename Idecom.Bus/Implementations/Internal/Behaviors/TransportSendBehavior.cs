@@ -9,15 +9,13 @@
 
     public class TransportSendBehavior : IBehavior
     {
-        readonly MessageContext _context;
         readonly OutgoingMessageContext _outgoingMessageContext;
         readonly ITransport _transport;
         readonly Address _localAddress;
         readonly IRoutingTable<Address> _messageRoutingTable;
 
-        public TransportSendBehavior(MessageContext context, OutgoingMessageContext outgoingMessageContext, ITransport transport, Address localAddress, IRoutingTable<Address> messageRoutingTable)
+        public TransportSendBehavior(OutgoingMessageContext outgoingMessageContext, ITransport transport, Address localAddress, IRoutingTable<Address> messageRoutingTable)
         {
-            _context = context;
             _outgoingMessageContext = outgoingMessageContext;
             _transport = transport;
             _localAddress = localAddress;
@@ -27,8 +25,8 @@
         public void Execute(Action next)
         {
             var resolveRouteFor = _messageRoutingTable.ResolveRouteFor(_outgoingMessageContext.Message.GetType());
-            var transportMessage = new TransportMessage(_outgoingMessageContext.Message, _localAddress, resolveRouteFor, MessageIntent.Send);
-            _transport.Send(transportMessage, _context);
+            var transportMessage = new TransportMessage(_outgoingMessageContext.Message, _localAddress, resolveRouteFor, MessageIntent.Send, _outgoingMessageContext.MessageType);
+            _transport.Send(transportMessage);
             next();
         }
     }

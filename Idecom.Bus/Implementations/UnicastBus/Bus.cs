@@ -23,7 +23,7 @@
         public IMessageToHandlerRoutingTable HandlerToHandlerRoutingTable { get; set; }
         public IMessageToEndpointRoutingTable MessageRoutingTable { get; set; }
         public IRoutingTable<Type> MessageToStartSagaMapping { get; set; }
-        
+
         public IMessageSerializer Serializer { get; set; }
         public IInstanceCreator InstanceCreator { get; set; }
         public ISubscriptionDistributor SubscriptionDistributor { get; set; }
@@ -39,6 +39,8 @@
         {
             get { return CurrentMessageContextInternal(); }
         }
+
+        public bool IsStarted { get { return _isStarted; } }
 
         public IBusInstance Start()
         {
@@ -63,10 +65,10 @@
                 ApplyHandlerMapping(events, commands, allTypes);
                 var eventsWithHandlers = events.Where(e => HandlerToHandlerRoutingTable.ResolveRouteFor(e).Any()).ToList();
 
-                var behaviors = allTypes.Where(x => typeof (IBehavior).IsAssignableFrom(x) && !x.IsInterface).ToList();
+                var behaviors = allTypes.Where(x => typeof(IBehavior).IsAssignableFrom(x) && !x.IsInterface).ToList();
                 behaviors.ForEach(x => Container.Configure(x, ComponentLifecycle.PerUnitOfWork));
 
-                Transport.TransportMessageReceived += TransportMessageReceived;
+                //                Transport.TransportMessageReceived += TransportMessageReceived;
 
                 foreach (var beforeBusStarted in Container.ResolveAll<IBeforeBusStarted>())
                 {
@@ -106,12 +108,12 @@
 
         public void Send(object message)
         {
-            ExecuteOnlyWhenStarted(() => new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.Send), new ChainExecutionContext { OutgoingMessage = message }));
+            new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.Send), new ChainExecutionContext { OutgoingMessage = message });
         }
 
         public void SendLocal(object message)
         {
-            ExecuteOnlyWhenStarted(() => new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.SendLocal), new ChainExecutionContext { OutgoingMessage = message }));
+            new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.SendLocal), new ChainExecutionContext { OutgoingMessage = message });
         }
 
         public void Reply(object message)
@@ -120,21 +122,17 @@
                 throw new Exception(string.Format("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: {0}",
                     CurrentMessageContext.IncomingTransportMessage.SourceAddress));
 
-            ExecuteOnlyWhenStarted(
-                () => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Reply), CurrentMessageContextInternal()));
+            Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Reply, message.GetType()));
         }
 
         public void Raise<T>(Action<T> action) where T : class
         {
-            ExecuteOnlyWhenStarted(
-                () =>
-                {
-                    var message = InstanceCreator.CreateInstanceOf<T>();
-                    if (action != null) action(message);
 
-                    var executor = new ChainExecutor(Container);
-                    executor.RunWithIt(Chains.GetChainFor(ChainIntent.Publish), new ChainExecutionContext(){ OutgoingMessage = message, MessageType = typeof(T)});
-                });
+            var message = InstanceCreator.CreateInstanceOf<T>();
+            if (action != null) action(message);
+
+            var executor = new ChainExecutor(Container);
+            executor.RunWithIt(Chains.GetChainFor(ChainIntent.Publish), new ChainExecutionContext { OutgoingMessage = message, MessageType = typeof(T) });
         }
 
         [DebuggerStepThrough]
@@ -145,54 +143,45 @@
             return currentMessageContext;
         }
 
-        [DebuggerStepThrough]
-        void ExecuteOnlyWhenStarted(Action todo)
-        {
-            if (_isStarted || CurrentMessageContext != null)
-                todo();
-            else
-                throw new Exception("Can not send or receive messages while the bus is stopped.");
-        }
-
-        void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
-        {
-            MessageContext messageContext = null;
-            try
-            {
-                messageContext = Container.Resolve<MessageContext>();
-                if (messageContext == null)
-                    throw new Exception("Could not resolve current message context");
-
-                messageContext.IncomingTransportMessage = e.TransportMessage;
-                messageContext.Attempt = e.Attempt;
-                messageContext.MaxAttempts = e.MaxRetries + 1;
-
-                var message = e.TransportMessage.Message;
-                var type = e.TransportMessage.MessageType ?? message.GetType();
-                var handlerMethods = HandlerToHandlerRoutingTable.ResolveRouteFor(type);
-
-                var executedHandlers = handlerMethods.Select(handler => ExecuteHandler(message, type, handler, messageContext)).ToList();
-
-                if (executedHandlers.All(x => !x))
-                    Console.WriteLine("Warning: {1} received a message of type {0}, but could not find a handler for it", e.TransportMessage.MessageType, LocalAddress);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error while receiving a message: " + ex);
-                throw;
-            }
-            finally {
-                Container.Release(messageContext);
-            }
-        }
+        //        void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
+        //        {
+        //            MessageContext messageContext = null;
+        //            try
+        //            {
+        //                messageContext = Container.Resolve<MessageContext>();
+        //                if (messageContext == null)
+        //                    throw new Exception("Could not resolve current message context");
+        //
+        //                messageContext.IncomingTransportMessage = e.TransportMessage;
+        //                messageContext.Attempt = e.Attempt;
+        //                messageContext.MaxAttempts = e.MaxRetries + 1;
+        //
+        //                var message = e.TransportMessage.Message;
+        //                var type = e.TransportMessage.MessageType ?? message.GetType();
+        //                var handlerMethods = HandlerToHandlerRoutingTable.ResolveRouteFor(type);
+        //
+        //                var executedHandlers = handlerMethods.Select(handler => ExecuteHandler(message, type, handler, messageContext)).ToList();
+        //
+        //                if (executedHandlers.All(x => !x))
+        //                    Console.WriteLine("Warning: {1} received a message of type {0}, but could not find a handler for it", e.TransportMessage.MessageType, LocalAddress);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                Console.WriteLine("Error while receiving a message: " + ex);
+        //                throw;
+        //            }
+        //            finally {
+        //                Container.Release(messageContext);
+        //            }
+        //        }
 
         bool ExecuteHandler(object message, Type messageType, MethodInfo handlerMethod, MessageContext messageContext)
         {
             var handler = Container.Resolve(handlerMethod.DeclaringType);
-            Action executeHandler = () => handlerMethod.Invoke(handler, new[] {message});
+            Action executeHandler = () => handlerMethod.Invoke(handler, new[] { message });
 
 
-            if (IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType)) //this must be a saga, whether existing or a new one is a diffirent question
+            if (IsSubclassOfRawGeneric(typeof(Saga<>), handlerMethod.DeclaringType)) //this must be a saga, whether existing or a new one is a diffirent question
             {
                 var sagaDataType = handlerMethod.DeclaringType.BaseType.GenericTypeArguments.First();
                 var startSagaTypes = MessageToStartSagaMapping.ResolveRouteFor(messageType);
@@ -209,12 +198,13 @@
                 var sagaDataProperty = handler.GetType().GetProperty("Data");
                 sagaDataProperty.SetValue(handler, sagaData.SagaState);
 
-                try {
+                try
+                {
                     executeHandler();
                 }
                 finally
                 {
-                    if (((ISaga) handler).IsClosed)
+                    if (((ISaga)handler).IsClosed)
                         SagaStorage.Close(sagaData.SagaId);
                     else
                         SagaStorage.Update(sagaData.SagaId, sagaData.SagaState);
@@ -231,7 +221,7 @@
 
         static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
         {
-            while (toCheck != null && toCheck != typeof (object))
+            while (toCheck != null && toCheck != typeof(object))
             {
                 var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
                 if (generic == cur) { return true; }
@@ -261,7 +251,7 @@
             var handlers = allTypes.Where(EffectiveConfiguration.IsHandler).SelectMany(type => type.GetMethods()
                                                                                                    .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
                                                                                                                 .Where(type.GetInterfaces()
-                                                                                                                           .Where(intface => implementsType(intface, typeof (IHandle<>)))
+                                                                                                                           .Where(intface => implementsType(intface, typeof(IHandle<>)))
                                                                                                                            .SelectMany(intfs => intfs.GenericTypeArguments).Contains)
                                                                                                                 .Any()));
 
@@ -270,7 +260,7 @@
                 var firstParameter = methodInfo.GetParameters().FirstOrDefault();
                 if (firstParameter == null) continue;
 
-                HandlerToHandlerRoutingTable.RouteTypes(new[] {firstParameter.ParameterType}, methodInfo);
+                HandlerToHandlerRoutingTable.RouteTypes(new[] { firstParameter.ParameterType }, methodInfo);
 
                 var methods = HandlerToHandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
                 foreach (var method in methods)
@@ -279,12 +269,12 @@
 
 
             var enumerable = allTypes.Where(x => x.GetInterfaces()
-                                                  .Any(intface => implementsType(intface, typeof (IStartThisSagaWhenReceive<>)))).ToList();
+                                                  .Any(intface => implementsType(intface, typeof(IStartThisSagaWhenReceive<>)))).ToList();
             var messageToStartSagaMapping = enumerable
                 .SelectMany(type => type.GetInterfaces()
-                                        .Where(intface => implementsType(intface, typeof (IStartThisSagaWhenReceive<>)))
+                                        .Where(intface => implementsType(intface, typeof(IStartThisSagaWhenReceive<>)))
                                         .Where(intfs => intfs.IsGenericType && intfs.GetGenericArguments().Any())
-                                        .Select(y => new {type, message = y.GenericTypeArguments.First()})).ToList();
+                                        .Select(y => new { type, message = y.GenericTypeArguments.First() })).ToList();
 
             messageToStartSagaMapping.ForEach(x => MessageToStartSagaMapping.RouteType(x.message, x.type));
         }

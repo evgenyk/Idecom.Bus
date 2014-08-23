@@ -24,8 +24,8 @@
 
         public void Execute(Action next)
         {
-            var transportMessage = new TransportMessage(_outgoingMessageContext.Message, _localAddress, _localAddress, MessageIntent.SendLocal);
-            _transport.Send(transportMessage, _context);
+            var transportMessage = new TransportMessage(_outgoingMessageContext.Message, _localAddress, _localAddress, MessageIntent.SendLocal, _outgoingMessageContext.MessageType);
+            _transport.Send(transportMessage);
             next();
         }
     }

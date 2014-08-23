@@ -48,6 +48,8 @@
     <Compile Include="Implementations\Behaviors\ChainExecutor.cs" />
     <Compile Include="Implementations\Configure.cs" />
     <Compile Include="Implementations\ConfigureContainer.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\DispachMessageToHandlerBehavior.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\ThrowIfBusNotStartedBehavior.cs" />
     <Compile Include="Implementations\MessageToEndpointRoutingTable.cs" />
     <Compile Include="Implementations\Internal\Behaviors\OutgoingMessageValidationBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\TransportPublishBehavior.cs" />
@@ -90,8 +92,6 @@
     <Compile Include="Interfaces\IMessageSerializer.cs" />
     <Compile Include="Interfaces\IStartThisSagaWhenReceive.cs" />
     <Compile Include="Interfaces\ITransport.cs" />
-    <Compile Include="Transport\TransportMessageFinishedEventArgs.cs" />
-    <Compile Include="Transport\TransportMessageReceivedEventArgs.cs" />
     <Compile Include="Transport\MessageIntent.cs" />
     <Compile Include="Transport\TransportMessage.cs" />
     <Compile Include="Utility\AssemblyScanner.cs" />

@@ -7,7 +7,6 @@
     using global::MongoDB.Driver;
     using global::MongoDB.Driver.Builders;
     using Implementations;
-    using Implementations.UnicastBus;
     using Interfaces;
 
     public class MongoDbTransport : ITransport, IBeforeBusStarted, IBeforeBusStopped
@@ -45,24 +44,17 @@
 
         public int WorkersCount { get; set; }
 
-        public void ChangeWorkerCount(int workers)
-        {
-            _receiver.ChangeWorkersCount(workers);
-        }
-
-        public void Send(TransportMessage transportMessage, MessageContext messageContext = null)
+        public void Send(TransportMessage transportMessage)
         {
             if (transportMessage.TargetAddress == null)
                 throw new InvalidOperationException(string.Format("Can not send a message of type {0} as the target address could not be found. did you forget to configure routing?",
                     (transportMessage.MessageType ?? transportMessage.Message.GetType()).Name));
 
-            if (messageContext == null)
-                _sender.Send(transportMessage);
-            else
-                messageContext.DelayedSend(transportMessage);
+//            if (messageContext == null)
+//                _sender.Send(transportMessage);
+//            else
+//                messageContext.DelayedSend(transportMessage);
         }
-
-        public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
 
         void CreateQueues(IEnumerable<Address> targetQueues)
         {
@@ -84,7 +76,6 @@
 
         public void ProcessMessageReceivedEvent(TransportMessage transportMessage, int attempt, int maxRetries)
         {
-            TransportMessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage, attempt, maxRetries));
         }
     }
 }

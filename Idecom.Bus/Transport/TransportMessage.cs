@@ -8,7 +8,7 @@
     [DebuggerStepThrough]
     public class TransportMessage
     {
-        public TransportMessage(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType = null, Dictionary<string, string> headers = null)
+        public TransportMessage(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType, Dictionary<string, string> headers = null)
             : this(message, headers)
         {
             SourceAddress = sourceAddress;

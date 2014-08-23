@@ -54,6 +54,9 @@ namespace Idecom.Bus.Implementations.UnicastBus
                               .WrapWith<DispatcherMessageSagaBehavior>()
                           },
                       };
+            
+            //wrap everyting with start bus check
+            foreach (var chain in _chains) { chain.Value.WrapWith<ThrowIfBusNotStartedBehavior>(); }
         }
 
         [DebuggerStepThrough]
