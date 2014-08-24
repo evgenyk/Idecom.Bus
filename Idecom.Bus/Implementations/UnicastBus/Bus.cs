@@ -118,11 +118,15 @@
 
         public void Reply(object message)
         {
-            if (LocalAddress.Equals(CurrentMessageContext.IncomingTransportMessage.SourceAddress))
-                throw new Exception(string.Format("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: {0}",
-                    CurrentMessageContext.IncomingTransportMessage.SourceAddress));
+            var executor = new ChainExecutor(Container);
+            executor.RunWithIt(Chains.GetChainFor(ChainIntent.Reply), new ChainExecutionContext { OutgoingMessage = message, MessageType = message.GetType() });
+            throw new NotImplementedException("Finish this later");
 
-            Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Reply, message.GetType()));
+            //            if (LocalAddress.Equals(CurrentMessageContext.IncomingTransportMessage.SourceAddress))
+            //                throw new Exception(string.Format("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: {0}",
+            //                    CurrentMessageContext.IncomingTransportMessage.SourceAddress));
+            //
+            //            Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Reply, message.GetType()));
         }
 
         public void Raise<T>(Action<T> action) where T : class

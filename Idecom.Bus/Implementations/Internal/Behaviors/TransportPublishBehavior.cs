@@ -24,13 +24,4 @@
             next();
         }
     }
-
-
-    public class DispatcherMessageSagaBehavior: IBehavior
-    {
-        public void Execute(Action next)
-        {
-            next();
-        }
-    }
 }

@@ -48,7 +48,9 @@
     <Compile Include="Implementations\Behaviors\ChainExecutor.cs" />
     <Compile Include="Implementations\Configure.cs" />
     <Compile Include="Implementations\ConfigureContainer.cs" />
-    <Compile Include="Implementations\Internal\Behaviors\DispachMessageToHandlerBehavior.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\Incoming\DispachMessageToHandlerBehavior.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\Incoming\DispatcherMessageSagaBehavior.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\ReplyBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\ThrowIfBusNotStartedBehavior.cs" />
     <Compile Include="Implementations\MessageToEndpointRoutingTable.cs" />
     <Compile Include="Implementations\Internal\Behaviors\OutgoingMessageValidationBehavior.cs" />
@@ -67,6 +69,7 @@
     <Compile Include="Implementations\SingleInstanceSagaAttribute.cs" />
     <Compile Include="Implementations\UnicastBus\BehaviorChains.cs" />
     <Compile Include="Implementations\UnicastBus\Bus.cs" />
+    <Compile Include="Implementations\UnicastBus\HandlerContext.cs" />
     <Compile Include="Implementations\UnicastBus\MessageContext.cs" />
     <Compile Include="Implementations\UnicastBus\OutgoingMessageContext.cs" />
     <Compile Include="Interfaces\Addons\PubSub\ISagaStorage.cs" />

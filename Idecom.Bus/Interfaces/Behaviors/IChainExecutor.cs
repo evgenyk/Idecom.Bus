@@ -1,6 +1,7 @@
 namespace Idecom.Bus.Interfaces.Behaviors
 {
     using System;
+    using System.Reflection;
     using Transport;
 
     public interface IChainExecutor
@@ -13,6 +14,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
         object OutgoingMessage { get; set; }
         Type MessageType { get; set; }
         TransportMessage IncomingTransportMessage { get; set; }
+        MethodInfo HandlerMethod { get; set; }
     }
 
     public class ChainExecutionContext : IChainExecutionContext
@@ -20,5 +22,6 @@ namespace Idecom.Bus.Interfaces.Behaviors
         public object OutgoingMessage { get; set; }
         public Type MessageType { get; set; }
         public TransportMessage IncomingTransportMessage { get; set; }
+        public MethodInfo HandlerMethod { get; set; }
     }
 }

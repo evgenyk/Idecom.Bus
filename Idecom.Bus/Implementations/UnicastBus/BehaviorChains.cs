@@ -5,6 +5,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
     using Behaviors;
     using Interfaces.Behaviors;
     using Internal.Behaviors;
+    using Internal.Behaviors.Incoming;
 
 
     public enum ChainIntent
@@ -13,7 +14,8 @@ namespace Idecom.Bus.Implementations.UnicastBus
         SendLocal,
         Reply,
         Publish,
-        Receive
+        TransportMessageReceive,
+        IncomingMessageHandling
     }
     
     public interface IBehaviorChains
@@ -42,13 +44,24 @@ namespace Idecom.Bus.Implementations.UnicastBus
                               .WrapWith<OutgoingMessageValidationBehavior>()
                           },
                           {
+                              ChainIntent.Reply,
+                              new BehaviorChain()
+                              .WrapWith<ReplyBehavior>()
+                              .WrapWith<OutgoingMessageValidationBehavior>()
+                          },
+                          {
                               ChainIntent.Publish,
                               new BehaviorChain()
                               .WrapWith<TransportPublishBehavior>()
                               .WrapWith<OutgoingMessageValidationBehavior>()
                           },
                           {
-                              ChainIntent.Receive,
+                              ChainIntent.TransportMessageReceive,
+                              new BehaviorChain()
+                              .WrapWith<MultiplexIncomingTransportMessageToHandlers>()
+                          },                          
+                          {
+                              ChainIntent.IncomingMessageHandling,
                               new BehaviorChain()
                               .WrapWith<DispachMessageToHandlerBehavior>()
                               .WrapWith<DispatcherMessageSagaBehavior>()

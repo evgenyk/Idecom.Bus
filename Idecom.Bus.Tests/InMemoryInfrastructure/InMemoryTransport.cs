@@ -32,7 +32,7 @@
         void TransportMessageReceived(TransportMessage transportMessage)
         {
             var ce = new ChainExecutor(Container);
-            var chain = Chains.GetChainFor(ChainIntent.Receive);
+            var chain = Chains.GetChainFor(ChainIntent.TransportMessageReceive);
             ce.RunWithIt(chain, new ChainExecutionContext {IncomingTransportMessage = transportMessage});
         }
     }

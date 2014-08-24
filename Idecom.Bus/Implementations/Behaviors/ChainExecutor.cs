@@ -72,6 +72,11 @@ namespace Idecom.Bus.Implementations.Behaviors
                 var incomingMessageContext = _container.Resolve<MessageContext>();
                 incomingMessageContext.IncomingTransportMessage = context.IncomingTransportMessage;
             }
+
+            if (context.HandlerMethod != null) {
+                var handlerContext = _container.Resolve<HandlerContext>();
+                handlerContext.Method = context.HandlerMethod;
+            }
         }
     }
 }

@@ -9,14 +9,12 @@
 
     public class TransportSendLocalBehavior : IBehavior
     {
-        readonly MessageContext _context;
         readonly OutgoingMessageContext _outgoingMessageContext;
         readonly ITransport _transport;
         readonly Address _localAddress;
 
-        public TransportSendLocalBehavior(MessageContext context, OutgoingMessageContext outgoingMessageContext, ITransport transport, Address localAddress)
+        public TransportSendLocalBehavior(OutgoingMessageContext outgoingMessageContext, ITransport transport, Address localAddress)
         {
-            _context = context;
             _outgoingMessageContext = outgoingMessageContext;
             _transport = transport;
             _localAddress = localAddress;
