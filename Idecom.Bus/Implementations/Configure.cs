@@ -48,6 +48,7 @@
                 
                 value.Configure<MessageToEndpointRoutingTable>(ComponentLifecycle.Singleton);
                 value.Configure<MessageToHandlerRoutingTable>(ComponentLifecycle.Singleton);
+                value.Configure<MessageToStartSagaMapping>(ComponentLifecycle.Singleton);
                 
                 value.Configure<HandlerContext>(ComponentLifecycle.PerUnitOfWork);
                 value.Configure<ChainExecutionContext>(ComponentLifecycle.PerUnitOfWork);

@@ -6,4 +6,5 @@ namespace Idecom.Bus.Interfaces
     public interface IMessageToHandlerRoutingTable : IMultiRoutingTable<MethodInfo>
     {
     }
+
 }

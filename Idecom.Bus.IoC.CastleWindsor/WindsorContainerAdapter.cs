@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using Castle.Core;
@@ -11,6 +12,7 @@
     using Interfaces;
     using Utility;
 
+    [DebuggerStepThrough]
     public class WindsorContainerAdapter : IContainer
     {
         readonly IWindsorContainer _container;

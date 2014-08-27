@@ -64,7 +64,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
                               ChainIntent.IncomingMessageHandling,
                               new BehaviorChain()
                               .WrapWith<DispachMessageToHandlerBehavior>()
-                              .WrapWith<DispatcherMessageSagaBehavior>()
+                              .WrapWith<ResumeSagaBehavior>()
                           },
                       };
             

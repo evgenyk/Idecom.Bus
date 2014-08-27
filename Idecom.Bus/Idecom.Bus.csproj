@@ -49,7 +49,7 @@
     <Compile Include="Implementations\Configure.cs" />
     <Compile Include="Implementations\ConfigureContainer.cs" />
     <Compile Include="Implementations\Internal\Behaviors\Incoming\DispachMessageToHandlerBehavior.cs" />
-    <Compile Include="Implementations\Internal\Behaviors\Incoming\DispatcherMessageSagaBehavior.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\Incoming\ResumeSagaBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\Incoming\MultiplexIncomingTransportMessageToHandlers.cs" />
     <Compile Include="Implementations\Internal\Behaviors\ReplyBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\ThrowIfBusNotStartedBehavior.cs" />
@@ -63,6 +63,7 @@
     <Compile Include="Implementations\InstanceCreator.cs" />
     <Compile Include="Implementations\Internal\NamespaceToEndpointMapping.cs" />
     <Compile Include="Implementations\MessageToHandlerRoutingTable.cs" />
+    <Compile Include="Implementations\MessageToStartSagaMapping.cs" />
     <Compile Include="Implementations\PluralRoutingTable.cs" />
     <Compile Include="Implementations\NestedConfigurationBase.cs" />
     <Compile Include="Implementations\RoutingTable.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Interfaces\IMessageContext.cs" />
     <Compile Include="Interfaces\IMessageToHandlerRoutingTable.cs" />
     <Compile Include="Interfaces\IMessageSerializer.cs" />
+    <Compile Include="Interfaces\IMessageToStartSagaMapping.cs" />
     <Compile Include="Interfaces\IStartThisSagaWhenReceive.cs" />
     <Compile Include="Interfaces\ITransport.cs" />
     <Compile Include="Transport\MessageIntent.cs" />
