@@ -18,7 +18,7 @@
             _distributor = distributor;
         }
 
-        public void Execute(Action next)
+        public void Execute(Action next, ChainExecutionContext context)
         {
             _distributor.NotifySubscribersOf(_outgoingMessageContext.MessageType, _outgoingMessageContext.Message, _context);
             next();

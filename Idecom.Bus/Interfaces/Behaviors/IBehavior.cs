@@ -4,6 +4,6 @@ namespace Idecom.Bus.Interfaces.Behaviors
 
     public interface IBehavior
     {
-        void Execute(Action next);
+        void Execute(Action next, ChainExecutionContext context);
     }
 }

@@ -18,29 +18,29 @@ namespace Idecom.Bus.Implementations.Behaviors
             _container = container;
         }
 
-        protected void ExecuteNext(Queue<Type> behaviorQueue)
+        protected void ExecuteNext(Queue<Type> behaviorQueue, ChainExecutionContext context)
         {
             if (!behaviorQueue.Any()) { return; }
             
             IBehavior behavior = null;
             try
             {
-                behavior = ExecuteNextBehavior(_container, behaviorQueue);
+                behavior = ExecuteNextBehavior(_container, behaviorQueue, context);
             }
             finally {
                 _container.Release(behavior);
             }
         }
 
-        IBehavior ExecuteNextBehavior(IContainer container, Queue<Type> behaviorQueue)
+        IBehavior ExecuteNextBehavior(IContainer container, Queue<Type> behaviorQueue, ChainExecutionContext context)
         {
             var nextType = behaviorQueue.Dequeue();
             var behavior = container.Resolve(nextType) as IBehavior;
-            if (behavior != null) behavior.Execute(() => ExecuteNext(behaviorQueue));
+            if (behavior != null) behavior.Execute(() => ExecuteNext(behaviorQueue, context), context);
             return behavior;
         }
 
-        public virtual void RunWithIt(IBehaviorChain chain, IChainExecutionContext context)
+        public virtual void RunWithIt(IBehaviorChain chain, ChainExecutionContext context)
         {
             using (_container.BeginUnitOfWork())
             {
@@ -50,15 +50,14 @@ namespace Idecom.Bus.Implementations.Behaviors
                 IBehavior behavior = null;
                 try
                 {
-                    behavior = ExecuteNextBehavior(_container, behaviorQueue);
+                    behavior = ExecuteNextBehavior(_container, behaviorQueue, context);
                 }
                 finally { _container.Release(behavior); }
             }
         }
 
-        void PopulateCurrentExecutionContexts(IChainExecutionContext context)
+        void PopulateCurrentExecutionContexts(ChainExecutionContext context)
         {
-            //so far it's the only way I couild maintain a nice interface for behaviors
             if (context.OutgoingMessage != null)
             {
                 var outgoingMessageContext = _container.Resolve<OutgoingMessageContext>();

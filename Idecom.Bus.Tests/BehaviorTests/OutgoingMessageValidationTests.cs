@@ -53,7 +53,7 @@
 
     public class ExceptionBehavior : IBehavior
     {
-        public void Execute(Action next)
+        public void Execute(Action next, ChainExecutionContext context)
         {
             throw new Exception();
         }

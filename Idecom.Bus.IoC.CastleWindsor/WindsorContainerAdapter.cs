@@ -36,7 +36,7 @@
 
         public void ConfigureInstance<T>(T instance)
         {
-            var component = typeof (T);
+            var component = typeof(T);
 
             var registration = _container.Kernel.GetAssignableHandlers(component).Select(x => x.ComponentModel).SingleOrDefault();
             if (registration != null)

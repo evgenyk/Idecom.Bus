@@ -16,7 +16,7 @@
             _container = container;
         }
 
-        public void Execute(Action next)
+        public void Execute(Action next, ChainExecutionContext context)
         {
 
             next();

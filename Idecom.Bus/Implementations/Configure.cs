@@ -7,6 +7,7 @@
     using Addressing;
     using Behaviors;
     using Interfaces;
+    using Interfaces.Behaviors;
     using Internal;
     using UnicastBus;
 
@@ -47,6 +48,9 @@
                 
                 value.Configure<MessageToEndpointRoutingTable>(ComponentLifecycle.Singleton);
                 value.Configure<MessageToHandlerRoutingTable>(ComponentLifecycle.Singleton);
+                
+                value.Configure<HandlerContext>(ComponentLifecycle.PerUnitOfWork);
+                value.Configure<ChainExecutionContext>(ComponentLifecycle.PerUnitOfWork);
 
 
                 _container = value;

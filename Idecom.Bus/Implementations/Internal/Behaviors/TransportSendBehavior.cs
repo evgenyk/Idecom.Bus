@@ -22,7 +22,7 @@
             _messageRoutingTable = messageRoutingTable;
         }
 
-        public void Execute(Action next)
+        public void Execute(Action next, ChainExecutionContext context)
         {
             var resolveRouteFor = _messageRoutingTable.ResolveRouteFor(_outgoingMessageContext.Message.GetType());
             var transportMessage = new TransportMessage(_outgoingMessageContext.Message, _localAddress, resolveRouteFor, MessageIntent.Send, _outgoingMessageContext.MessageType);

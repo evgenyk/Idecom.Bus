@@ -136,7 +136,10 @@
             if (action != null) action(message);
 
             var executor = new ChainExecutor(Container);
-            executor.RunWithIt(Chains.GetChainFor(ChainIntent.Publish), new ChainExecutionContext { OutgoingMessage = message, MessageType = typeof(T) });
+            var chainExecutionContext = new ChainExecutionContext { OutgoingMessage = message, MessageType = typeof(T) };
+            var behaviorChain = Chains.GetChainFor(ChainIntent.Publish);
+
+            executor.RunWithIt(behaviorChain, chainExecutionContext);
         }
 
         [DebuggerStepThrough]

@@ -14,7 +14,7 @@
             _outgoingMessageContext = outgoingMessageContext;
         }
 
-        public void Execute(Action next)
+        public void Execute(Action next, ChainExecutionContext context)
         {
             var vc = new ValidationContext(_outgoingMessageContext.Message, null, null);
             Validator.ValidateObject(_outgoingMessageContext.Message, vc);
