@@ -5,6 +5,7 @@
     using Addressing;
     using Interfaces;
     using Interfaces.Addons.PubSub;
+    using Interfaces.Behaviors;
     using Transport;
     using UnicastBus;
 
@@ -21,7 +22,7 @@
         public Address LocalAddress { get; private set; }
         public ITransport Transport { get; private set; }
 
-        public void NotifySubscribersOf(Type messageType, object message, MessageContext messageContext)
+        public void NotifySubscribersOf(Type messageType, object message, MessageContext messageContext, ChainContext chainContext)
         {
             var subscribers = Storage.GetSubscribersFor(messageType);
 
@@ -29,7 +30,7 @@
             {
                 var transportMessage = new TransportMessage(message, LocalAddress, subscriber, MessageIntent.Publish, messageType);
                 if (messageContext.IncomingTransportMessage != null)
-                    messageContext.DelayedSend(transportMessage);
+                    chainContext.Current.DelayMessage(transportMessage);
                 else
                     Transport.Send(transportMessage);
             }

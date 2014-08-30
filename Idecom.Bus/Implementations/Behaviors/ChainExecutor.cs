@@ -20,7 +20,7 @@ namespace Idecom.Bus.Implementations.Behaviors
         {
             using (_container.BeginUnitOfWork())
             {
-                PopulateCurrentExecutionContexts(context);
+                //PopulateCurrentExecutionContexts(context);
 
                 var behaviorQueue = new Queue<Type>(chain);
                 IBehavior behavior = null;
@@ -42,12 +42,17 @@ namespace Idecom.Bus.Implementations.Behaviors
         {
             var nextType = behaviorQueue.Dequeue();
             var behavior = container.Resolve(nextType) as IBehavior;
-            if (behavior != null) behavior.Execute(() => ExecuteNext(behaviorQueue, context), context);
+            if (behavior != null)
+            {
+                behavior.Execute(() => ExecuteNext(behaviorQueue, context), context);
+            }
             return behavior;
         }
 
         void PopulateCurrentExecutionContexts(ChainExecutionContext context)
         {
+            _container.Resolve<ChainContext>().Current = context;
+
             if (context.OutgoingMessage != null)
             {
                 var outgoingMessageContext = _container.Resolve<OutgoingMessageContext>();
@@ -67,6 +72,10 @@ namespace Idecom.Bus.Implementations.Behaviors
                 var handlerContext = _container.Resolve<HandlerContext>();
                 handlerContext.Method = context.HandlerMethod;
             }
+            if (context.SagaContext != null) {
+                var sagaContext = _container.Resolve<SagaContext>();
+            }
+
         }
     }
 }

@@ -50,8 +50,10 @@
                 value.Configure<MessageToHandlerRoutingTable>(ComponentLifecycle.Singleton);
                 value.Configure<MessageToStartSagaMapping>(ComponentLifecycle.Singleton);
                 
-                value.Configure<HandlerContext>(ComponentLifecycle.PerUnitOfWork);
-                value.Configure<ChainExecutionContext>(ComponentLifecycle.PerUnitOfWork);
+//                value.Configure<HandlerContext>(ComponentLifecycle.PerUnitOfWork);
+//                value.Configure<SagaContext>(ComponentLifecycle.PerUnitOfWork);
+//                value.Configure<ChainContext>(ComponentLifecycle.PerUnitOfWork);
+//                value.Configure<DelayedMessageContext>(ComponentLifecycle.PerUnitOfWork);
 
 
                 _container = value;

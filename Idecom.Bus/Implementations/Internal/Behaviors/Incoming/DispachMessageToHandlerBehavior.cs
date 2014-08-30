@@ -1,29 +1,42 @@
 ﻿namespace Idecom.Bus.Implementations.Internal.Behaviors.Incoming
 {
     using System;
-    using System.Reflection;
     using Interfaces;
+    using Interfaces.Addons.Sagas;
     using Interfaces.Behaviors;
-    using UnicastBus;
 
     public class DispachMessageToHandlerBehavior : IBehavior
     {
-        readonly HandlerContext _context;
         readonly IContainer _container;
-        readonly MessageContext _messageContext;
 
-        public DispachMessageToHandlerBehavior(HandlerContext context, IContainer container, MessageContext messageContext)
+        public DispachMessageToHandlerBehavior(IContainer container)
         {
-            _context = context;
             _container = container;
-            _messageContext = messageContext;
         }
 
         public void Execute(Action next, ChainExecutionContext context)
         {
-            var method = _context.Method;
+            var method = context.HandlerMethod;
             var handler = _container.Resolve(method.DeclaringType);
-            method.Invoke(handler, new[] { _messageContext.IncomingTransportMessage.Message });
+
+
+            var inSaga = handler is ISaga && context.SagaContext != null;
+            if (inSaga)
+                handler.GetType().GetProperty("Data").SetValue(handler, context.SagaContext.SagaState.SagaData);
+
+            try
+            {
+                method.Invoke(handler, new[]
+                                       {
+                                           context.IncomingTransportMessage.Message
+                                       });
+            }
+            catch (Exception e) {
+                Console.WriteLine(e);
+            }
+            if (inSaga && (handler as ISaga).IsClosed)
+                context.SagaContext.HandlerClosedSaga = true;
+
             next();
         }
 

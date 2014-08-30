@@ -10,5 +10,7 @@
         ISagaStateInstance Resume(Type sagaDataType, MessageContext messageContext);
         ISagaStateInstance Start(Type sagaDataType, MessageContext messageContext);
         TransportMessage PrepareSend(TransportMessage transportMessage, Dictionary<string, string> incomingHeaders, Dictionary<string, string> outgoingHeaders);
+        void CloseSaga(ISagaStateInstance sagaInstance);
+        void UpdateSaga(ISagaStateInstance sagaInstance);
     }
 }

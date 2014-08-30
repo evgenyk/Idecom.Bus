@@ -10,19 +10,17 @@
     {
         readonly IContainer _container;
         readonly IBehaviorChains _chains;
-        readonly MessageContext _messageContext;
         readonly IMessageToHandlerRoutingTable _messageToHandlerRoutingTable;
 
-        public MultiplexIncomingTransportMessageToHandlers(IMessageToHandlerRoutingTable messageToHandlerRoutingTable, MessageContext messageContext, IContainer container, IBehaviorChains chains)
+        public MultiplexIncomingTransportMessageToHandlers(IMessageToHandlerRoutingTable messageToHandlerRoutingTable, IContainer container, IBehaviorChains chains)
         {
             _messageToHandlerRoutingTable = messageToHandlerRoutingTable;
-            _messageContext = messageContext;
             _container = container;
             _chains = chains;
         }
         public void Execute(Action next, ChainExecutionContext context)
         {
-            var handlers = _messageToHandlerRoutingTable.ResolveRouteFor(_messageContext.IncomingTransportMessage.MessageType);
+            var handlers = _messageToHandlerRoutingTable.ResolveRouteFor(context.IncomingTransportMessage.MessageType);
             foreach (var method in handlers)
             {
                 var chain = _chains.GetChainFor(ChainIntent.IncomingMessageHandling);

@@ -7,21 +7,21 @@
     {
         Address Endpoint { get; }
         string SagaId { get; }
-        ISagaState SagaState { get; }
+        ISagaState SagaData { get; }
     }
 
     [DebuggerStepThrough]
     public class SagaStateInstance : ISagaStateInstance
     {
-        public SagaStateInstance(Address endpoint, string sagaId, ISagaState sagaState)
+        public SagaStateInstance(Address endpoint, string sagaId, ISagaState sagaData)
         {
             Endpoint = endpoint;
             SagaId = sagaId;
-            SagaState = sagaState;
+            SagaData = sagaData;
         }
 
         public Address Endpoint { get; private set; }
         public string SagaId { get; private set; }
-        public ISagaState SagaState { get; private set; }
+        public ISagaState SagaData { get; private set; }
     }
 }

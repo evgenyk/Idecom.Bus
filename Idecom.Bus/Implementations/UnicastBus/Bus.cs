@@ -135,7 +135,11 @@
             if (action != null) action(message);
 
             var executor = new ChainExecutor(Container);
-            var chainExecutionContext = new ChainExecutionContext { OutgoingMessage = message, MessageType = typeof(T) };
+            
+            var chainContext = Container.Resolve<ChainContext>();
+            var executionContext = chainContext == null ? null : chainContext.Current;
+
+            var chainExecutionContext = new ChainExecutionContext(executionContext) { OutgoingMessage = message, MessageType = typeof(T) };
             var behaviorChain = Chains.GetChainFor(ChainIntent.Publish);
 
             executor.RunWithIt(behaviorChain, chainExecutionContext);
@@ -202,7 +206,7 @@
                 }
 
                 var sagaDataProperty = handler.GetType().GetProperty("Data");
-                sagaDataProperty.SetValue(handler, sagaData.SagaState);
+                sagaDataProperty.SetValue(handler, sagaData.SagaData);
 
                 try
                 {
@@ -213,7 +217,7 @@
                     if (((ISaga)handler).IsClosed)
                         SagaStorage.Close(sagaData.SagaId);
                     else
-                        SagaStorage.Update(sagaData.SagaId, sagaData.SagaState);
+                        SagaStorage.Update(sagaData.SagaId, sagaData.SagaData);
                 }
             }
             else

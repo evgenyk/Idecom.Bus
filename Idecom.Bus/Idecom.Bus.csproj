@@ -51,6 +51,7 @@
     <Compile Include="Implementations\Internal\Behaviors\Incoming\DispachMessageToHandlerBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\Incoming\ResumeSagaBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\Incoming\MultiplexIncomingTransportMessageToHandlers.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\Incoming\SendDelayedMessagesBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\ReplyBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\ThrowIfBusNotStartedBehavior.cs" />
     <Compile Include="Implementations\MessageToEndpointRoutingTable.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Implementations\UnicastBus\HandlerContext.cs" />
     <Compile Include="Implementations\UnicastBus\MessageContext.cs" />
     <Compile Include="Implementations\UnicastBus\OutgoingMessageContext.cs" />
+    <Compile Include="Implementations\UnicastBus\SagaContext.cs" />
     <Compile Include="Interfaces\Addons\PubSub\ISagaStorage.cs" />
     <Compile Include="Interfaces\Addons\PubSub\ISubscriptionDistributor.cs" />
     <Compile Include="Interfaces\Addons\PubSub\ISubscriptionStorage.cs" />

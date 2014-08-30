@@ -9,17 +9,13 @@
 
     public class ResumeSagaBehavior: IBehavior
     {
-        readonly MessageContext _messageContext;
         readonly IContainer _container;
-        readonly HandlerContext _handlerContext;
         readonly IMessageToStartSagaMapping _messageToStartSagaMapping;
         readonly ISagaManager _sagaManager;
 
-        public ResumeSagaBehavior(MessageContext messageContext, IContainer container, HandlerContext handlerContext, IMessageToStartSagaMapping messageToStartSagaMapping, ISagaManager sagaManager)
+        public ResumeSagaBehavior(IContainer container, IMessageToStartSagaMapping messageToStartSagaMapping, ISagaManager sagaManager)
         {
-            _messageContext = messageContext;
             _container = container;
-            _handlerContext = handlerContext;
             _messageToStartSagaMapping = messageToStartSagaMapping;
             _sagaManager = sagaManager;
         }
@@ -35,11 +31,20 @@
                 if (startSagaTypes != null) sagaData = _sagaManager.Start(sagaDataType, _messageContext);
                 else sagaData = _sagaManager.Resume(sagaDataType, _messageContext);
 
-                throw new NotImplementedException("Figure out how to assign SagaData to a Handler here now");
+                if (sagaData != null) {
+                    _container.Resolve<SagaContext>().SagaState = sagaData;
+                }
 
+                next();
+
+                if (sagaData == null) return;
+
+                if (_container.Resolve<SagaContext>().HandlerClosedSaga) { _sagaManager.CloseSaga(sagaData); }
+                else _sagaManager.UpdateSaga(sagaData);
             }
+            else
+            { next(); }
 
-            next();
         }
 
 

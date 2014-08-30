@@ -6,12 +6,10 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
     public class MessageContext : IMessageContext
     {
-        readonly Queue<TransportMessage> _delayedSends;
         readonly Dictionary<string, string> _headers;
 
         public MessageContext()
         {
-            _delayedSends = new Queue<TransportMessage>();
             _headers = new Dictionary<string, string>();
         }
 
@@ -19,11 +17,6 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
         public int Attempt { get; set; }
         public int MaxAttempts { get; set; }
-
-        public void DelayedSend(TransportMessage transportMessage)
-        {
-            _delayedSends.Enqueue(transportMessage);
-        }
 
         public void SetHeader(string key, string value)
         {

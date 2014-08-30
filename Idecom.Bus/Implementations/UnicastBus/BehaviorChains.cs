@@ -58,6 +58,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
                           {
                               ChainIntent.TransportMessageReceive,
                               new BehaviorChain()
+                              .WrapWith<SendDelayedMessagesBehavior>()
                               .WrapWith<MultiplexIncomingTransportMessageToHandlers>()
                           },                          
                           {

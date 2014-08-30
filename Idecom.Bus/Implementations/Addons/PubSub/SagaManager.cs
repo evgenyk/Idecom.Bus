@@ -34,7 +34,7 @@
             if (instance == null)
                 throw new Exception("SagaState has to be inherited from ISagaState");
 
-            AddSagaIdToHeaders(sagaId, sagaDataType, messageContext);
+            messageContext.SetHeader(SystemHeaders.SagaIdHeaderKey(sagaDataType), sagaId);
 
             return new SagaStateInstance(Address, sagaId, instance);
         }
@@ -46,10 +46,14 @@
             return transportMessage;
         }
 
-        void AddSagaIdToHeaders(string sagaId, Type sagaDataType, MessageContext messageContext)
+        public void CloseSaga(ISagaStateInstance sagaInstance)
         {
-            var headerKey = SystemHeaders.SagaIdHeaderKey(sagaDataType);
-            messageContext.SetHeader(headerKey, sagaId);
+            SagaStorage.Close(sagaInstance.SagaId);
+        }
+
+        public void UpdateSaga(ISagaStateInstance sagaInstance)
+        {
+            SagaStorage.Update(sagaInstance.SagaId, sagaInstance.SagaData);
         }
     }
 }
