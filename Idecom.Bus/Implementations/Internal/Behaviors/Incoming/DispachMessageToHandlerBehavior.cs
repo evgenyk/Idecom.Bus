@@ -28,11 +28,11 @@
             {
                 method.Invoke(handler, new[]
                                        {
-                                           context.IncomingTransportMessage.Message
+                                           context.IncomingMessageContext.IncomingTransportMessage.Message
                                        });
             }
             catch (Exception e) {
-                Console.WriteLine(e);
+                throw;
             }
             if (inSaga && (handler as ISaga).IsClosed)
                 context.SagaContext.HandlerClosedSaga = true;

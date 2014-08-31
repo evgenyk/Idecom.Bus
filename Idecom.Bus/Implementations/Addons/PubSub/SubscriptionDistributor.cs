@@ -22,7 +22,7 @@
         public Address LocalAddress { get; private set; }
         public ITransport Transport { get; private set; }
 
-        public void NotifySubscribersOf(Type messageType, object message, MessageContext messageContext, ChainContext chainContext)
+        public void NotifySubscribersOf(Type messageType, object message, MessageContext messageContext, ChainExecutionContext chainContext)
         {
             var subscribers = Storage.GetSubscribersFor(messageType);
 
@@ -30,7 +30,7 @@
             {
                 var transportMessage = new TransportMessage(message, LocalAddress, subscriber, MessageIntent.Publish, messageType);
                 if (messageContext.IncomingTransportMessage != null)
-                    chainContext.Current.DelayMessage(transportMessage);
+                    chainContext.DelayMessage(transportMessage);
                 else
                     Transport.Send(transportMessage);
             }

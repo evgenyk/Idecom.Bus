@@ -20,7 +20,7 @@
         }
         public void Execute(Action next, ChainExecutionContext context)
         {
-            var handlers = _messageToHandlerRoutingTable.ResolveRouteFor(context.IncomingTransportMessage.MessageType);
+            var handlers = _messageToHandlerRoutingTable.ResolveRouteFor(context.IncomingMessageContext.IncomingTransportMessage.MessageType);
             foreach (var method in handlers)
             {
                 var chain = _chains.GetChainFor(ChainIntent.IncomingMessageHandling);

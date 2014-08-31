@@ -20,8 +20,6 @@ namespace Idecom.Bus.Implementations.Behaviors
         {
             using (_container.BeginUnitOfWork())
             {
-                //PopulateCurrentExecutionContexts(context);
-
                 var behaviorQueue = new Queue<Type>(chain);
                 IBehavior behavior = null;
                 try { behavior = ExecuteNextBehavior(_container, behaviorQueue, context); }
@@ -41,7 +39,13 @@ namespace Idecom.Bus.Implementations.Behaviors
         IBehavior ExecuteNextBehavior(IContainer container, Queue<Type> behaviorQueue, ChainExecutionContext context)
         {
             var nextType = behaviorQueue.Dequeue();
-            var behavior = container.Resolve(nextType) as IBehavior;
+            IBehavior behavior = null;
+            try {
+                behavior = container.Resolve(nextType) as IBehavior;
+            }
+            catch (Exception e) {
+                throw;
+            }
             if (behavior != null)
             {
                 behavior.Execute(() => ExecuteNext(behaviorQueue, context), context);
@@ -49,33 +53,5 @@ namespace Idecom.Bus.Implementations.Behaviors
             return behavior;
         }
 
-        void PopulateCurrentExecutionContexts(ChainExecutionContext context)
-        {
-            _container.Resolve<ChainContext>().Current = context;
-
-            if (context.OutgoingMessage != null)
-            {
-                var outgoingMessageContext = _container.Resolve<OutgoingMessageContext>();
-                outgoingMessageContext.Message = context.OutgoingMessage;
-                outgoingMessageContext.MessageType = context.MessageType ?? context.OutgoingMessage.GetType();
-            }
-
-
-            if (context.IncomingTransportMessage != null)
-            {
-                var incomingMessageContext = _container.Resolve<MessageContext>();
-                incomingMessageContext.IncomingTransportMessage = context.IncomingTransportMessage;
-            }
-
-            if (context.HandlerMethod != null)
-            {
-                var handlerContext = _container.Resolve<HandlerContext>();
-                handlerContext.Method = context.HandlerMethod;
-            }
-            if (context.SagaContext != null) {
-                var sagaContext = _container.Resolve<SagaContext>();
-            }
-
-        }
     }
 }

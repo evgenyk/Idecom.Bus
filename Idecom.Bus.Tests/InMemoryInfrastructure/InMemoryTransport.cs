@@ -1,7 +1,5 @@
 ﻿namespace Idecom.Bus.Tests.InMemoryInfrastructure
 {
-    using System;
-    using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using Addressing;
     using Implementations.Behaviors;
@@ -9,14 +7,6 @@
     using Interfaces;
     using Interfaces.Behaviors;
     using Transport;
-
-    static class InMemoryQueue
-    {
-        public static void Enque(TransportMessage transportMessage)
-        {
-
-        }
-    }
 
     public class InMemoryTransport : ITransport
     {
@@ -45,7 +35,8 @@
             var executionContext = chainContext == null ? null : chainContext.Current;
 
 
-            ce.RunWithIt(chain, new ChainExecutionContext(executionContext) { IncomingTransportMessage = transportMessage });
+            var incomingMessageContext = new MessageContext(transportMessage, 1, 1);
+            ce.RunWithIt(chain, new ChainExecutionContext(executionContext) { IncomingMessageContext = incomingMessageContext});
         }
     }
 }

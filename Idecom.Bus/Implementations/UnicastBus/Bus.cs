@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using Addressing;
@@ -36,7 +35,11 @@
 
         public IMessageContext CurrentMessageContext
         {
-            get { return CurrentMessageContextInternal(); }
+            get
+            {
+                var chainContext = Container.Resolve<ChainContext>();
+                return chainContext.Current.IncomingMessageContext;
+            }
         }
 
         public bool IsStarted { get { return _isStarted; } }
@@ -143,14 +146,6 @@
             var behaviorChain = Chains.GetChainFor(ChainIntent.Publish);
 
             executor.RunWithIt(behaviorChain, chainExecutionContext);
-        }
-
-        [DebuggerStepThrough]
-        MessageContext CurrentMessageContextInternal()
-        {
-            var currentMessageContext = Container.Resolve<MessageContext>();
-            Container.Release(currentMessageContext);
-            return currentMessageContext;
         }
 
         //        void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)

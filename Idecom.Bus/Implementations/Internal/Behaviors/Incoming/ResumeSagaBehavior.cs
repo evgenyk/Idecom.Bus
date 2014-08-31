@@ -22,14 +22,14 @@
 
         public void Execute(Action next, ChainExecutionContext context)
         {
-            var handlerMethod = _handlerContext.Method;
+            var handlerMethod = context.HandlerMethod;
             if (IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType)) //this must be a saga, whether existing or a new one is a diffirent question
             {
                 var sagaDataType = handlerMethod.DeclaringType.BaseType.GenericTypeArguments.First();
-                var startSagaTypes = _messageToStartSagaMapping.ResolveRouteFor(_messageContext.IncomingTransportMessage.MessageType ?? _messageContext.IncomingTransportMessage.GetType());
+                var startSagaTypes = _messageToStartSagaMapping.ResolveRouteFor(context.IncomingMessageContext.IncomingTransportMessage.MessageType ?? context.IncomingMessageContext.IncomingTransportMessage.GetType());
                 ISagaStateInstance sagaData;
-                if (startSagaTypes != null) sagaData = _sagaManager.Start(sagaDataType, _messageContext);
-                else sagaData = _sagaManager.Resume(sagaDataType, _messageContext);
+                if (startSagaTypes != null) sagaData = _sagaManager.Start(sagaDataType, context.IncomingMessageContext);
+                else sagaData = _sagaManager.Resume(sagaDataType, context.IncomingMessageContext);
 
                 if (sagaData != null) {
                     _container.Resolve<SagaContext>().SagaState = sagaData;

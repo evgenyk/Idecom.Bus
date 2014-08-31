@@ -8,9 +8,16 @@ namespace Idecom.Bus.Implementations.UnicastBus
     {
         readonly Dictionary<string, string> _headers;
 
-        public MessageContext()
+        protected MessageContext()
         {
             _headers = new Dictionary<string, string>();
+        }
+
+        public MessageContext(TransportMessage incomingTransportMessage, int attempt, int maxAttempts):this()
+        {
+            IncomingTransportMessage = incomingTransportMessage;
+            Attempt = attempt;
+            MaxAttempts = maxAttempts;
         }
 
         public TransportMessage IncomingTransportMessage { get; set; }

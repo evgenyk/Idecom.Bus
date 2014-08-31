@@ -7,7 +7,7 @@ namespace Idecom.Bus.Interfaces.Addons.PubSub
 
     public interface ISubscriptionDistributor
     {
-        void NotifySubscribersOf(Type messageType, object message, MessageContext messageContext, ChainContext chainContext);
+        void NotifySubscribersOf(Type messageType, object message, MessageContext messageContext, ChainExecutionContext chainContext);
         void SubscribeTo(IEnumerable<Type> events);
         void Unsubscribe(IEnumerable<Type> events);
     }

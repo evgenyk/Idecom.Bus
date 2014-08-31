@@ -20,6 +20,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
         TransportMessage _incomingTransportMessage;
         readonly DelayedMessageContext _delayedMessageContext;
         SagaContext _sagaContext;
+        MessageContext _incomingMessageContext;
 
         public ChainExecutionContext(ChainExecutionContext parentContext = null)
         {
@@ -50,11 +51,11 @@ namespace Idecom.Bus.Interfaces.Behaviors
             set { _messageType = value; }
         }
 
-        public TransportMessage IncomingTransportMessage
-        {
-            get { return _incomingTransportMessage ?? (_parentContext == null ? null :_parentContext.IncomingTransportMessage); }
-            set { _incomingTransportMessage = value; }
-        }
+//        public TransportMessage IncomingTransportMessage
+//        {
+//            get { return _incomingTransportMessage ?? (_parentContext == null ? null :_parentContext.IncomingTransportMessage); }
+//            set { _incomingTransportMessage = value; }
+//        }
 
         public MethodInfo HandlerMethod { get; set; } //handler method can not be inherited as it's always local
 
@@ -67,6 +68,12 @@ namespace Idecom.Bus.Interfaces.Behaviors
             else context.DelayedMessageContext.Enqueue(transportMessage);
         }
 
+        public MessageContext IncomingMessageContext
+        {
+            get { return _incomingMessageContext ?? (_parentContext == null ? null : _parentContext.IncomingMessageContext); ; }
+            set { _incomingMessageContext = value; }
+        }
+
         public IEnumerable<TransportMessage> GetDelayedMessages(ChainExecutionContext context = null)
         {
             if (context == null) { context = this; }
@@ -75,26 +82,6 @@ namespace Idecom.Bus.Interfaces.Behaviors
                 foreach (var transportMessage in GetDelayedMessages(context._parentContext)) yield return transportMessage;
             else
                 while (context.DelayedMessageContext.DelayedMessages.Any()) yield return context.DelayedMessageContext.DelayedMessages.Dequeue();
-        }
-    }
-
-    public class DelayedMessageContext
-    {
-        readonly Queue<TransportMessage> _delayedMessages;
-
-        public DelayedMessageContext()
-        {
-            _delayedMessages = new Queue<TransportMessage>();
-        }
-
-        public Queue<TransportMessage> DelayedMessages
-        {
-            get { return _delayedMessages; }
-        }
-
-        public void Enqueue(TransportMessage transportMessage)
-        {
-            DelayedMessages.Enqueue(transportMessage);
         }
     }
 }
