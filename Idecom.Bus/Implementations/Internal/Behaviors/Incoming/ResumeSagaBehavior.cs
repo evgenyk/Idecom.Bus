@@ -32,14 +32,14 @@
                 else sagaData = _sagaManager.Resume(sagaDataType, context.IncomingMessageContext);
 
                 if (sagaData != null) {
-                    _container.Resolve<SagaContext>().SagaState = sagaData;
+                    context.SagaContext = new SagaContext { SagaState = sagaData };
                 }
 
                 next();
 
                 if (sagaData == null) return;
 
-                if (_container.Resolve<SagaContext>().HandlerClosedSaga) { _sagaManager.CloseSaga(sagaData); }
+                if (context.SagaContext.HandlerClosedSaga) { _sagaManager.CloseSaga(sagaData); }
                 else _sagaManager.UpdateSaga(sagaData);
             }
             else

@@ -16,7 +16,7 @@
 
         public void Execute(Action next, ChainExecutionContext context)
         {
-            _distributor.NotifySubscribersOf(context.OutgoingMessage.GetType(), context.OutgoingMessage, context.IncomingMessageContext, context);
+            _distributor.NotifySubscribersOf(context.OutgoingMessageType, context.OutgoingMessage, context.IncomingMessageContext, transportMessage=>context.DelayMessage(transportMessage));
             next();
         }
     }

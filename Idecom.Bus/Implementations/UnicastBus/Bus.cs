@@ -121,7 +121,7 @@
         public void Reply(object message)
         {
             var executor = new ChainExecutor(Container);
-            executor.RunWithIt(Chains.GetChainFor(ChainIntent.Reply), new ChainExecutionContext { OutgoingMessage = message, MessageType = message.GetType() });
+            executor.RunWithIt(Chains.GetChainFor(ChainIntent.Reply), new ChainExecutionContext { OutgoingMessage = message, OutgoingMessageType = message.GetType() });
             throw new NotImplementedException("Finish this later");
 
             //            if (LocalAddress.Equals(CurrentMessageContext.IncomingTransportMessage.SourceAddress))
@@ -142,7 +142,7 @@
             var chainContext = Container.Resolve<ChainContext>();
             var executionContext = chainContext == null ? null : chainContext.Current;
 
-            var chainExecutionContext = new ChainExecutionContext(executionContext) { OutgoingMessage = message, MessageType = typeof(T) };
+            var chainExecutionContext = new ChainExecutionContext(executionContext) { OutgoingMessage = message, OutgoingMessageType = typeof(T) };
             var behaviorChain = Chains.GetChainFor(ChainIntent.Publish);
 
             executor.RunWithIt(behaviorChain, chainExecutionContext);

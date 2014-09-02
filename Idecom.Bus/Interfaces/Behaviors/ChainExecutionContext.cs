@@ -45,17 +45,11 @@ namespace Idecom.Bus.Interfaces.Behaviors
             set { _outgoingMessage = value; }
         }
 
-        public Type MessageType
+        public Type OutgoingMessageType
         {
-            get { return _messageType ?? (_parentContext == null ? null : _parentContext.MessageType); }
+            get { return _messageType ?? (_parentContext == null ? null : _parentContext.OutgoingMessageType); }
             set { _messageType = value; }
         }
-
-//        public TransportMessage IncomingTransportMessage
-//        {
-//            get { return _incomingTransportMessage ?? (_parentContext == null ? null :_parentContext.IncomingTransportMessage); }
-//            set { _incomingTransportMessage = value; }
-//        }
 
         public MethodInfo HandlerMethod { get; set; } //handler method can not be inherited as it's always local
 
