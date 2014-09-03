@@ -3,7 +3,6 @@
     using System;
     using Interfaces.Addons.PubSub;
     using Interfaces.Behaviors;
-    using UnicastBus;
 
     public class TransportPublishBehavior : IBehavior
     {

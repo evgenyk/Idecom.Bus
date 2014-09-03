@@ -19,21 +19,12 @@
             var method = context.HandlerMethod;
             var handler = _container.Resolve(method.DeclaringType);
 
-
             var inSaga = handler is ISaga && context.SagaContext != null;
             if (inSaga)
                 handler.GetType().GetProperty("Data").SetValue(handler, context.SagaContext.SagaState.SagaData);
 
-            try
-            {
-                method.Invoke(handler, new[]
-                                       {
-                                           context.IncomingMessageContext.IncomingTransportMessage.Message
-                                       });
-            }
-            catch (Exception e) {
-                throw;
-            }
+            method.Invoke(handler, new[] { context.IncomingMessageContext.IncomingTransportMessage.Message });
+
             if (inSaga && (handler as ISaga).IsClosed)
                 context.SagaContext.HandlerClosedSaga = true;
 

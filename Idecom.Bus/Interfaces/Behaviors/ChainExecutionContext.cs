@@ -17,7 +17,6 @@ namespace Idecom.Bus.Interfaces.Behaviors
         readonly ChainExecutionContext _parentContext;
         object _outgoingMessage;
         Type _messageType;
-        TransportMessage _incomingTransportMessage;
         readonly DelayedMessageContext _delayedMessageContext;
         SagaContext _sagaContext;
         MessageContext _incomingMessageContext;
