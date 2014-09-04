@@ -8,7 +8,6 @@
         public void Execute(Action next, ChainExecutionContext context)
         {
             throw new NotImplementedException();
-            next();
         }
     }
 }

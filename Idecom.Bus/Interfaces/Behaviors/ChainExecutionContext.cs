@@ -4,6 +4,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Threading;
     using Implementations.UnicastBus;
     using Transport;
 
@@ -14,39 +15,41 @@ namespace Idecom.Bus.Interfaces.Behaviors
 
     public class ChainExecutionContext
     {
-        readonly ChainExecutionContext _parentContext;
+        readonly ThreadLocal<ChainExecutionContext> _parentContext;
+        readonly ThreadLocal<DelayedMessageContext> _delayedMessageContext;
+
         object _outgoingMessage;
         Type _messageType;
-        readonly DelayedMessageContext _delayedMessageContext;
         SagaContext _sagaContext;
-        MessageContext _incomingMessageContext;
+        ThreadLocal<MessageContext> _incomingMessageContext;
 
         public ChainExecutionContext(ChainExecutionContext parentContext = null)
         {
-            _parentContext = parentContext;
-            _delayedMessageContext = new DelayedMessageContext();
+            _parentContext = parentContext != null ? new ThreadLocal<ChainExecutionContext>(() => parentContext) : null;
+            _delayedMessageContext = new ThreadLocal<DelayedMessageContext>(() => new DelayedMessageContext());
         }
 
         public SagaContext SagaContext
         {
-            get { return _sagaContext ?? (_parentContext == null ? null : _parentContext.SagaContext); }
+            get { return _sagaContext ?? (_parentContext == null ? null : _parentContext.Value.SagaContext); }
             set { _sagaContext = value; }
         }
 
         public DelayedMessageContext DelayedMessageContext
         {
-            get { return _delayedMessageContext ?? (_parentContext == null ? null : _parentContext.DelayedMessageContext); }
+
+            get { return _delayedMessageContext.Value ?? (_parentContext.IsValueCreated ? null : _parentContext.Value.DelayedMessageContext); }
         }
 
         public object OutgoingMessage
         {
-            get { return _outgoingMessage ?? (_parentContext == null ? null : _parentContext.OutgoingMessage); }
+            get { return _outgoingMessage ?? (_parentContext.IsValueCreated ? null : _parentContext.Value.OutgoingMessage); }
             set { _outgoingMessage = value; }
         }
 
         public Type OutgoingMessageType
         {
-            get { return _messageType ?? (_parentContext == null ? null : _parentContext.OutgoingMessageType); }
+            get { return _messageType ?? (_parentContext.IsValueCreated ? null : _parentContext.Value.OutgoingMessageType); }
             set { _messageType = value; }
         }
 
@@ -57,14 +60,21 @@ namespace Idecom.Bus.Interfaces.Behaviors
             if (context == null) { context = this; }
 
             if (context._parentContext != null)
-                DelayMessage(transportMessage, context._parentContext);
+                DelayMessage(transportMessage, context._parentContext.Value);
+
             else context.DelayedMessageContext.Enqueue(transportMessage);
         }
 
         public MessageContext IncomingMessageContext
         {
-            get { return _incomingMessageContext ?? (_parentContext == null ? null : _parentContext.IncomingMessageContext); ; }
-            set { _incomingMessageContext = value; }
+            get
+            {
+                if (_incomingMessageContext != null) 
+                    return _incomingMessageContext.Value;
+                else 
+                    return _parentContext == null ? null : _parentContext.Value.IncomingMessageContext;
+            }
+            set { _incomingMessageContext = new ThreadLocal<MessageContext>(() => value); }
         }
 
         public IEnumerable<TransportMessage> GetDelayedMessages(ChainExecutionContext context = null)
@@ -72,7 +82,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
             if (context == null) { context = this; }
 
             if (context._parentContext != null)
-                foreach (var transportMessage in GetDelayedMessages(context._parentContext)) yield return transportMessage;
+                foreach (var transportMessage in GetDelayedMessages(context._parentContext.Value)) yield return transportMessage;
             else
                 while (context.DelayedMessageContext.DelayedMessages.Any()) yield return context.DelayedMessageContext.DelayedMessages.Dequeue();
         }
