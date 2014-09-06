@@ -9,18 +9,16 @@
 
     public class ResumeSagaBehavior: IBehavior
     {
-        readonly IContainer _container;
         readonly IMessageToStartSagaMapping _messageToStartSagaMapping;
         readonly ISagaManager _sagaManager;
 
-        public ResumeSagaBehavior(IContainer container, IMessageToStartSagaMapping messageToStartSagaMapping, ISagaManager sagaManager)
+        public ResumeSagaBehavior(IMessageToStartSagaMapping messageToStartSagaMapping, ISagaManager sagaManager)
         {
-            _container = container;
             _messageToStartSagaMapping = messageToStartSagaMapping;
             _sagaManager = sagaManager;
         }
 
-        public void Execute(Action next, ChainExecutionContext context)
+        public void Execute(Action next, IChainExecutionContext context)
         {
             var handlerMethod = context.HandlerMethod;
             if (IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType)) //this must be a saga, whether existing or a new one is a diffirent question

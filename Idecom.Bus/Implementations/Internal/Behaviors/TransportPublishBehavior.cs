@@ -13,7 +13,7 @@
             _distributor = distributor;
         }
 
-        public void Execute(Action next, ChainExecutionContext context)
+        public void Execute(Action next, IChainExecutionContext context)
         {
             _distributor.NotifySubscribersOf(context.OutgoingMessageType, context.OutgoingMessage, context.IncomingMessageContext, transportMessage=>context.DelayMessage(transportMessage));
             next();

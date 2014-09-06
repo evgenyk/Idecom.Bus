@@ -31,18 +31,18 @@
         public ISagaStorage SagaStorage { get; set; }
         public ISagaManager SagaManager { get; set; }
         public IBehaviorChains Chains { get; set; }
+        public IChainExecutionContext GlobalExecutionContext { get; set; }
 
 
         public IMessageContext CurrentMessageContext
         {
-            get
-            {
-                var chainContext = Container.Resolve<ChainContext>();
-                return chainContext.Current.IncomingMessageContext;
-            }
+            get { return GlobalExecutionContext.IncomingMessageContext; }
         }
 
-        public bool IsStarted { get { return _isStarted; } }
+        public bool IsStarted
+        {
+            get { return _isStarted; }
+        }
 
         public IBusInstance Start()
         {
@@ -67,7 +67,7 @@
                 ApplyHandlerMapping(events, commands, allTypes);
                 var eventsWithHandlers = events.Where(e => MessageToHandlerRoutingTable.ResolveRouteFor(e).Any()).ToList();
 
-                var behaviors = allTypes.Where(x => typeof(IBehavior).IsAssignableFrom(x) && !x.IsInterface).ToList();
+                var behaviors = allTypes.Where(x => typeof (IBehavior).IsAssignableFrom(x) && !x.IsInterface).ToList();
                 behaviors.ForEach(x => Container.Configure(x, ComponentLifecycle.PerUnitOfWork));
 
                 //                Transport.TransportMessageReceived += TransportMessageReceived;
@@ -110,18 +110,34 @@
 
         public void Send(object message)
         {
-            new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.Send), new ChainExecutionContext { OutgoingMessage = message });
+            using (var executionContext = GlobalExecutionContext.Push(context =>
+                                                                      {
+                                                                          context.OutgoingMessage = message;
+                                                                          context.OutgoingMessageType = message.GetType();
+                                                                      })) {
+                                                                          new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.Send), executionContext);
+                                                                      }
         }
 
         public void SendLocal(object message)
         {
-            new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.SendLocal), new ChainExecutionContext { OutgoingMessage = message });
+            using (var executionContext = GlobalExecutionContext.Push(context => { context.OutgoingMessage = message; })) {
+                new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.SendLocal), executionContext);
+            }
         }
 
         public void Reply(object message)
         {
             var executor = new ChainExecutor(Container);
-            executor.RunWithIt(Chains.GetChainFor(ChainIntent.Reply), new ChainExecutionContext { OutgoingMessage = message, OutgoingMessageType = message.GetType() });
+
+            using (var executionContext = GlobalExecutionContext.Push(context =>
+                                                                      {
+                                                                          context.OutgoingMessage = message;
+                                                                          context.OutgoingMessageType = message.GetType();
+                                                                      })) {
+                executor.RunWithIt(Chains.GetChainFor(ChainIntent.Reply), executionContext);
+            }
+
             throw new NotImplementedException("Finish this later");
 
             //            if (LocalAddress.Equals(CurrentMessageContext.IncomingTransportMessage.SourceAddress))
@@ -133,19 +149,21 @@
 
         public void Raise<T>(Action<T> action) where T : class
         {
-
             var message = InstanceCreator.CreateInstanceOf<T>();
             if (action != null) action(message);
 
             var executor = new ChainExecutor(Container);
-            
-            var chainContext = Container.Resolve<ChainContext>();
-            var executionContext = chainContext == null ? null : chainContext.Current;
 
-            var chainExecutionContext = new ChainExecutionContext(executionContext) { OutgoingMessage = message, OutgoingMessageType = typeof(T) };
-            var behaviorChain = Chains.GetChainFor(ChainIntent.Publish);
+            using (var context = GlobalExecutionContext.Push(childContext =>
+                                                             {
+                                                                 childContext.OutgoingMessage = message;
+                                                                 childContext.OutgoingMessageType = typeof (T);
+                                                             }))
+            {
+                var behaviorChain = Chains.GetChainFor(ChainIntent.Publish);
 
-            executor.RunWithIt(behaviorChain, chainExecutionContext);
+                executor.RunWithIt(behaviorChain, context);
+            }
         }
 
         //        void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
@@ -183,10 +201,10 @@
         bool ExecuteHandler(object message, Type messageType, MethodInfo handlerMethod, MessageContext messageContext)
         {
             var handler = Container.Resolve(handlerMethod.DeclaringType);
-            Action executeHandler = () => handlerMethod.Invoke(handler, new[] { message });
+            Action executeHandler = () => handlerMethod.Invoke(handler, new[] {message});
 
 
-            if (IsSubclassOfRawGeneric(typeof(Saga<>), handlerMethod.DeclaringType)) //this must be a saga, whether existing or a new one is a diffirent question
+            if (IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType)) //this must be a saga, whether existing or a new one is a diffirent question
             {
                 var sagaDataType = handlerMethod.DeclaringType.BaseType.GenericTypeArguments.First();
                 var startSagaTypes = MessageToStartSagaMapping.ResolveRouteFor(messageType);
@@ -203,13 +221,12 @@
                 var sagaDataProperty = handler.GetType().GetProperty("Data");
                 sagaDataProperty.SetValue(handler, sagaData.SagaData);
 
-                try
-                {
+                try {
                     executeHandler();
                 }
                 finally
                 {
-                    if (((ISaga)handler).IsClosed)
+                    if (((ISaga) handler).IsClosed)
                         SagaStorage.Close(sagaData.SagaId);
                     else
                         SagaStorage.Update(sagaData.SagaId, sagaData.SagaData);
@@ -226,7 +243,7 @@
 
         static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
         {
-            while (toCheck != null && toCheck != typeof(object))
+            while (toCheck != null && toCheck != typeof (object))
             {
                 var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
                 if (generic == cur) { return true; }
@@ -256,7 +273,7 @@
             var handlers = allTypes.Where(EffectiveConfiguration.IsHandler).SelectMany(type => type.GetMethods()
                                                                                                    .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
                                                                                                                 .Where(type.GetInterfaces()
-                                                                                                                           .Where(intface => implementsType(intface, typeof(IHandle<>)))
+                                                                                                                           .Where(intface => implementsType(intface, typeof (IHandle<>)))
                                                                                                                            .SelectMany(intfs => intfs.GenericTypeArguments).Contains)
                                                                                                                 .Any()));
 
@@ -265,7 +282,7 @@
                 var firstParameter = methodInfo.GetParameters().FirstOrDefault();
                 if (firstParameter == null) continue;
 
-                MessageToHandlerRoutingTable.RouteTypes(new[] { firstParameter.ParameterType }, methodInfo);
+                MessageToHandlerRoutingTable.RouteTypes(new[] {firstParameter.ParameterType}, methodInfo);
 
                 var methods = MessageToHandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
                 foreach (var method in methods)
@@ -274,15 +291,14 @@
 
 
             var enumerable = allTypes.Where(x => x.GetInterfaces()
-                                                  .Any(intface => implementsType(intface, typeof(IStartThisSagaWhenReceive<>)))).ToList();
+                                                  .Any(intface => implementsType(intface, typeof (IStartThisSagaWhenReceive<>)))).ToList();
             var messageToStartSagaMapping = enumerable
                 .SelectMany(type => type.GetInterfaces()
-                                        .Where(intface => implementsType(intface, typeof(IStartThisSagaWhenReceive<>)))
+                                        .Where(intface => implementsType(intface, typeof (IStartThisSagaWhenReceive<>)))
                                         .Where(intfs => intfs.IsGenericType && intfs.GetGenericArguments().Any())
-                                        .Select(y => new { type, message = y.GenericTypeArguments.First() })).ToList();
+                                        .Select(y => new {type, message = y.GenericTypeArguments.First()})).ToList();
 
             messageToStartSagaMapping.ForEach(x => MessageToStartSagaMapping.RouteType(x.message, x.type));
         }
     }
-
 }

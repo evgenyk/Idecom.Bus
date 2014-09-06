@@ -3,7 +3,6 @@ namespace Idecom.Bus.Implementations.Internal.Behaviors.Incoming
     using System;
     using Interfaces;
     using Interfaces.Behaviors;
-    using UnicastBus;
 
     public class SendDelayedMessagesBehavior : IBehavior
     {
@@ -14,7 +13,7 @@ namespace Idecom.Bus.Implementations.Internal.Behaviors.Incoming
             _transport = transport;
         }
 
-        public void Execute(Action next, ChainExecutionContext context)
+        public void Execute(Action next, IChainExecutionContext context)
         {
             foreach (var transportMessage in context.GetDelayedMessages())
             {

@@ -8,12 +8,20 @@ namespace Idecom.Bus.Interfaces.Behaviors
     using Implementations.UnicastBus;
     using Transport;
 
-    public class ChainContext
+    public interface IChainExecutionContext: IDisposable
     {
-        public ChainExecutionContext Current { get; set; }
+        MessageContext IncomingMessageContext { get; set; }
+        SagaContext SagaContext { get; set; }
+        DelayedMessageContext DelayedMessageContext { get; }
+        object OutgoingMessage { get; set; }
+        Type OutgoingMessageType { get; set; }
+        MethodInfo HandlerMethod { get; set; }
+        IChainExecutionContext Push(Action<IChainExecutionContext> populator);
+        void DelayMessage(TransportMessage transportMessage, ChainExecutionContext context = null);
+        IEnumerable<TransportMessage> GetDelayedMessages(ChainExecutionContext context = null);
     }
 
-    public class ChainExecutionContext
+    public class ChainExecutionContext : IChainExecutionContext
     {
         readonly ThreadLocal<ChainExecutionContext> _parentContext;
         readonly ThreadLocal<DelayedMessageContext> _delayedMessageContext;
@@ -23,7 +31,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
         SagaContext _sagaContext;
         ThreadLocal<MessageContext> _incomingMessageContext;
 
-        public ChainExecutionContext(ChainExecutionContext parentContext = null)
+        protected ChainExecutionContext(ChainExecutionContext parentContext = null)
         {
             _parentContext = parentContext != null ? new ThreadLocal<ChainExecutionContext>(() => parentContext) : null;
             _delayedMessageContext = new ThreadLocal<DelayedMessageContext>(() => new DelayedMessageContext());
@@ -77,6 +85,11 @@ namespace Idecom.Bus.Interfaces.Behaviors
             set { _incomingMessageContext = new ThreadLocal<MessageContext>(() => value); }
         }
 
+        public IChainExecutionContext Push(Action<IChainExecutionContext> populator)
+        {
+            return new ChainExecutionContext(this);
+        }
+
         public IEnumerable<TransportMessage> GetDelayedMessages(ChainExecutionContext context = null)
         {
             if (context == null) { context = this; }
@@ -85,6 +98,10 @@ namespace Idecom.Bus.Interfaces.Behaviors
                 foreach (var transportMessage in GetDelayedMessages(context._parentContext.Value)) yield return transportMessage;
             else
                 while (context.DelayedMessageContext.DelayedMessages.Any()) yield return context.DelayedMessageContext.DelayedMessages.Dequeue();
+        }
+
+        public void Dispose()
+        {
         }
     }
 }

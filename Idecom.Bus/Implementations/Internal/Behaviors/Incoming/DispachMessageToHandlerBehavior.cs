@@ -14,7 +14,7 @@
             _container = container;
         }
 
-        public void Execute(Action next, ChainExecutionContext context)
+        public void Execute(Action next, IChainExecutionContext context)
         {
             var method = context.HandlerMethod;
             var handler = _container.Resolve(method.DeclaringType);

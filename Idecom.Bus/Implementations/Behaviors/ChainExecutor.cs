@@ -5,7 +5,6 @@ namespace Idecom.Bus.Implementations.Behaviors
     using System.Linq;
     using Interfaces;
     using Interfaces.Behaviors;
-    using UnicastBus;
 
     public class ChainExecutor : IChainExecutor
     {
@@ -16,7 +15,7 @@ namespace Idecom.Bus.Implementations.Behaviors
             _container = container;
         }
 
-        public virtual void RunWithIt(IBehaviorChain chain, ChainExecutionContext context)
+        public virtual void RunWithIt(IBehaviorChain chain, IChainExecutionContext context)
         {
             using (_container.BeginUnitOfWork())
             {
@@ -27,7 +26,7 @@ namespace Idecom.Bus.Implementations.Behaviors
             }
         }
 
-        protected void ExecuteNext(Queue<Type> behaviorQueue, ChainExecutionContext context)
+        protected void ExecuteNext(Queue<Type> behaviorQueue, IChainExecutionContext context)
         {
             if (!behaviorQueue.Any()) { return; }
 
@@ -36,7 +35,7 @@ namespace Idecom.Bus.Implementations.Behaviors
             finally { _container.Release(behavior); }
         }
 
-        IBehavior ExecuteNextBehavior(IContainer container, Queue<Type> behaviorQueue, ChainExecutionContext context)
+        IBehavior ExecuteNextBehavior(IContainer container, Queue<Type> behaviorQueue, IChainExecutionContext context)
         {
             var nextType = behaviorQueue.Dequeue();
             

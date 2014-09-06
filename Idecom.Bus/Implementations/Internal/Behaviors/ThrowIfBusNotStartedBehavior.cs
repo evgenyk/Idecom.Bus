@@ -13,7 +13,7 @@
             _bus = bus;
         }
 
-        public void Execute(Action next, ChainExecutionContext context)
+        public void Execute(Action next, IChainExecutionContext context)
         {
             if (!_bus.IsStarted) { throw new Exception("Bus should be strated to process any messages"); }
             next();

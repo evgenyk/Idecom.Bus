@@ -17,7 +17,7 @@
             _localAddress = localAddress;
         }
 
-        public void Execute(Action next, ChainExecutionContext context)
+        public void Execute(Action next, IChainExecutionContext context)
         {
             var transportMessage = new TransportMessage(context.OutgoingMessage, _localAddress, _localAddress, MessageIntent.SendLocal, context.OutgoingMessage.GetType());
             _transport.Send(transportMessage);

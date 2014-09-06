@@ -5,7 +5,7 @@
 
     public class ReplyBehavior : IBehavior
     {
-        public void Execute(Action next, ChainExecutionContext context)
+        public void Execute(Action next, IChainExecutionContext context)
         {
             throw new NotImplementedException();
         }

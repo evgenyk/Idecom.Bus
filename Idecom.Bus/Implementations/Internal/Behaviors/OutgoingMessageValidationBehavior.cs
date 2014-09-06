@@ -6,7 +6,7 @@
 
     public class OutgoingMessageValidationBehavior: IBehavior
     {
-        public void Execute(Action next, ChainExecutionContext context)
+        public void Execute(Action next, IChainExecutionContext context)
         {
             var vc = new ValidationContext(context.OutgoingMessage, null, null);
             Validator.ValidateObject(context.OutgoingMessage, vc);

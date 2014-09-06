@@ -16,6 +16,7 @@
         public int WorkersCount { get; set; }
         public IBehaviorChains Chains { get; set; }
         public IMessageSerializer Serializer { get; set; }
+        public IChainExecutionContext GlobalExecutionContext { get; set; }
 
         public void Send(TransportMessage transportMessage)
         {
@@ -31,12 +32,14 @@
             var ce = new ChainExecutor(Container);
             var chain = Chains.GetChainFor(ChainIntent.TransportMessageReceive);
 
-            var chainContext = Container.Resolve<ChainContext>();
-            var executionContext = chainContext == null ? null : chainContext.Current;
+            using (var ct = GlobalExecutionContext.Push(context =>
+                                                        {
+                                                            context.IncomingMessageContext = new MessageContext(transportMessage, 1, 1);
+                                                        }))
+            {
+                ce.RunWithIt(chain, ct);
+            }
 
-
-            var incomingMessageContext = new MessageContext(transportMessage, 1, 1);
-            ce.RunWithIt(chain, new ChainExecutionContext(executionContext) { IncomingMessageContext = incomingMessageContext});
         }
     }
 }
