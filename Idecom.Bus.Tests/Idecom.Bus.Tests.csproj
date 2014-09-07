@@ -53,6 +53,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BehaviorTests\ChainExecutionContextTests.cs" />
     <Compile Include="BehaviorTests\OutgoingMessageValidationTests.cs" />
     <Compile Include="InMemoryInfrastructure\InMemoryConfiguration.cs" />
     <Compile Include="InMemoryInfrastructure\InMemorySagaPersister.cs" />

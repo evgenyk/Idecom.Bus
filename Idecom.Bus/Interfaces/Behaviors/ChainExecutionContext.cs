@@ -26,15 +26,19 @@ namespace Idecom.Bus.Interfaces.Behaviors
         readonly ThreadLocal<ChainExecutionContext> _parentContext;
         readonly ThreadLocal<DelayedMessageContext> _delayedMessageContext;
 
-        object _outgoingMessage;
+        ThreadLocal<object> _outgoingMessage;
         Type _messageType;
         SagaContext _sagaContext;
         ThreadLocal<MessageContext> _incomingMessageContext;
 
-        protected ChainExecutionContext(ChainExecutionContext parentContext = null)
+        public ChainExecutionContext()
+        {
+            _delayedMessageContext = new ThreadLocal<DelayedMessageContext>(() => new DelayedMessageContext());
+        }
+
+        protected ChainExecutionContext(ChainExecutionContext parentContext = null): this()
         {
             _parentContext = parentContext != null ? new ThreadLocal<ChainExecutionContext>(() => parentContext) : null;
-            _delayedMessageContext = new ThreadLocal<DelayedMessageContext>(() => new DelayedMessageContext());
         }
 
         public SagaContext SagaContext
@@ -51,8 +55,19 @@ namespace Idecom.Bus.Interfaces.Behaviors
 
         public object OutgoingMessage
         {
-            get { return _outgoingMessage ?? (_parentContext.IsValueCreated ? null : _parentContext.Value.OutgoingMessage); }
-            set { _outgoingMessage = value; }
+            get
+            {
+                if (_outgoingMessage != null) { return _outgoingMessage.Value; }
+                else if (_parentContext != null)
+                {
+                    var parentContextValue = _parentContext.Value;
+                    if (parentContextValue == null) { return parentContextValue; }
+                    else
+                    { return parentContextValue.OutgoingMessage; }
+                }
+                return _outgoingMessage ?? (_parentContext.IsValueCreated ? null : _parentContext.Value.OutgoingMessage);
+            }
+            set { _outgoingMessage = new ThreadLocal<object>(() => value); }
         }
 
         public Type OutgoingMessageType
@@ -87,7 +102,9 @@ namespace Idecom.Bus.Interfaces.Behaviors
 
         public IChainExecutionContext Push(Action<IChainExecutionContext> populator)
         {
-            return new ChainExecutionContext(this);
+            var chainExecutionContext = new ChainExecutionContext(this);
+            populator(chainExecutionContext);
+            return chainExecutionContext;
         }
 
         public IEnumerable<TransportMessage> GetDelayedMessages(ChainExecutionContext context = null)

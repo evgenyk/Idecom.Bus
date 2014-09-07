@@ -7,6 +7,7 @@
     using Addressing;
     using Behaviors;
     using Interfaces;
+    using Interfaces.Behaviors;
     using Internal;
     using UnicastBus;
 
@@ -49,7 +50,7 @@
                 value.Configure<MessageToHandlerRoutingTable>(ComponentLifecycle.Singleton);
                 value.Configure<MessageToStartSagaMapping>(ComponentLifecycle.Singleton);
 
-                
+                value.ConfigureInstance(new ChainExecutionContext());
 
                 _container = value;
             }
