@@ -15,7 +15,8 @@
 
         public void Execute(Action next, IChainExecutionContext context)
         {
-            _distributor.NotifySubscribersOf(context.OutgoingMessageType, context.OutgoingMessage, context.IncomingMessageContext, transportMessage=>context.DelayMessage(transportMessage));
+            var incomingMessageContext = context.IncomingMessageContext;
+            _distributor.NotifySubscribersOf(context.OutgoingMessageType, context.OutgoingMessage, incomingMessageContext, transportMessage=>context.DelayMessage(transportMessage));
             next();
         }
     }

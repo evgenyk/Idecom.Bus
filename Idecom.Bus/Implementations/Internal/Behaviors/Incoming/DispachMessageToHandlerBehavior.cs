@@ -1,6 +1,8 @@
 ﻿namespace Idecom.Bus.Implementations.Internal.Behaviors.Incoming
 {
     using System;
+    using System.Linq;
+    using System.Linq.Expressions;
     using Interfaces;
     using Interfaces.Addons.Sagas;
     using Interfaces.Behaviors;
@@ -23,7 +25,11 @@
             if (inSaga)
                 handler.GetType().GetProperty("Data").SetValue(handler, context.SagaContext.SagaState.SagaData);
 
-            method.Invoke(handler, new[] { context.IncomingMessageContext.IncomingTransportMessage.Message });
+            var methodToCall = Expression.Parameter(typeof(object));
+            var handledMessage = Expression.Parameter(typeof(object));
+
+            var lambda = Expression.Lambda<Action<object, object>>(Expression.Call(Expression.Convert(methodToCall, method.DeclaringType), method, Expression.Convert(handledMessage, method.GetParameters().First().ParameterType)), methodToCall, handledMessage).Compile();
+            lambda(handler, context.IncomingMessageContext.IncomingTransportMessage.Message);
 
             if (inSaga && (handler as ISaga).IsClosed)
                 context.SagaContext.HandlerClosedSaga = true;
