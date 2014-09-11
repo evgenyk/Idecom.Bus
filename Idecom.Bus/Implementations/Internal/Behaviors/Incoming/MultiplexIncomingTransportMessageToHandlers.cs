@@ -1,6 +1,7 @@
 ﻿namespace Idecom.Bus.Implementations.Internal.Behaviors.Incoming
 {
     using System;
+    using System.Linq;
     using Implementations.Behaviors;
     using Interfaces;
     using Interfaces.Behaviors;
@@ -21,6 +22,12 @@
         public void Execute(Action next, IChainExecutionContext context)
         {
             var handlers = _messageToHandlerRoutingTable.ResolveRouteFor(context.IncomingMessageContext.IncomingTransportMessage.MessageType);
+
+            if (!handlers.Any()) {
+                //TODO: throw new Exception(string.Format("Count not find handlers for an incoming message of type {0}", context.IncomingMessageContext.IncomingTransportMessage.MessageType));
+                var heh = 2;
+            }
+
             foreach (var method in handlers)
             {
                 var chain = _chains.GetChainFor(ChainIntent.IncomingMessageHandling);

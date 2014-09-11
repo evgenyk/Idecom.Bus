@@ -31,14 +31,13 @@ namespace Idecom.Bus.Interfaces.Behaviors
         SagaContext _sagaContext;
         ThreadLocal<MessageContext> _incomingMessageContext;
 
-        public ChainExecutionContext()
-        {
-            _delayedMessageContext = new ThreadLocal<DelayedMessageContext>(() => new DelayedMessageContext());
-        }
-
-        protected ChainExecutionContext(ChainExecutionContext parentContext = null): this()
+        internal ChainExecutionContext(ChainExecutionContext parentContext = null)
         {
             _parentContext = parentContext != null ? new ThreadLocal<ChainExecutionContext>(() => parentContext) : null;
+
+            if (_parentContext == null) {
+                _delayedMessageContext = new ThreadLocal<DelayedMessageContext>(() => new DelayedMessageContext());
+            }
         }
 
         public SagaContext SagaContext
@@ -97,7 +96,15 @@ namespace Idecom.Bus.Interfaces.Behaviors
                 else 
                     return _parentContext == null ? null : _parentContext.Value.IncomingMessageContext;
             }
-            set { _incomingMessageContext = new ThreadLocal<MessageContext>(() => value); }
+            set
+            {
+                if (_parentContext == null) {
+                    _incomingMessageContext = new ThreadLocal<MessageContext>(() => value);
+                }
+                else
+                { _parentContext.Value.IncomingMessageContext = value; }
+                
+            }
         }
 
         public IChainExecutionContext Push(Action<IChainExecutionContext> populator)

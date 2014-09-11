@@ -2,11 +2,18 @@
 {
     using System.Threading.Tasks;
     using Addressing;
+    using Castle.MicroKernel;
     using Implementations.Behaviors;
+    using Implementations.Internal.Behaviors.Incoming;
     using Implementations.UnicastBus;
     using Interfaces;
     using Interfaces.Behaviors;
     using Transport;
+
+    public class InMemoryQueue
+    {
+        implement pub sub with  multiple transports
+    }
 
     public class InMemoryTransport : ITransport
     {
@@ -16,7 +23,6 @@
         public int WorkersCount { get; set; }
         public IBehaviorChains Chains { get; set; }
         public IMessageSerializer Serializer { get; set; }
-        public IChainExecutionContext GlobalExecutionContext { get; set; }
 
         public void Send(TransportMessage transportMessage)
         {
@@ -32,7 +38,7 @@
             var ce = new ChainExecutor(Container);
             var chain = Chains.GetChainFor(ChainIntent.TransportMessageReceive);
 
-            using (var ct = GlobalExecutionContext.Push(context =>
+            using (var ct = AmbientChainContext.Current.Push(context =>
                                                         {
                                                             context.IncomingMessageContext = new MessageContext(transportMessage, 1, 1);
                                                         }))

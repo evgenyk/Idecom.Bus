@@ -1,5 +1,6 @@
 ﻿namespace Idecom.Bus.Tests.BehaviorTests
 {
+    using System;
     using Addressing;
     using Implementations.UnicastBus;
     using Interfaces.Behaviors;
@@ -8,12 +9,14 @@
 
     public class ChainExecutionContextTests
     {
+        public static ChainExecutionContext RootContext;
+
         [Fact]
         public void OutgoingMessageAreReadFromTheRootContextTest()
         {
             var outgoingMessage = new object();
 
-            var rootContext = new ChainExecutionContext();
+            var rootContext = AmbientChainContext.Current;
             using (var inner = rootContext.Push(context =>
                                     {
                                         context.OutgoingMessage = outgoingMessage;
@@ -36,8 +39,8 @@
         {
             var incomingMessage = new object();
 
-            var rootContext = new ChainExecutionContext();
-            using (var inner = rootContext.Push(context =>
+            RootContext = AmbientChainContext.Current;
+            using (var inner = RootContext.Push(context =>
                                                 {
                                                     var incomingTransportMessage = new TransportMessage(incomingMessage, new Address("src"), new Address("target"), MessageIntent.Publish, typeof(object));
                                                     var incomingMessageContext = new MessageContext(incomingTransportMessage,0, 0 );
@@ -49,10 +52,22 @@
                 using (var innerInner = inner.Push(context => {}))
                 {
                     Assert.NotNull(innerInner.IncomingMessageContext);
+
+                    var handlerTest = new HandlerContextTest();
+                    handlerTest.GetType().GetMethod("Handle").Invoke(handlerTest, new[] { new object() });
+
                 }
             }
             
 
-        } 
+        }
+
+        class HandlerContextTest
+        {
+            public void Handle(object message)
+            {
+                Assert.NotNull(AmbientChainContext.Current.IncomingMessageContext);
+            }
+        }
     }
 }

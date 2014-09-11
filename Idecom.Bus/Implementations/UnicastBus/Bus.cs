@@ -31,12 +31,11 @@
         public ISagaStorage SagaStorage { get; set; }
         public ISagaManager SagaManager { get; set; }
         public IBehaviorChains Chains { get; set; }
-        public IChainExecutionContext GlobalExecutionContext { get; set; }
 
 
         public IMessageContext CurrentMessageContext
         {
-            get { return GlobalExecutionContext.IncomingMessageContext; }
+            get { return AmbientChainContext.Current.IncomingMessageContext; }
         }
 
         public bool IsStarted
@@ -110,7 +109,7 @@
 
         public void Send(object message)
         {
-            using (var executionContext = GlobalExecutionContext.Push(context =>
+            using (var executionContext = AmbientChainContext.Current.Push(context =>
                                                                       {
                                                                           context.OutgoingMessage = message;
                                                                           context.OutgoingMessageType = message.GetType();
@@ -121,7 +120,8 @@
 
         public void SendLocal(object message)
         {
-            using (var executionContext = GlobalExecutionContext.Push(context => { context.OutgoingMessage = message; })) {
+            using (var executionContext = AmbientChainContext.Current.Push(context => { context.OutgoingMessage = message; }))
+            {
                 new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.SendLocal), executionContext);
             }
         }
@@ -130,7 +130,7 @@
         {
             var executor = new ChainExecutor(Container);
 
-            using (var executionContext = GlobalExecutionContext.Push(context =>
+            using (var executionContext = AmbientChainContext.Current.Push(context =>
                                                                       {
                                                                           context.OutgoingMessage = message;
                                                                           context.OutgoingMessageType = message.GetType();
@@ -154,7 +154,7 @@
 
             var executor = new ChainExecutor(Container);
 
-            using (var context = GlobalExecutionContext.Push(childContext =>
+            using (var context = AmbientChainContext.Current.Push(childContext =>
                                                              {
                                                                  childContext.OutgoingMessage = message;
                                                                  childContext.OutgoingMessageType = typeof (T);

@@ -83,6 +83,7 @@
     <Compile Include="Interfaces\Addons\Sagas\ISagaStateInstance.cs" />
     <Compile Include="Interfaces\Addons\Sagas\ISagaManager.cs" />
     <Compile Include="Interfaces\Addons\Sagas\ISagaState.cs" />
+    <Compile Include="Interfaces\Behaviors\AmbientChainContext.cs" />
     <Compile Include="Interfaces\Behaviors\ChainExecutionContext.cs" />
     <Compile Include="Interfaces\Behaviors\DelayedMessageContext.cs" />
     <Compile Include="Interfaces\Behaviors\IBehavior.cs" />

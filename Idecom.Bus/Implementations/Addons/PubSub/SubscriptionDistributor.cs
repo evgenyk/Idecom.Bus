@@ -28,9 +28,10 @@
             foreach (var subscriber in subscribers)
             {
                 var transportMessage = new TransportMessage(message, LocalAddress, subscriber, MessageIntent.Publish, messageType);
-                if (messageContext != null)
-                    delayMessageAction(transportMessage);
-                else
+                //TODO: fox this
+//                if (messageContext != null)
+//                    delayMessageAction(transportMessage);
+//                else
                     Transport.Send(transportMessage);
             }
         }
