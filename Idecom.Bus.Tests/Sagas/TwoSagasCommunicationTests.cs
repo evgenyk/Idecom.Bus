@@ -16,13 +16,18 @@
         public void TwoSagasCanTalkToEachOtherWhileKeepingStateSeparateTest()
         {
             InMemorySubscriptionStorage subscriptionStorage = null;
+            var inMemoryBroker = new InMemoryBroker();
 
             var bus1 = Configure.With()
                                 .WindsorContainer()
                                 .InMemoryTransport()
                                 .InMemoryPubSub()
                                 .JsonNetSerializer()
-                                .ExposeConfiguration(x => { subscriptionStorage = x.Container.Resolve<InMemorySubscriptionStorage>(); })
+                                .ExposeConfiguration(x =>
+                                                     {
+                                                         subscriptionStorage = x.Container.Resolve<InMemorySubscriptionStorage>();
+                                                         x.Container.ConfigureInstance(inMemoryBroker);
+                                                     })
                                 .DefineEventsAs(type => type.Namespace != null && type.Namespace.Equals("Idecom.Bus.Tests.Sagas.TwoSagas.Messages", StringComparison.InvariantCultureIgnoreCase))
                                 .DefineHandlersAs(type => type.Namespace != null && type.Namespace.Equals("Idecom.Bus.Tests.Sagas.TwoSagas.FirstSaga", StringComparison.InvariantCultureIgnoreCase))
                                 .CreateBus("app1")
@@ -30,7 +35,11 @@
 
             var bus2 = Configure.With()
                                 .WindsorContainer()
-                                .ExposeConfiguration(x => x.Container.ConfigureInstance(subscriptionStorage))
+                                .ExposeConfiguration(x =>
+                                                     {
+                                                         x.Container.ConfigureInstance(inMemoryBroker);
+                                                         x.Container.ConfigureInstance(subscriptionStorage);
+                                                     })
                                 .InMemoryTransport()
                                 .InMemoryPubSub()
                                 .JsonNetSerializer()

@@ -50,11 +50,11 @@
                 if (_isStarted)
                     throw new ArgumentException("Can't start bus which already started.");
                 if (Transport == null)
-                    throw new ArgumentException("Can not create bus. Transport hasn't been provided.");
+                    throw new ArgumentException("Can not create bus. Transport hasn't been provided or misconfigured.");
                 if (Container == null)
-                    throw new ArgumentException("Can not create bus. Container hasn't been provided.");
+                    throw new ArgumentException("Can not create bus. Container hasn't been provided or misconfigured.");
                 if (Serializer == null)
-                    throw new ArgumentException("Can not create bus. Message serializer hasn't been provided.");
+                    throw new ArgumentException("Can not create bus. Message serializer hasn't been provided or misconfigured.");
 
                 Container.Configure<MessageContext>(ComponentLifecycle.PerUnitOfWork);
                 Container.Configure<OutgoingMessageContext>(ComponentLifecycle.PerUnitOfWork);
@@ -68,8 +68,6 @@
 
                 var behaviors = allTypes.Where(x => typeof (IBehavior).IsAssignableFrom(x) && !x.IsInterface).ToList();
                 behaviors.ForEach(x => Container.Configure(x, ComponentLifecycle.PerUnitOfWork));
-
-                //                Transport.TransportMessageReceived += TransportMessageReceived;
 
                 foreach (var beforeBusStarted in Container.ResolveAll<IBeforeBusStarted>())
                 {

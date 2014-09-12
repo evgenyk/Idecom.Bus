@@ -1,36 +1,51 @@
 ﻿namespace Idecom.Bus.Tests.InMemoryInfrastructure
 {
-    using System.Threading.Tasks;
+    using System;
+    using System.Collections.Generic;
     using Addressing;
-    using Castle.MicroKernel;
     using Implementations.Behaviors;
-    using Implementations.Internal.Behaviors.Incoming;
     using Implementations.UnicastBus;
     using Interfaces;
     using Interfaces.Behaviors;
     using Transport;
 
-    public class InMemoryQueue
+    public class InMemoryBroker
     {
-        implement pub sub with  multiple transports
+        readonly List<Action<TransportMessage>> _subscriptions = new List<Action<TransportMessage>>();
+
+        public void Enqueue(TransportMessage transportMessage)
+        {
+            var message = new TransportMessage(transportMessage.Message, transportMessage.SourceAddress, transportMessage.TargetAddress, transportMessage.Intent, transportMessage.MessageType,
+                transportMessage.Headers); //copying the message not to have side-effects
+
+            foreach (var subscription in _subscriptions) { subscription(message); }
+        }
+
+        public void ListenToMessages(Action<TransportMessage> action)
+        {
+            _subscriptions.Add(action);
+        }
     }
 
     public class InMemoryTransport : ITransport
     {
+        public InMemoryTransport(InMemoryBroker inMemoryBroker)
+        {
+            InMemoryBroker = inMemoryBroker;
+            InMemoryBroker.ListenToMessages(TransportMessageReceived);
+        }
+
         public int Retries { get; set; }
         public IContainer Container { get; set; }
         public Address Address { get; set; }
-        public int WorkersCount { get; set; }
         public IBehaviorChains Chains { get; set; }
         public IMessageSerializer Serializer { get; set; }
+        public InMemoryBroker InMemoryBroker { get; private set; }
+        public int WorkersCount { get; set; }
 
         public void Send(TransportMessage transportMessage)
         {
-            Task.Factory.StartNew(() =>
-                                  {
-                                      var message = new TransportMessage(transportMessage.Message, transportMessage.SourceAddress, transportMessage.TargetAddress, transportMessage.Intent, transportMessage.MessageType, transportMessage.Headers); //copying the message not to have side-effects
-                                      TransportMessageReceived(message);
-                                  }).Wait(); //so we could test things
+            InMemoryBroker.Enqueue(transportMessage);
         }
 
         void TransportMessageReceived(TransportMessage transportMessage)
@@ -38,14 +53,7 @@
             var ce = new ChainExecutor(Container);
             var chain = Chains.GetChainFor(ChainIntent.TransportMessageReceive);
 
-            using (var ct = AmbientChainContext.Current.Push(context =>
-                                                        {
-                                                            context.IncomingMessageContext = new MessageContext(transportMessage, 1, 1);
-                                                        }))
-            {
-                ce.RunWithIt(chain, ct);
-            }
-
+            using (var ct = AmbientChainContext.Current.Push(context => { context.IncomingMessageContext = new MessageContext(transportMessage, 1, 1); })) { ce.RunWithIt(chain, ct); }
         }
     }
 }
