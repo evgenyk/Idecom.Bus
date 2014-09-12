@@ -24,6 +24,7 @@
                                .ExposeConfiguration(x =>
                                                     {
                                                         inMemorySagaPersister = x.Container.Resolve<InMemorySagaPersister>();
+                                                        x.Container.ConfigureInstance(new InMemoryBroker());
                                                     })
                                .DefineEventsAs(type => type == typeof (IStartSimpleSagaEvent) || type == typeof (ICompleteSimpleSagaEvent))
                                .CreateBus("app1")

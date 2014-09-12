@@ -28,6 +28,7 @@
         {
             var bus = Configure.With()
                                .WindsorContainer()
+                               .ExposeConfiguration(x => x.Container.ConfigureInstance(new InMemoryBroker()))
                                .InMemoryTransport()
                                .InMemoryPubSub()
                                .JsonNetSerializer()
@@ -43,6 +44,7 @@
         {
             var bus = Configure.With()
                                .WindsorContainer()
+                               .ExposeConfiguration(x => x.Container.ConfigureInstance(new InMemoryBroker()))
                                .InMemoryTransport()
                                .InMemoryPubSub()
                                .JsonNetSerializer()
