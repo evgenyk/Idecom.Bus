@@ -28,7 +28,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
 
         ThreadLocal<object> _outgoingMessage;
         Type _messageType;
-        SagaContext _sagaContext;
+        ThreadLocal<SagaContext> _sagaContext;
         ThreadLocal<MessageContext> _incomingMessageContext;
 
         internal ChainExecutionContext(ChainExecutionContext parentContext = null)
@@ -42,8 +42,19 @@ namespace Idecom.Bus.Interfaces.Behaviors
 
         public SagaContext SagaContext
         {
-            get { return _sagaContext ?? (_parentContext == null ? null : _parentContext.Value.SagaContext); }
-            set { _sagaContext = value; }
+            get
+            {
+                if (_sagaContext != null)
+                    return _sagaContext.Value;
+                return _parentContext == null ? null : _parentContext.Value.SagaContext;
+            }
+            set
+            {
+                if (_parentContext == null)
+                    _sagaContext = new ThreadLocal<SagaContext>(() => value);
+                else
+                { _parentContext.Value.SagaContext = value; }
+            }
         }
 
         public DelayedMessageContext DelayedMessageContext
@@ -57,14 +68,9 @@ namespace Idecom.Bus.Interfaces.Behaviors
             get
             {
                 if (_outgoingMessage != null) { return _outgoingMessage.Value; }
-                else if (_parentContext != null)
-                {
-                    var parentContextValue = _parentContext.Value;
-                    if (parentContextValue == null) { return parentContextValue; }
-                    else
-                    { return parentContextValue.OutgoingMessage; }
-                }
-                return _outgoingMessage ?? (_parentContext.IsValueCreated ? null : _parentContext.Value.OutgoingMessage);
+                if (_parentContext == null) return _outgoingMessage ?? (_parentContext.IsValueCreated ? null : _parentContext.Value.OutgoingMessage);
+                var parentContextValue = _parentContext.Value;
+                return parentContextValue == null ? parentContextValue : parentContextValue.OutgoingMessage;
             }
             set { _outgoingMessage = new ThreadLocal<object>(() => value); }
         }
@@ -93,8 +99,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
             {
                 if (_incomingMessageContext != null) 
                     return _incomingMessageContext.Value;
-                else 
-                    return _parentContext == null ? null : _parentContext.Value.IncomingMessageContext;
+                return _parentContext == null ? null : _parentContext.Value.IncomingMessageContext;
             }
             set
             {
