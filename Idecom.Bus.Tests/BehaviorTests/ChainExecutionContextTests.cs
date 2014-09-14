@@ -1,6 +1,5 @@
 ﻿namespace Idecom.Bus.Tests.BehaviorTests
 {
-    using System;
     using Addressing;
     using Implementations.UnicastBus;
     using Interfaces.Behaviors;
@@ -17,23 +16,18 @@
             var outgoingMessage = new object();
 
             var rootContext = AmbientChainContext.Current;
-            using (var inner = rootContext.Push(context =>
-                                    {
-                                        context.OutgoingMessage = outgoingMessage;
-                                    }))
+            using (var inner = rootContext.Push(context => { context.OutgoingMessage = outgoingMessage; }))
             {
                 Assert.Equal(inner.OutgoingMessage, outgoingMessage);
 
-                using (var innerInner = inner.Push(context => {}))
+                using (var innerInner = inner.Push(context => { }))
                 {
                     var expected = innerInner.OutgoingMessage;
                     Assert.Equal(expected, outgoingMessage);
                 }
             }
-            
+        }
 
-        } 
-        
         [Fact]
         public void IncommingMessageContextIsAlwaysAccessibleTest()
         {
@@ -42,24 +36,22 @@
             RootContext = AmbientChainContext.Current;
             using (var inner = RootContext.Push(context =>
                                                 {
-                                                    var incomingTransportMessage = new TransportMessage(incomingMessage, new Address("src"), new Address("target"), MessageIntent.Publish, typeof(object));
-                                                    var incomingMessageContext = new MessageContext(incomingTransportMessage,0, 0 );
+                                                    var incomingTransportMessage = new TransportMessage(incomingMessage, new Address("src"), new Address("target"), MessageIntent.Publish,
+                                                        typeof (object));
+                                                    var incomingMessageContext = new MessageContext(incomingTransportMessage, 0, 0);
                                                     context.IncomingMessageContext = incomingMessageContext;
                                                 }))
             {
                 Assert.NotNull(inner.IncomingMessageContext);
 
-                using (var innerInner = inner.Push(context => {}))
+                using (var innerInner = inner.Push(context => { }))
                 {
                     Assert.NotNull(innerInner.IncomingMessageContext);
 
                     var handlerTest = new HandlerContextTest();
-                    handlerTest.GetType().GetMethod("Handle").Invoke(handlerTest, new[] { new object() });
-
+                    handlerTest.GetType().GetMethod("Handle").Invoke(handlerTest, new[] {new object()});
                 }
             }
-            
-
         }
 
         class HandlerContextTest

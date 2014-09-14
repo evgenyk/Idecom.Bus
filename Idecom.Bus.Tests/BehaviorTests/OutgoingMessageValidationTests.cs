@@ -49,7 +49,6 @@
         public interface IEvent
         {
         }
-
     }
 
     public class ExceptionBehavior : IBehavior

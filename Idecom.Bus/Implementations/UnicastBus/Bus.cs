@@ -108,18 +108,17 @@
         public void Send(object message)
         {
             using (var executionContext = AmbientChainContext.Current.Push(context =>
-                                                                      {
-                                                                          context.OutgoingMessage = message;
-                                                                          context.OutgoingMessageType = message.GetType();
-                                                                      })) {
-                                                                          new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.Send), executionContext);
-                                                                      }
+                                                                           {
+                                                                               context.OutgoingMessage = message;
+                                                                               context.OutgoingMessageType = message.GetType();
+                                                                           })) {
+                                                                               new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.Send), executionContext);
+                                                                           }
         }
 
         public void SendLocal(object message)
         {
-            using (var executionContext = AmbientChainContext.Current.Push(context => { context.OutgoingMessage = message; }))
-            {
+            using (var executionContext = AmbientChainContext.Current.Push(context => { context.OutgoingMessage = message; })) {
                 new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.SendLocal), executionContext);
             }
         }
@@ -129,12 +128,12 @@
             var executor = new ChainExecutor(Container);
 
             using (var executionContext = AmbientChainContext.Current.Push(context =>
-                                                                      {
-                                                                          context.OutgoingMessage = message;
-                                                                          context.OutgoingMessageType = message.GetType();
-                                                                      })) {
-                executor.RunWithIt(Chains.GetChainFor(ChainIntent.Reply), executionContext);
-            }
+                                                                           {
+                                                                               context.OutgoingMessage = message;
+                                                                               context.OutgoingMessageType = message.GetType();
+                                                                           })) {
+                                                                               executor.RunWithIt(Chains.GetChainFor(ChainIntent.Reply), executionContext);
+                                                                           }
 
             throw new NotImplementedException("Finish this later");
 
@@ -153,10 +152,10 @@
             var executor = new ChainExecutor(Container);
 
             using (var context = AmbientChainContext.Current.Push(childContext =>
-                                                             {
-                                                                 childContext.OutgoingMessage = message;
-                                                                 childContext.OutgoingMessageType = typeof (T);
-                                                             }))
+                                                                  {
+                                                                      childContext.OutgoingMessage = message;
+                                                                      childContext.OutgoingMessageType = typeof (T);
+                                                                  }))
             {
                 var behaviorChain = Chains.GetChainFor(ChainIntent.Publish);
 

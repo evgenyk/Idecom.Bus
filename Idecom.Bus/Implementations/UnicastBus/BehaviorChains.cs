@@ -7,7 +7,6 @@ namespace Idecom.Bus.Implementations.UnicastBus
     using Internal.Behaviors;
     using Internal.Behaviors.Incoming;
 
-
     public enum ChainIntent
     {
         Send,
@@ -17,7 +16,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
         TransportMessageReceive,
         IncomingMessageHandling
     }
-    
+
     public interface IBehaviorChains
     {
         IBehaviorChain GetChainFor(ChainIntent intent);
@@ -60,7 +59,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
                               new BehaviorChain()
                               .WrapWith<SendDelayedMessagesBehavior>()
                               .WrapWith<MultiplexIncomingTransportMessageToHandlers>()
-                          },                          
+                          },
                           {
                               ChainIntent.IncomingMessageHandling,
                               new BehaviorChain()
@@ -68,7 +67,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
                               .WrapWith<ResumeSagaBehavior>()
                           },
                       };
-            
+
             //wrap everyting with start bus check
             foreach (var chain in _chains) { chain.Value.WrapWith<ThrowIfBusNotStartedBehavior>(); }
         }

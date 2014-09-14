@@ -8,8 +8,8 @@
 
     public class TransportSendLocalBehavior : IBehavior
     {
-        readonly ITransport _transport;
         readonly Address _localAddress;
+        readonly ITransport _transport;
 
         public TransportSendLocalBehavior(ITransport transport, Address localAddress)
         {

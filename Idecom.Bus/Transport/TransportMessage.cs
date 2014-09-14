@@ -11,6 +11,9 @@
         public TransportMessage(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType, Dictionary<string, string> headers = null)
             : this(message, headers)
         {
+            if (targetAddress == null)
+                throw new ArgumentNullException("targetAddress");
+
             SourceAddress = sourceAddress;
             TargetAddress = targetAddress;
             Intent = intent;

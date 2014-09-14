@@ -7,7 +7,10 @@
     using global::MongoDB.Driver;
     using global::MongoDB.Driver.Builders;
     using Implementations;
+    using Implementations.Behaviors;
+    using Implementations.UnicastBus;
     using Interfaces;
+    using Interfaces.Behaviors;
 
     public class MongoDbTransport : ITransport, IBeforeBusStarted, IBeforeBusStopped
     {
@@ -20,6 +23,7 @@
         public IRoutingTable<Address> MesageRoutingTable { get; set; }
         public IMessageSerializer MessageSerializer { get; set; }
         public Address LocalAddress { get; set; }
+        public IBehaviorChains Chains { get; set; }
 
         public int Retries { get; set; }
 
@@ -50,10 +54,10 @@
                 throw new InvalidOperationException(string.Format("Can not send a message of type {0} as the target address could not be found. did you forget to configure routing?",
                     (transportMessage.MessageType ?? transportMessage.Message.GetType()).Name));
 
-//            if (messageContext == null)
-//                _sender.Send(transportMessage);
-//            else
-//                messageContext.DelayedSend(transportMessage);
+            //            if (messageContext == null)
+            _sender.Send(transportMessage);
+            //            else
+            //                messageContext.DelayedSend(transportMessage);
         }
 
         void CreateQueues(IEnumerable<Address> targetQueues)
@@ -61,9 +65,7 @@
             foreach (var collectionName in targetQueues.Select(queue => queue.ToString()))
             {
                 if (!_database.CollectionExists(collectionName))
-                    try {
-                        _database.CreateCollection(collectionName);
-                    }
+                    try { _database.CreateCollection(collectionName); }
                     catch (Exception e) {
                         Console.WriteLine("Could not create collection {0} with exception {1}", collectionName, e);
                     }
@@ -76,6 +78,10 @@
 
         public void ProcessMessageReceivedEvent(TransportMessage transportMessage, int attempt, int maxRetries)
         {
+            var ce = new ChainExecutor(Container);
+            var chain = Chains.GetChainFor(ChainIntent.TransportMessageReceive);
+
+            using (var ct = AmbientChainContext.Current.Push(context => { context.IncomingMessageContext = new MessageContext(transportMessage, 1, 1); })) { ce.RunWithIt(chain, ct); }
         }
     }
 }

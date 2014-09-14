@@ -5,18 +5,15 @@
     using Interfaces;
     using Interfaces.Behaviors;
     using Transport;
-    using UnicastBus;
 
     public class TransportSendBehavior : IBehavior
     {
-        readonly OutgoingMessageContext _outgoingMessageContext;
-        readonly ITransport _transport;
         readonly Address _localAddress;
-        readonly IRoutingTable<Address> _messageRoutingTable;
+        readonly IMessageToEndpointRoutingTable _messageRoutingTable;
+        readonly ITransport _transport;
 
-        public TransportSendBehavior(OutgoingMessageContext outgoingMessageContext, ITransport transport, Address localAddress, IRoutingTable<Address> messageRoutingTable)
+        public TransportSendBehavior(ITransport transport, Address localAddress, IMessageToEndpointRoutingTable messageRoutingTable)
         {
-            _outgoingMessageContext = outgoingMessageContext;
             _transport = transport;
             _localAddress = localAddress;
             _messageRoutingTable = messageRoutingTable;
@@ -24,8 +21,13 @@
 
         public void Execute(Action next, IChainExecutionContext context)
         {
-            var resolveRouteFor = _messageRoutingTable.ResolveRouteFor(_outgoingMessageContext.Message.GetType());
-            var transportMessage = new TransportMessage(_outgoingMessageContext.Message, _localAddress, resolveRouteFor, MessageIntent.Send, _outgoingMessageContext.MessageType);
+            var resolveRouteFor = _messageRoutingTable.ResolveRouteFor(context.OutgoingMessageType);
+
+            if (resolveRouteFor == null) {
+                throw new Exception(string.Format("Could not resolve a route to {0}", context.OutgoingMessageType));
+            }
+
+            var transportMessage = new TransportMessage(context.OutgoingMessage, _localAddress, resolveRouteFor, MessageIntent.Send, context.OutgoingMessageType);
             _transport.Send(transportMessage);
             next();
         }

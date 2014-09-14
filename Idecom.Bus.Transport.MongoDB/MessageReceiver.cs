@@ -65,7 +65,7 @@ namespace Idecom.Bus.Transport.MongoDB
                                                         if (lastEmptyQueueSleepMs > 2000)
                                                             lastEmptyQueueSleepMs = 2000; //max sleep time is 2 seconds between pooling requests (for services which do nothing most of the time)
                                                         Thread.Sleep(lastEmptyQueueSleepMs);
-                                                            //Sleeping for a bit as queue seem to be empty and pooling would generate too much unnecessary load on the server
+                                                        //Sleeping for a bit as queue seem to be empty and pooling would generate too much unnecessary load on the server
                                                         continue;
                                                     }
                                                     lastEmptyQueueSleepMs = 5;

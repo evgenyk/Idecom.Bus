@@ -9,8 +9,8 @@
 
     public class MultiplexIncomingTransportMessageToHandlers : IBehavior
     {
-        readonly IContainer _container;
         readonly IBehaviorChains _chains;
+        readonly IContainer _container;
         readonly IMessageToHandlerRoutingTable _messageToHandlerRoutingTable;
 
         public MultiplexIncomingTransportMessageToHandlers(IMessageToHandlerRoutingTable messageToHandlerRoutingTable, IContainer container, IBehaviorChains chains)
@@ -19,11 +19,13 @@
             _container = container;
             _chains = chains;
         }
+
         public void Execute(Action next, IChainExecutionContext context)
         {
             var handlers = _messageToHandlerRoutingTable.ResolveRouteFor(context.IncomingMessageContext.IncomingTransportMessage.MessageType);
 
-            if (!handlers.Any()) {
+            if (!handlers.Any())
+            {
                 //TODO: throw new Exception(string.Format("Count not find handlers for an incoming message of type {0}", context.IncomingMessageContext.IncomingTransportMessage.MessageType));
                 var heh = 2;
             }
@@ -33,13 +35,7 @@
                 var chain = _chains.GetChainFor(ChainIntent.IncomingMessageHandling);
 
                 var handlerMethod = method;
-                using (context = context.Push(childContext =>
-                                              {
-                                                  childContext.HandlerMethod = handlerMethod;
-                                              }))
-                {
-                    new ChainExecutor(_container).RunWithIt(chain, context);
-                }
+                using (context = context.Push(childContext => { childContext.HandlerMethod = handlerMethod; })) { new ChainExecutor(_container).RunWithIt(chain, context); }
             }
 
             next();

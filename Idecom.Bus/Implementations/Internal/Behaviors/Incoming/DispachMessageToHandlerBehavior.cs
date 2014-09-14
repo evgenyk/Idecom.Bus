@@ -25,10 +25,13 @@
             if (inSaga)
                 handler.GetType().GetProperty("Data").SetValue(handler, context.SagaContext.SagaState.SagaData);
 
-            var methodToCall = Expression.Parameter(typeof(object));
-            var handledMessage = Expression.Parameter(typeof(object));
+            var methodToCall = Expression.Parameter(typeof (object));
+            var handledMessage = Expression.Parameter(typeof (object));
 
-            var lambda = Expression.Lambda<Action<object, object>>(Expression.Call(Expression.Convert(methodToCall, method.DeclaringType), method, Expression.Convert(handledMessage, method.GetParameters().First().ParameterType)), methodToCall, handledMessage).Compile();
+            var lambda =
+                Expression.Lambda<Action<object, object>>(
+                    Expression.Call(Expression.Convert(methodToCall, method.DeclaringType), method, Expression.Convert(handledMessage, method.GetParameters().First().ParameterType)), methodToCall,
+                    handledMessage).Compile();
             lambda(handler, context.IncomingMessageContext.IncomingTransportMessage.Message);
 
             if (inSaga && (handler as ISaga).IsClosed)
@@ -36,6 +39,5 @@
 
             next();
         }
-
     }
 }

@@ -13,7 +13,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
             _headers = new Dictionary<string, string>();
         }
 
-        public MessageContext(TransportMessage incomingTransportMessage, int attempt, int maxAttempts):this()
+        public MessageContext(TransportMessage incomingTransportMessage, int attempt, int maxAttempts) : this()
         {
             IncomingTransportMessage = incomingTransportMessage;
             Attempt = attempt;

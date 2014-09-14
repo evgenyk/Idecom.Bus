@@ -4,7 +4,7 @@
     using System.ComponentModel.DataAnnotations;
     using Interfaces.Behaviors;
 
-    public class OutgoingMessageValidationBehavior: IBehavior
+    public class OutgoingMessageValidationBehavior : IBehavior
     {
         public void Execute(Action next, IChainExecutionContext context)
         {

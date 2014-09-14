@@ -15,10 +15,7 @@ namespace Idecom.Bus.Implementations.Internal.Behaviors.Incoming
 
         public void Execute(Action next, IChainExecutionContext context)
         {
-            foreach (var transportMessage in context.GetDelayedMessages())
-            {
-                _transport.Send(transportMessage);
-            }
+            foreach (var transportMessage in context.GetDelayedMessages()) { _transport.Send(transportMessage); }
         }
     }
 }

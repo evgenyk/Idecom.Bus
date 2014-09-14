@@ -8,7 +8,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
     using Implementations.UnicastBus;
     using Transport;
 
-    public interface IChainExecutionContext: IDisposable
+    public interface IChainExecutionContext : IDisposable
     {
         MessageContext IncomingMessageContext { get; set; }
         SagaContext SagaContext { get; set; }
@@ -23,21 +23,19 @@ namespace Idecom.Bus.Interfaces.Behaviors
 
     public class ChainExecutionContext : IChainExecutionContext
     {
-        readonly ThreadLocal<ChainExecutionContext> _parentContext;
         readonly ThreadLocal<DelayedMessageContext> _delayedMessageContext;
-
-        ThreadLocal<object> _outgoingMessage;
-        Type _messageType;
-        ThreadLocal<SagaContext> _sagaContext;
+        readonly ThreadLocal<ChainExecutionContext> _parentContext;
         ThreadLocal<MessageContext> _incomingMessageContext;
+
+        Type _messageType;
+        ThreadLocal<object> _outgoingMessage;
+        ThreadLocal<SagaContext> _sagaContext;
 
         internal ChainExecutionContext(ChainExecutionContext parentContext = null)
         {
             _parentContext = parentContext != null ? new ThreadLocal<ChainExecutionContext>(() => parentContext) : null;
 
-            if (_parentContext == null) {
-                _delayedMessageContext = new ThreadLocal<DelayedMessageContext>(() => new DelayedMessageContext());
-            }
+            if (_parentContext == null) { _delayedMessageContext = new ThreadLocal<DelayedMessageContext>(() => new DelayedMessageContext()); }
         }
 
         public SagaContext SagaContext
@@ -59,7 +57,6 @@ namespace Idecom.Bus.Interfaces.Behaviors
 
         public DelayedMessageContext DelayedMessageContext
         {
-
             get { return _delayedMessageContext.Value ?? (_parentContext.IsValueCreated ? null : _parentContext.Value.DelayedMessageContext); }
         }
 
@@ -97,18 +94,15 @@ namespace Idecom.Bus.Interfaces.Behaviors
         {
             get
             {
-                if (_incomingMessageContext != null) 
+                if (_incomingMessageContext != null)
                     return _incomingMessageContext.Value;
                 return _parentContext == null ? null : _parentContext.Value.IncomingMessageContext;
             }
             set
             {
-                if (_parentContext == null) {
-                    _incomingMessageContext = new ThreadLocal<MessageContext>(() => value);
-                }
+                if (_parentContext == null) { _incomingMessageContext = new ThreadLocal<MessageContext>(() => value); }
                 else
                 { _parentContext.Value.IncomingMessageContext = value; }
-                
             }
         }
 

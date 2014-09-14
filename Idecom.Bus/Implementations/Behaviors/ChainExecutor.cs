@@ -38,13 +38,12 @@ namespace Idecom.Bus.Implementations.Behaviors
         IBehavior ExecuteNextBehavior(IContainer container, Queue<Type> behaviorQueue, IChainExecutionContext context)
         {
             var nextType = behaviorQueue.Dequeue();
-            
+
             var behavior = container.Resolve(nextType) as IBehavior;
-            
+
             if (behavior != null)
                 behavior.Execute(() => ExecuteNext(behaviorQueue, context), context);
             return behavior;
         }
-
     }
 }

@@ -27,7 +27,6 @@ namespace Idecom.Bus.Implementations.Behaviors
 
         public BehaviorChain AndThenWith<T>() where T : IBehavior
         {
-            
             return WrapWith<T>();
         }
 

@@ -7,7 +7,6 @@
     using Addressing;
     using Behaviors;
     using Interfaces;
-    using Interfaces.Behaviors;
     using Internal;
     using UnicastBus;
 
@@ -42,10 +41,10 @@
                 value.Configure<Bus>(ComponentLifecycle.Singleton);
                 value.Configure<SubscriptionDistributor>(ComponentLifecycle.Singleton);
                 value.Configure<SagaManager>(ComponentLifecycle.Singleton);
-                
+
                 value.Configure<ChainExecutor>(ComponentLifecycle.PerUnitOfWork);
                 value.Configure<BehaviorChains>(ComponentLifecycle.Singleton);
-                
+
                 value.Configure<MessageToEndpointRoutingTable>(ComponentLifecycle.Singleton);
                 value.Configure<MessageToHandlerRoutingTable>(ComponentLifecycle.Singleton);
                 value.Configure<MessageToStartSagaMapping>(ComponentLifecycle.Singleton);
