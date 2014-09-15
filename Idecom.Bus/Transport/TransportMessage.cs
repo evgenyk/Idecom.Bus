@@ -14,6 +14,9 @@
             if (targetAddress == null)
                 throw new ArgumentNullException("targetAddress");
 
+            if (targetAddress.Equals(sourceAddress))
+                throw new ArgumentOutOfRangeException("targetAddress", targetAddress.ToString(), "Source address and target address could not be identical");
+
             SourceAddress = sourceAddress;
             TargetAddress = targetAddress;
             Intent = intent;

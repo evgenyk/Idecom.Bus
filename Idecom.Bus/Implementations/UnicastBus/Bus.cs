@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using Addressing;
     using Behaviors;
     using Interfaces;
@@ -125,6 +124,9 @@
 
         public void Reply(object message)
         {
+            if (LocalAddress.Equals(CurrentMessageContext.IncomingTransportMessage.SourceAddress))
+                throw new Exception(string.Format("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: {0}", CurrentMessageContext.IncomingTransportMessage.SourceAddress));
+
             var executor = new ChainExecutor(Container);
 
             using (var executionContext = AmbientChainContext.Current.Push(context =>
@@ -134,14 +136,6 @@
                                                                            })) {
                                                                                executor.RunWithIt(Chains.GetChainFor(ChainIntent.Reply), executionContext);
                                                                            }
-
-            throw new NotImplementedException("Finish this later");
-
-            //            if (LocalAddress.Equals(CurrentMessageContext.IncomingTransportMessage.SourceAddress))
-            //                throw new Exception(string.Format("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: {0}",
-            //                    CurrentMessageContext.IncomingTransportMessage.SourceAddress));
-            //
-            //            Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Reply, message.GetType()));
         }
 
         public void Raise<T>(Action<T> action) where T : class
@@ -161,92 +155,6 @@
 
                 executor.RunWithIt(behaviorChain, context);
             }
-        }
-
-        //        void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
-        //        {
-        //            MessageContext messageContext = null;
-        //            try
-        //            {
-        //                messageContext = Container.Resolve<MessageContext>();
-        //                if (messageContext == null)
-        //                    throw new Exception("Could not resolve current message context");
-        //
-        //                messageContext.IncomingTransportMessage = e.TransportMessage;
-        //                messageContext.Attempt = e.Attempt;
-        //                messageContext.MaxAttempts = e.MaxRetries + 1;
-        //
-        //                var message = e.TransportMessage.Message;
-        //                var type = e.TransportMessage.MessageType ?? message.GetType();
-        //                var handlerMethods = HandlerToHandlerRoutingTable.ResolveRouteFor(type);
-        //
-        //                var executedHandlers = handlerMethods.Select(handler => ExecuteHandler(message, type, handler, messageContext)).ToList();
-        //
-        //                if (executedHandlers.All(x => !x))
-        //                    Console.WriteLine("Warning: {1} received a message of type {0}, but could not find a handler for it", e.TransportMessage.MessageType, LocalAddress);
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                Console.WriteLine("Error while receiving a message: " + ex);
-        //                throw;
-        //            }
-        //            finally {
-        //                Container.Release(messageContext);
-        //            }
-        //        }
-
-        bool ExecuteHandler(object message, Type messageType, MethodInfo handlerMethod, MessageContext messageContext)
-        {
-            var handler = Container.Resolve(handlerMethod.DeclaringType);
-            Action executeHandler = () => handlerMethod.Invoke(handler, new[] {message});
-
-
-            if (IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType)) //this must be a saga, whether existing or a new one is a diffirent question
-            {
-                var sagaDataType = handlerMethod.DeclaringType.BaseType.GenericTypeArguments.First();
-                var startSagaTypes = MessageToStartSagaMapping.ResolveRouteFor(messageType);
-                ISagaStateInstance sagaData;
-                if (startSagaTypes != null) sagaData = SagaManager.Start(sagaDataType, messageContext);
-                else sagaData = SagaManager.Resume(sagaDataType, messageContext);
-
-                if (sagaData == null)
-                {
-                    Console.WriteLine("Warning: SagaNotFound {0}<{1}> for incoming message {2}", handlerMethod.DeclaringType, sagaDataType.Name, messageType.Name);
-                    return false;
-                }
-
-                var sagaDataProperty = handler.GetType().GetProperty("Data");
-                sagaDataProperty.SetValue(handler, sagaData.SagaData);
-
-                try {
-                    executeHandler();
-                }
-                finally
-                {
-                    if (((ISaga) handler).IsClosed)
-                        SagaStorage.Close(sagaData.SagaId);
-                    else
-                        SagaStorage.Update(sagaData.SagaId, sagaData.SagaData);
-                }
-            }
-            else
-            {
-                //normal saga-less handler
-                executeHandler();
-            }
-
-            return true;
-        }
-
-        static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
-        {
-            while (toCheck != null && toCheck != typeof (object))
-            {
-                var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
-                if (generic == cur) { return true; }
-                toCheck = toCheck.BaseType;
-            }
-            return false;
         }
 
         void ApplyHandlerMapping(IEnumerable<Type> events, IEnumerable<Type> commands, IEnumerable<Type> allTypes)
