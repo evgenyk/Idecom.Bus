@@ -6,6 +6,7 @@
     using Interfaces.Addons.Sagas;
     using Interfaces.Behaviors;
     using UnicastBus;
+    using Utility;
 
     public class ResumeSagaBehavior : IBehavior
     {
@@ -28,7 +29,17 @@
                     _messageToStartSagaMapping.ResolveRouteFor(context.IncomingMessageContext.IncomingTransportMessage.MessageType ?? context.IncomingMessageContext.IncomingTransportMessage.GetType());
                 ISagaStateInstance sagaData;
                 if (startSagaTypes != null) sagaData = _sagaManager.Start(sagaDataType, context.IncomingMessageContext);
-                else sagaData = _sagaManager.Resume(sagaDataType, context.IncomingMessageContext);
+                else
+                {
+                    sagaData = _sagaManager.Resume(sagaDataType, context.IncomingMessageContext);
+                    if (sagaData == null)
+                    {
+                        string sagaId = "no saga id present in incoming message headers";
+                        if (context.IncomingMessageContext.IncomingTransportMessage.Headers.ContainsKey(SystemHeaders.SagaIdHeaderKey(sagaDataType)))
+                            sagaId = context.IncomingMessageContext.IncomingTransportMessage.Headers[SystemHeaders.SagaIdHeaderKey(sagaDataType)];
+                        throw new Exception("Could not find saga data for message type: " + context.IncomingMessageContext.IncommingMessageType + ", sagaId: " + sagaId);
+                    }
+                }
 
                 if (sagaData != null) { context.SagaContext = new SagaContext {SagaState = sagaData}; }
 

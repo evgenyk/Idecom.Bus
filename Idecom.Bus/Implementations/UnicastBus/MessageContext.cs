@@ -1,5 +1,6 @@
 namespace Idecom.Bus.Implementations.UnicastBus
 {
+    using System;
     using System.Collections.Generic;
     using Interfaces;
     using Transport;
@@ -34,5 +35,11 @@ namespace Idecom.Bus.Implementations.UnicastBus
         {
             return _headers.ContainsKey(key) ? _headers[key] : null;
         }
+
+        public Type IncommingMessageType
+        {
+            get { return IncomingTransportMessage.MessageType ?? IncomingTransportMessage.Message.GetType(); }
+        }
+
     }
 }
