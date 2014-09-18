@@ -19,10 +19,10 @@
 
         public ISagaStateInstance Resume(Type sagaDataType, MessageContext messageContext)
         {
-            if (!messageContext.IncomingTransportMessage.Headers.ContainsKey(SystemHeaders.SagaIdHeaderKey(sagaDataType)))
+            if (!messageContext.ContainsSagaIdForType(sagaDataType))
                 return null;
 
-            var runningSagaId = messageContext.IncomingTransportMessage.Headers[SystemHeaders.SagaIdHeaderKey(sagaDataType)];
+            var runningSagaId = messageContext.GetSagaIdForType(sagaDataType);
             var sagaState = SagaStorage.Get(runningSagaId) as ISagaState;
             return new SagaStateInstance(Address, runningSagaId, sagaState);
         }

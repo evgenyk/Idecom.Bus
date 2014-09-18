@@ -26,15 +26,6 @@ namespace Idecom.Bus.Implementations.Behaviors
             }
         }
 
-        protected void ExecuteNext(Queue<Type> behaviorQueue, IChainExecutionContext context)
-        {
-            if (!behaviorQueue.Any()) { return; }
-
-            IBehavior behavior = null;
-            try { behavior = ExecuteNextBehavior(_container, behaviorQueue, context); }
-            finally { _container.Release(behavior); }
-        }
-
         IBehavior ExecuteNextBehavior(IContainer container, Queue<Type> behaviorQueue, IChainExecutionContext context)
         {
             var nextType = behaviorQueue.Dequeue();
@@ -42,7 +33,13 @@ namespace Idecom.Bus.Implementations.Behaviors
             var behavior = container.Resolve(nextType) as IBehavior;
 
             if (behavior != null)
-                behavior.Execute(() => ExecuteNext(behaviorQueue, context), context);
+                behavior.Execute(() => {
+                                           if (!behaviorQueue.Any()) { return; }
+
+                                           IBehavior behavior1 = null;
+                                           try { behavior1 = ExecuteNextBehavior(_container, behaviorQueue, context); }
+                                           finally { _container.Release(behavior1); }
+                }, context);
             return behavior;
         }
     }

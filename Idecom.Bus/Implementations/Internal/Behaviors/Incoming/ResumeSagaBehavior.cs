@@ -26,7 +26,7 @@
             {
                 var sagaDataType = handlerMethod.DeclaringType.BaseType.GenericTypeArguments.First();
                 var startSagaTypes =
-                    _messageToStartSagaMapping.ResolveRouteFor(context.IncomingMessageContext.IncomingTransportMessage.MessageType ?? context.IncomingMessageContext.IncomingTransportMessage.GetType());
+                    _messageToStartSagaMapping.ResolveRouteFor(context.IncomingMessageContext.IncommingMessageType);
                 ISagaStateInstance sagaData;
                 if (startSagaTypes != null) sagaData = _sagaManager.Start(sagaDataType, context.IncomingMessageContext);
                 else
@@ -35,8 +35,8 @@
                     if (sagaData == null)
                     {
                         string sagaId = "no saga id present in incoming message headers";
-                        if (context.IncomingMessageContext.IncomingTransportMessage.Headers.ContainsKey(SystemHeaders.SagaIdHeaderKey(sagaDataType)))
-                            sagaId = context.IncomingMessageContext.IncomingTransportMessage.Headers[SystemHeaders.SagaIdHeaderKey(sagaDataType)];
+                        if (context.IncomingMessageContext.ContainsSagaIdForType(sagaDataType))
+                            sagaId = context.IncomingMessageContext.GetSagaIdForType(sagaDataType);
                         throw new Exception("Could not find saga data for message type: " + context.IncomingMessageContext.IncommingMessageType + ", sagaId: " + sagaId);
                     }
                 }

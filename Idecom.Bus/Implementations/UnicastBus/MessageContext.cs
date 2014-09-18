@@ -4,10 +4,12 @@ namespace Idecom.Bus.Implementations.UnicastBus
     using System.Collections.Generic;
     using Interfaces;
     using Transport;
+    using Utility;
 
     public class MessageContext : IMessageContext
     {
         readonly Dictionary<string, string> _headers;
+        TransportMessage _incomingTransportMessage;
 
         protected MessageContext()
         {
@@ -16,12 +18,10 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
         public MessageContext(TransportMessage incomingTransportMessage, int attempt, int maxAttempts) : this()
         {
-            IncomingTransportMessage = incomingTransportMessage;
+            _incomingTransportMessage = incomingTransportMessage;
             Attempt = attempt;
             MaxAttempts = maxAttempts;
         }
-
-        public TransportMessage IncomingTransportMessage { get; set; }
 
         public int Attempt { get; set; }
         public int MaxAttempts { get; set; }
@@ -38,8 +38,17 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
         public Type IncommingMessageType
         {
-            get { return IncomingTransportMessage.MessageType ?? IncomingTransportMessage.Message.GetType(); }
+            get { return _incomingTransportMessage.MessageType ?? _incomingTransportMessage.Message.GetType(); }
         }
 
+        public bool ContainsSagaIdForType(Type sagaDataType)
+        {
+            return _incomingTransportMessage.Headers.ContainsKey(SystemHeaders.SagaIdHeaderKey(sagaDataType));
+        }
+
+        public string GetSagaIdForType(Type sagaDataType)
+        {
+            return _incomingTransportMessage.Headers[SystemHeaders.SagaIdHeaderKey(sagaDataType)];
+        }
     }
 }
