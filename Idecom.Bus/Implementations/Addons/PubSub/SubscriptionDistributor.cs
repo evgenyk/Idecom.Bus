@@ -6,7 +6,6 @@
     using Interfaces;
     using Interfaces.Addons.PubSub;
     using Transport;
-    using UnicastBus;
 
     class SubscriptionDistributor : ISubscriptionDistributor
     {
@@ -21,18 +20,14 @@
         public Address LocalAddress { get; private set; }
         public ITransport Transport { get; private set; }
 
-        public void NotifySubscribersOf(Type messageType, object message, MessageContext messageContext, Action<TransportMessage> delayMessageAction)
+        public void NotifySubscribersOf(Type messageType, object message, bool isProcessingIncomingMessage, Action<TransportMessage> delayMessageAction)
         {
             var subscribers = Storage.GetSubscribersFor(messageType);
 
             foreach (var subscriber in subscribers)
             {
                 var transportMessage = new TransportMessage(message, LocalAddress, subscriber, MessageIntent.Publish, messageType);
-                //TODO: fox this
-                //                if (messageContext != null)
-                //                    delayMessageAction(transportMessage);
-                //                else
-                Transport.Send(transportMessage);
+                Transport.Send(transportMessage, isProcessingIncomingMessage, delayMessageAction);
             }
         }
 

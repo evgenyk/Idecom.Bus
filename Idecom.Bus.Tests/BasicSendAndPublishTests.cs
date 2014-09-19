@@ -42,7 +42,7 @@
         [Fact]
         public void RaisingASimpleeventShouldHandleThisEvent()
         {
-            var bus = Configure.With()
+             var bus = Configure.With()
                                .WindsorContainer()
                                .ExposeConfiguration(x => x.Container.ConfigureInstance(new InMemoryBroker()))
                                .InMemoryTransport()

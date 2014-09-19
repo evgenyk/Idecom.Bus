@@ -19,8 +19,8 @@
 
         public void Execute(Action next, IChainExecutionContext context)
         {
-            var transportMessage = new TransportMessage(context.OutgoingMessage, _localAddress, context.IncomingMessageContext.IncomingTransportMessage.SourceAddress, MessageIntent.Reply, context.OutgoingMessage.GetType());
-            _transport.Send(transportMessage);
+            var transportMessage = new TransportMessage(context.OutgoingMessage, _localAddress, context.IncomingMessageContext.SourceAddress, MessageIntent.Reply, context.OutgoingMessage.GetType());
+            _transport.Send(transportMessage, context.IsProcessingIncomingMessage(), message => context.DelayMessage(message));
             next();
         }
     }

@@ -50,7 +50,13 @@
 
         public object Resolve(Type typeToBuild)
         {
-            return _container.Resolve(typeToBuild);
+            try
+            {
+                return _container.Resolve(typeToBuild);
+            }
+            catch (Exception) {
+                return null;
+            }
         }
 
         public T Resolve<T>()

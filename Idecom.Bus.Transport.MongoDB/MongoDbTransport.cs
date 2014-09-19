@@ -30,7 +30,7 @@
         public void BeforeBusStarted()
         {
             _database = new MongoClient(ConnectionString).GetServer().GetDatabase(DatabaseName);
-            CreateQueues(MesageRoutingTable.GetDestinations().Union(new[] {LocalAddress}));
+            CreateQueues(MesageRoutingTable.GetDestinations().Union(new[] { LocalAddress }));
             var localCollection = _database.GetCollection<MongoTransportMessageEntity>(LocalAddress.ToString());
 
             _sender = new MessageSender(_database, MessageSerializer);
@@ -48,16 +48,19 @@
 
         public int WorkersCount { get; set; }
 
-        public void Send(TransportMessage transportMessage)
+        public void Send(TransportMessage transportMessage, bool isProcessingIncommingMessage, Action<TransportMessage> delayMessageAction)
         {
+            if (isProcessingIncommingMessage)
+            {
+                delayMessageAction(transportMessage);
+                return;
+            }
+
             if (transportMessage.TargetAddress == null)
                 throw new InvalidOperationException(string.Format("Can not send a message of type {0} as the target address could not be found. did you forget to configure routing?",
                     (transportMessage.MessageType ?? transportMessage.Message.GetType()).Name));
 
-            //            if (messageContext == null)
             _sender.Send(transportMessage);
-            //            else
-            //                messageContext.DelayedSend(transportMessage);
         }
 
         void CreateQueues(IEnumerable<Address> targetQueues)
@@ -66,7 +69,8 @@
             {
                 if (!_database.CollectionExists(collectionName))
                     try { _database.CreateCollection(collectionName); }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         Console.WriteLine("Could not create collection {0} with exception {1}", collectionName, e);
                     }
                 var mongoCollection = _database.GetCollection(collectionName);
@@ -81,7 +85,8 @@
             var ce = new ChainExecutor(Container);
             var chain = Chains.GetChainFor(ChainIntent.TransportMessageReceive);
 
-            using (var ct = AmbientChainContext.Current.Push(context => { context.IncomingMessageContext = new MessageContext(transportMessage, 1, 1); })) { ce.RunWithIt(chain, ct); }
+            using (var ct = AmbientChainContext.Current.Push(context => { context.IncomingMessageContext = new IncommingMessageContext(transportMessage, 1, Retries); })) { ce.RunWithIt(chain, ct); }
         }
+
     }
 }

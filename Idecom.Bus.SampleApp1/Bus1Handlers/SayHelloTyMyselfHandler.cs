@@ -6,6 +6,7 @@
 
     public class SayHelloTyMyselfHandler : IHandle<SayHelloCommand>
     {
+        public IBus Bus { get; set; }
         public void Handle(SayHelloCommand command)
         {
             Console.WriteLine("Seem like I'm wired talking to myself ");

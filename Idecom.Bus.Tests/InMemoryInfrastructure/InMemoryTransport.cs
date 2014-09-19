@@ -43,7 +43,7 @@
         public InMemoryBroker InMemoryBroker { get; private set; }
         public int WorkersCount { get; set; }
 
-        public void Send(TransportMessage transportMessage)
+        public void Send(TransportMessage transportMessage, bool isProcessingIncommingMessage, Action<TransportMessage> delayMessageAction)
         {
             InMemoryBroker.Enqueue(transportMessage);
         }
@@ -53,7 +53,7 @@
             var ce = new ChainExecutor(Container);
             var chain = Chains.GetChainFor(ChainIntent.TransportMessageReceive);
 
-            using (var ct = AmbientChainContext.Current.Push(context => { context.IncomingMessageContext = new MessageContext(transportMessage, 1, 1); })) { ce.RunWithIt(chain, ct); }
+            using (var ct = AmbientChainContext.Current.Push(context => { context.IncomingMessageContext = new IncommingMessageContext(transportMessage, 1, 1); })) { ce.RunWithIt(chain, ct); }
         }
     }
 }

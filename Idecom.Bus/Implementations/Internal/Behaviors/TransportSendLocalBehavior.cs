@@ -20,7 +20,7 @@
         public void Execute(Action next, IChainExecutionContext context)
         {
             var transportMessage = new TransportMessage(context.OutgoingMessage, _localAddress, _localAddress, MessageIntent.SendLocal, context.OutgoingMessage.GetType());
-            _transport.Send(transportMessage);
+            _transport.Send(transportMessage, context.IsProcessingIncomingMessage(), message => context.DelayMessage(message));
             next();
         }
     }

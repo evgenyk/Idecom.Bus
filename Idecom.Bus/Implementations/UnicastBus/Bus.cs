@@ -55,7 +55,7 @@
                 if (Serializer == null)
                     throw new ArgumentException("Can not create bus. Message serializer hasn't been provided or misconfigured.");
 
-                Container.Configure<MessageContext>(ComponentLifecycle.PerUnitOfWork);
+                Container.Configure<IncommingMessageContext>(ComponentLifecycle.PerUnitOfWork);
                 Container.Configure<OutgoingMessageContext>(ComponentLifecycle.PerUnitOfWork);
 
 
@@ -124,8 +124,8 @@
 
         public void Reply(object message)
         {
-            if (LocalAddress.Equals(AmbientChainContext.Current.IncomingMessageContext.IncomingTransportMessage.SourceAddress))
-                throw new Exception(string.Format("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: {0}", AmbientChainContext.Current.IncomingMessageContext.IncomingTransportMessage.SourceAddress));
+            if (LocalAddress.Equals(AmbientChainContext.Current.IncomingMessageContext.SourceAddress))
+                throw new Exception(string.Format("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: {0}", AmbientChainContext.Current.IncomingMessageContext.SourceAddress));
 
             var executor = new ChainExecutor(Container);
 

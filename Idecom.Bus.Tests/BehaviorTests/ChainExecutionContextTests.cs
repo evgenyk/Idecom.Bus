@@ -38,7 +38,7 @@
                                                 {
                                                     var incomingTransportMessage = new TransportMessage(incomingMessage, new Address("src"), new Address("target"), MessageIntent.Publish,
                                                         typeof (object));
-                                                    var incomingMessageContext = new MessageContext(incomingTransportMessage, 0, 0);
+                                                    var incomingMessageContext = new IncommingMessageContext(incomingTransportMessage, 0, 0);
                                                     context.IncomingMessageContext = incomingMessageContext;
                                                 }))
             {

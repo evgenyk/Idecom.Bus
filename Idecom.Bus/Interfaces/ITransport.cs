@@ -1,10 +1,10 @@
 ﻿namespace Idecom.Bus.Interfaces
 {
+    using System;
     using Transport;
 
     public interface ITransport
     {
-        int WorkersCount { get; }
-        void Send(TransportMessage transportMessage);
+        void Send(TransportMessage transportMessage, bool isProcessingIncommingMessage, Action<TransportMessage> delayMessageAction);
     }
 }

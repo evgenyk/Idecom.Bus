@@ -58,13 +58,13 @@
     <Compile Include="MongoTransportMessageEntity.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Idecom.Bus\Idecom.Bus.csproj">
       <Project>{ee090f5d-3b56-4773-8b22-28eeec9d18e2}</Project>
       <Name>Idecom.Bus</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

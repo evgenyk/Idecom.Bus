@@ -13,7 +13,8 @@
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <TargetFrameworkProfile />
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,6 +24,9 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +35,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -73,7 +78,7 @@
     <Compile Include="Implementations\UnicastBus\BehaviorChains.cs" />
     <Compile Include="Implementations\UnicastBus\Bus.cs" />
     <Compile Include="Implementations\UnicastBus\HandlerContext.cs" />
-    <Compile Include="Implementations\UnicastBus\MessageContext.cs" />
+    <Compile Include="Implementations\UnicastBus\IncommingMessageContext.cs" />
     <Compile Include="Implementations\UnicastBus\OutgoingMessageContext.cs" />
     <Compile Include="Implementations\UnicastBus\SagaContext.cs" />
     <Compile Include="Interfaces\Addons\PubSub\ISagaStorage.cs" />

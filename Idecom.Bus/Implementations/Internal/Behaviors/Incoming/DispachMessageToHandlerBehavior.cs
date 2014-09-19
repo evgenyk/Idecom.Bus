@@ -32,7 +32,7 @@
                 Expression.Lambda<Action<object, object>>(
                     Expression.Call(Expression.Convert(methodToCall, method.DeclaringType), method, Expression.Convert(handledMessage, method.GetParameters().First().ParameterType)), methodToCall,
                     handledMessage).Compile();
-            lambda(handler, context.IncomingMessageContext.IncomingTransportMessage.Message);
+            lambda(handler, context.IncomingMessageContext.IncommingMessage);
 
             if (inSaga && (handler as ISaga).IsClosed)
                 context.SagaContext.HandlerClosedSaga = true;

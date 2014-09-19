@@ -10,22 +10,22 @@ namespace Idecom.Bus.Interfaces.Behaviors
 
     public interface IChainExecutionContext : IDisposable
     {
-        MessageContext IncomingMessageContext { get; set; }
+        IncommingMessageContext IncomingMessageContext { get; set; }
         SagaContext SagaContext { get; set; }
-        DelayedMessageContext DelayedMessageContext { get; }
         object OutgoingMessage { get; set; }
         Type OutgoingMessageType { get; set; }
         MethodInfo HandlerMethod { get; set; }
         IChainExecutionContext Push(Action<IChainExecutionContext> populator);
         void DelayMessage(TransportMessage transportMessage, ChainExecutionContext context = null);
         IEnumerable<TransportMessage> GetDelayedMessages(ChainExecutionContext context = null);
+        bool IsProcessingIncomingMessage();
     }
 
     public class ChainExecutionContext : IChainExecutionContext
     {
         readonly ThreadLocal<DelayedMessageContext> _delayedMessageContext;
         readonly ThreadLocal<ChainExecutionContext> _parentContext;
-        ThreadLocal<MessageContext> _incomingMessageContext;
+        ThreadLocal<IncommingMessageContext> _incomingMessageContext;
 
         Type _messageType;
         ThreadLocal<object> _outgoingMessage;
@@ -86,11 +86,10 @@ namespace Idecom.Bus.Interfaces.Behaviors
 
             if (context._parentContext != null)
                 DelayMessage(transportMessage, context._parentContext.Value);
-
             else context.DelayedMessageContext.Enqueue(transportMessage);
         }
 
-        public MessageContext IncomingMessageContext
+        public IncommingMessageContext IncomingMessageContext
         {
             get
             {
@@ -100,7 +99,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
             }
             set
             {
-                if (_parentContext == null) { _incomingMessageContext = new ThreadLocal<MessageContext>(() => value); }
+                if (_parentContext == null) { _incomingMessageContext = new ThreadLocal<IncommingMessageContext>(() => value); }
                 else
                 { _parentContext.Value.IncomingMessageContext = value; }
             }
@@ -121,6 +120,11 @@ namespace Idecom.Bus.Interfaces.Behaviors
                 foreach (var transportMessage in GetDelayedMessages(context._parentContext.Value)) yield return transportMessage;
             else
                 while (context.DelayedMessageContext.DelayedMessages.Any()) yield return context.DelayedMessageContext.DelayedMessages.Dequeue();
+        }
+
+        public bool IsProcessingIncomingMessage()
+        {
+            return IncomingMessageContext != null;
         }
 
         public void Dispose()

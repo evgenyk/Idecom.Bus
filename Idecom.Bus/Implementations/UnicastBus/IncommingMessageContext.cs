@@ -1,22 +1,25 @@
 namespace Idecom.Bus.Implementations.UnicastBus
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
+    using Addressing;
     using Interfaces;
     using Transport;
     using Utility;
 
-    public class MessageContext : IMessageContext
+    public class IncommingMessageContext : IMessageContext
     {
         readonly Dictionary<string, string> _headers;
         TransportMessage _incomingTransportMessage;
 
-        protected MessageContext()
+        protected IncommingMessageContext()
         {
             _headers = new Dictionary<string, string>();
         }
 
-        public MessageContext(TransportMessage incomingTransportMessage, int attempt, int maxAttempts) : this()
+        public IncommingMessageContext(TransportMessage incomingTransportMessage, int attempt, int maxAttempts) : this()
         {
             _incomingTransportMessage = incomingTransportMessage;
             Attempt = attempt;
@@ -41,6 +44,16 @@ namespace Idecom.Bus.Implementations.UnicastBus
             get { return _incomingTransportMessage.MessageType ?? _incomingTransportMessage.Message.GetType(); }
         }
 
+        public Address SourceAddress
+        {
+            get { return _incomingTransportMessage.SourceAddress; }
+        }
+
+        public object IncommingMessage
+        {
+            get { return _incomingTransportMessage.Message; }
+        }
+
         public bool ContainsSagaIdForType(Type sagaDataType)
         {
             return _incomingTransportMessage.Headers.ContainsKey(SystemHeaders.SagaIdHeaderKey(sagaDataType));
@@ -49,6 +62,11 @@ namespace Idecom.Bus.Implementations.UnicastBus
         public string GetSagaIdForType(Type sagaDataType)
         {
             return _incomingTransportMessage.Headers[SystemHeaders.SagaIdHeaderKey(sagaDataType)];
+        }
+
+        public IEnumerable<KeyValuePair<string, string>> GetSagaHeaders()
+        {
+            return _headers.Where(header => header.Key.StartsWith(SystemHeaders.SagaIdPrefix, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }

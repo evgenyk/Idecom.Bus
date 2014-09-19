@@ -37,7 +37,8 @@
                         string sagaId = "no saga id present in incoming message headers";
                         if (context.IncomingMessageContext.ContainsSagaIdForType(sagaDataType))
                             sagaId = context.IncomingMessageContext.GetSagaIdForType(sagaDataType);
-                        throw new Exception("Could not find saga data for message type: " + context.IncomingMessageContext.IncommingMessageType + ", sagaId: " + sagaId);
+                        Console.WriteLine("Could not find saga data for message type: " + context.IncomingMessageContext.IncommingMessageType + ", sagaId: " + sagaId);
+                        return;
                     }
                 }
 

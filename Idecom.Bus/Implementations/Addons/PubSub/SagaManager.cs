@@ -17,24 +17,24 @@
         public IInstanceCreator InstanceCreator { get; set; }
         public Address Address { get; set; }
 
-        public ISagaStateInstance Resume(Type sagaDataType, MessageContext messageContext)
+        public ISagaStateInstance Resume(Type sagaDataType, IncommingMessageContext incommingMessageContext)
         {
-            if (!messageContext.ContainsSagaIdForType(sagaDataType))
+            if (!incommingMessageContext.ContainsSagaIdForType(sagaDataType))
                 return null;
 
-            var runningSagaId = messageContext.GetSagaIdForType(sagaDataType);
+            var runningSagaId = incommingMessageContext.GetSagaIdForType(sagaDataType);
             var sagaState = SagaStorage.Get(runningSagaId) as ISagaState;
             return new SagaStateInstance(Address, runningSagaId, sagaState);
         }
 
-        public ISagaStateInstance Start(Type sagaDataType, MessageContext messageContext)
+        public ISagaStateInstance Start(Type sagaDataType, IncommingMessageContext incommingMessageContext)
         {
             var sagaId = ShortGuid.NewGuid().ToString();
             var instance = InstanceCreator.CreateInstanceOf(sagaDataType) as ISagaState;
             if (instance == null)
                 throw new Exception("SagaState has to be inherited from ISagaState");
 
-            messageContext.SetHeader(SystemHeaders.SagaIdHeaderKey(sagaDataType), sagaId);
+            incommingMessageContext.SetHeader(SystemHeaders.SagaIdHeaderKey(sagaDataType), sagaId);
 
             return new SagaStateInstance(Address, sagaId, instance);
         }

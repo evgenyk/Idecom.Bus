@@ -22,7 +22,7 @@
 
         public void Execute(Action next, IChainExecutionContext context)
         {
-            var handlers = _messageToHandlerRoutingTable.ResolveRouteFor(context.IncomingMessageContext.IncomingTransportMessage.MessageType);
+            var handlers = _messageToHandlerRoutingTable.ResolveRouteFor(context.IncomingMessageContext.IncommingMessageType);
 
             if (!handlers.Any())
             {

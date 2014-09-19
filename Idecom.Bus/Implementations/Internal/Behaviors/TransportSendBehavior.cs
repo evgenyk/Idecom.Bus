@@ -28,7 +28,7 @@
             }
 
             var transportMessage = new TransportMessage(context.OutgoingMessage, _localAddress, resolveRouteFor, MessageIntent.Send, context.OutgoingMessageType);
-            _transport.Send(transportMessage);
+            _transport.Send(transportMessage, context.IncomingMessageContext == null, message =>context.DelayMessage(message));
             next();
         }
     }
