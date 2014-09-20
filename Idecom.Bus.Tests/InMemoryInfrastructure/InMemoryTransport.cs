@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Addressing;
     using Implementations.Behaviors;
     using Implementations.UnicastBus;
@@ -18,7 +19,11 @@
             var message = new TransportMessage(transportMessage.Message, transportMessage.SourceAddress, transportMessage.TargetAddress, transportMessage.Intent, transportMessage.MessageType,
                 transportMessage.Headers); //copying the message not to have side-effects
 
-            foreach (var subscription in _subscriptions) { subscription(message); }
+            foreach (var subscription in _subscriptions)
+            {
+                Action<TransportMessage> subscription1 = subscription;
+                Task.Factory.StartNew(() => subscription1(message)).Wait();
+            }
         }
 
         public void ListenToMessages(Action<TransportMessage> action)
