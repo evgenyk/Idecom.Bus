@@ -69,6 +69,7 @@
         {
             foreach (var collectionName in targetQueues.Select(queue => queue.ToString()))
             {
+                
                 if (!_database.CollectionExists(collectionName))
                     try {
                         _database.CreateCollection(collectionName);

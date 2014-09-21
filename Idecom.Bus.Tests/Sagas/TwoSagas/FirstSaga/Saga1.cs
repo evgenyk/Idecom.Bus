@@ -1,3 +1,5 @@
+using Xunit;
+
 namespace Idecom.Bus.Tests.Sagas.TwoSagas.FirstSaga
 {
     using Implementations;
@@ -10,6 +12,7 @@ namespace Idecom.Bus.Tests.Sagas.TwoSagas.FirstSaga
 
         public void Handle(IStartFirstSagaEvent command)
         {
+            Assert.NotNull(Data);
             Started = true;
             Bus.Raise<IStartSecondSagaEvent>();
         }
