@@ -50,6 +50,11 @@
 
         public void Send(TransportMessage transportMessage, bool isProcessingIncommingMessage, Action<TransportMessage> delayMessageAction)
         {
+            if (isProcessingIncommingMessage)
+            {
+                delayMessageAction(transportMessage);
+                return;
+            }
             InMemoryBroker.Enqueue(transportMessage);
         }
 
