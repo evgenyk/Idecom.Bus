@@ -6,7 +6,6 @@
     using Interfaces.Addons.Sagas;
     using Interfaces.Behaviors;
     using UnicastBus;
-    using Utility;
 
     public class ResumeSagaBehavior : IBehavior
     {
@@ -34,7 +33,7 @@
                     sagaData = _sagaManager.Resume(sagaDataType, context.IncomingMessageContext);
                     if (sagaData == null)
                     {
-                        string sagaId = "no saga id present in incoming message headers";
+                        var sagaId = "no saga id present in incoming message headers";
                         if (context.IncomingMessageContext.ContainsSagaIdForType(sagaDataType))
                             sagaId = context.IncomingMessageContext.GetSagaIdForType(sagaDataType);
                         Console.WriteLine("Could not find saga data for message type: " + context.IncomingMessageContext.IncommingMessageType + ", sagaId: " + sagaId);
@@ -48,15 +47,11 @@
 
                 if (sagaData == null) return;
 
-                if (context.SagaContext.HandlerClosedSaga) {
-                    _sagaManager.CloseSaga(sagaData);
-                }
+                if (context.SagaContext.HandlerClosedSaga) { _sagaManager.CloseSaga(sagaData); }
                 else _sagaManager.UpdateSaga(sagaData);
             }
             else
-            {
-                next();
-            }
+            { next(); }
         }
 
 

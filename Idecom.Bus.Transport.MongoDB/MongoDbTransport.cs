@@ -26,11 +26,12 @@
         public IBehaviorChains Chains { get; set; }
 
         public int Retries { get; set; }
+        public int WorkersCount { get; set; }
 
         public void BeforeBusStarted()
         {
             _database = new MongoClient(ConnectionString).GetServer().GetDatabase(DatabaseName);
-            CreateQueues(MesageRoutingTable.GetDestinations().Union(new[] { LocalAddress }));
+            CreateQueues(MesageRoutingTable.GetDestinations().Union(new[] {LocalAddress}));
             var localCollection = _database.GetCollection<MongoTransportMessageEntity>(LocalAddress.ToString());
 
             _sender = new MessageSender(_database, MessageSerializer);
@@ -45,8 +46,6 @@
             _sender.Stop();
             _database.Server.Disconnect();
         }
-
-        public int WorkersCount { get; set; }
 
         public void Send(TransportMessage transportMessage, bool isProcessingIncommingMessage, Action<TransportMessage> delayMessageAction)
         {
@@ -69,8 +68,7 @@
             {
                 if (!_database.CollectionExists(collectionName))
                     try { _database.CreateCollection(collectionName); }
-                    catch (Exception e)
-                    {
+                    catch (Exception e) {
                         Console.WriteLine("Could not create collection {0} with exception {1}", collectionName, e);
                     }
                 var mongoCollection = _database.GetCollection(collectionName);
@@ -87,6 +85,5 @@
 
             using (var ct = AmbientChainContext.Current.Push(context => { context.IncomingMessageContext = new IncommingMessageContext(transportMessage, 1, Retries); })) { ce.RunWithIt(chain, ct); }
         }
-
     }
 }

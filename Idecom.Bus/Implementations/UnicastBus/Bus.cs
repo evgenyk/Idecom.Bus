@@ -125,7 +125,8 @@
         public void Reply(object message)
         {
             if (LocalAddress.Equals(AmbientChainContext.Current.IncomingMessageContext.SourceAddress))
-                throw new Exception(string.Format("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: {0}", AmbientChainContext.Current.IncomingMessageContext.SourceAddress));
+                throw new Exception(string.Format("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: {0}",
+                    AmbientChainContext.Current.IncomingMessageContext.SourceAddress));
 
             var executor = new ChainExecutor(Container);
 

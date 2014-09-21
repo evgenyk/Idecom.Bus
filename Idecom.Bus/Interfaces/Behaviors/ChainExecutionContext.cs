@@ -38,6 +38,11 @@ namespace Idecom.Bus.Interfaces.Behaviors
             if (_parentContext == null) { _delayedMessageContext = new ThreadLocal<DelayedMessageContext>(() => new DelayedMessageContext()); }
         }
 
+        public DelayedMessageContext DelayedMessageContext
+        {
+            get { return _delayedMessageContext.Value ?? (_parentContext.IsValueCreated ? null : _parentContext.Value.DelayedMessageContext); }
+        }
+
         public SagaContext SagaContext
         {
             get
@@ -53,11 +58,6 @@ namespace Idecom.Bus.Interfaces.Behaviors
                 else
                 { _parentContext.Value.SagaContext = value; }
             }
-        }
-
-        public DelayedMessageContext DelayedMessageContext
-        {
-            get { return _delayedMessageContext.Value ?? (_parentContext.IsValueCreated ? null : _parentContext.Value.DelayedMessageContext); }
         }
 
         public object OutgoingMessage

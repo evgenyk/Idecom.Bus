@@ -2,7 +2,6 @@ namespace Idecom.Bus.Interfaces.Addons.PubSub
 {
     using System;
     using System.Collections.Generic;
-    using Implementations.UnicastBus;
     using Transport;
 
     public interface ISubscriptionDistributor

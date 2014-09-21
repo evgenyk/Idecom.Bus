@@ -1,7 +1,6 @@
 namespace Idecom.Bus.Implementations.UnicastBus
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using Addressing;
@@ -12,7 +11,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
     public class IncommingMessageContext : IMessageContext
     {
         readonly Dictionary<string, string> _headers;
-        TransportMessage _incomingTransportMessage;
+        readonly TransportMessage _incomingTransportMessage;
 
         protected IncommingMessageContext()
         {
@@ -24,19 +23,6 @@ namespace Idecom.Bus.Implementations.UnicastBus
             _incomingTransportMessage = incomingTransportMessage;
             Attempt = attempt;
             MaxAttempts = maxAttempts;
-        }
-
-        public int Attempt { get; set; }
-        public int MaxAttempts { get; set; }
-
-        public void SetHeader(string key, string value)
-        {
-            _headers[key] = value;
-        }
-
-        public string GetHeader(string key)
-        {
-            return _headers.ContainsKey(key) ? _headers[key] : null;
         }
 
         public Type IncommingMessageType
@@ -52,6 +38,19 @@ namespace Idecom.Bus.Implementations.UnicastBus
         public object IncommingMessage
         {
             get { return _incomingTransportMessage.Message; }
+        }
+
+        public int Attempt { get; set; }
+        public int MaxAttempts { get; set; }
+
+        public void SetHeader(string key, string value)
+        {
+            _headers[key] = value;
+        }
+
+        public string GetHeader(string key)
+        {
+            return _headers.ContainsKey(key) ? _headers[key] : null;
         }
 
         public bool ContainsSagaIdForType(Type sagaDataType)

@@ -33,13 +33,14 @@ namespace Idecom.Bus.Implementations.Behaviors
             var behavior = container.Resolve(nextType) as IBehavior;
 
             if (behavior != null)
-                behavior.Execute(() => {
-                                           if (!behaviorQueue.Any()) { return; }
+                behavior.Execute(() =>
+                                 {
+                                     if (!behaviorQueue.Any()) { return; }
 
-                                           IBehavior behavior1 = null;
-                                           try { behavior1 = ExecuteNextBehavior(_container, behaviorQueue, context); }
-                                           finally { _container.Release(behavior1); }
-                }, context);
+                                     IBehavior behavior1 = null;
+                                     try { behavior1 = ExecuteNextBehavior(_container, behaviorQueue, context); }
+                                     finally { _container.Release(behavior1); }
+                                 }, context);
             return behavior;
         }
     }

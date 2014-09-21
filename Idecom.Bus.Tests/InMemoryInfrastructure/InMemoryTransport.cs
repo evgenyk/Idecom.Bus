@@ -21,7 +21,7 @@
 
             foreach (var subscription in _subscriptions)
             {
-                Action<TransportMessage> subscription1 = subscription;
+                var subscription1 = subscription;
                 Task.Factory.StartNew(() => subscription1(message)).Wait();
             }
         }

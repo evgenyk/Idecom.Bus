@@ -8,8 +8,8 @@
 
     public class ReplyBehavior : IBehavior
     {
-        readonly ITransport _transport;
         readonly Address _localAddress;
+        readonly ITransport _transport;
 
         public ReplyBehavior(ITransport transport, Address localAddress)
         {
