@@ -10,8 +10,8 @@
 
     public class BasicSendAndPublishTests : IHandle<ACommand>, IHandle<IEvent>
     {
-        static volatile int _commandsHandled;
-        static volatile int _eventsHandled;
+//        static volatile int _commandsHandled;
+//        static volatile int _eventsHandled;
 
         public void Handle(ACommand command)
         {
@@ -48,11 +48,28 @@
                                .InMemoryTransport()
                                .InMemoryPubSub()
                                .JsonNetSerializer()
-                               .CreateBus("app1")
+                               .CreateTestBus("app1")
                                .Start();
 
             bus.Raise<IEvent>(e => { });
             _eventsHandled.ShouldBeGreaterThan(0);
+        }
+    }
+
+    public class TestBus: Implementations.UnicastBus.Bus
+    {
+        public new TestBus Start()
+        {
+            base.Start();
+            return this;
+        }
+    }
+
+    public static class BusExtensions
+    {
+        public static TestBus CreateTestBus(this Configure config, string queueName)
+        {
+
         }
     }
 

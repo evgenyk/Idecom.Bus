@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    interface IEffectiveConfiguration
+    public interface IEffectiveConfiguration
     {
         Func<Type, bool> IsEvent { get; }
         Func<Type, bool> IsCommand { get; }

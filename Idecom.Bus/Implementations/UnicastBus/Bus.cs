@@ -12,7 +12,7 @@
     using Internal;
     using Utility;
 
-    class Bus : IBusInstance
+    public class Bus : IBusInstance
     {
         bool _isStarted;
         public IContainer Container { get; set; }
