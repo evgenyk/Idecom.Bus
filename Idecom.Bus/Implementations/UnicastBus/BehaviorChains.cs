@@ -1,5 +1,6 @@
 namespace Idecom.Bus.Implementations.UnicastBus
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using Behaviors;
@@ -20,6 +21,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
     public interface IBehaviorChains
     {
         IBehaviorChain GetChainFor(ChainIntent intent);
+        void WrapWith<T>(ChainIntent intent) where T : IBehavior;
     }
 
     class BehaviorChains : IBehaviorChains
@@ -78,6 +80,11 @@ namespace Idecom.Bus.Implementations.UnicastBus
             BehaviorChain chain;
             var tryGetValue = _chains.TryGetValue(intent, out chain);
             return tryGetValue ? chain : new BehaviorChain();
+        }
+
+        public void WrapWith<T>(ChainIntent intent) where T : IBehavior
+        {
+            _chains[intent].WrapWith<T>();
         }
     }
 }

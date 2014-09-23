@@ -108,6 +108,7 @@
     <Compile Include="Interfaces\IMessageToStartSagaMapping.cs" />
     <Compile Include="Interfaces\IStartThisSagaWhenReceive.cs" />
     <Compile Include="Interfaces\ITransport.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Transport\MessageIntent.cs" />
     <Compile Include="Transport\TransportMessage.cs" />
     <Compile Include="Utility\AssemblyScanner.cs" />

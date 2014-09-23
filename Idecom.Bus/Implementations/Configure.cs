@@ -12,7 +12,7 @@
 
     public class Configure
     {
-        readonly List<NamespaceToEndpointMapping> _namespaceToEndpoints;
+        //readonly List<NamespaceToEndpointMapping> _namespaceToEndpoints;
 
         IContainer _container;
 
@@ -26,35 +26,12 @@
             get { return _container; }
             internal set
             {
-                value.ConfigureInstance(new RoutingTable<Address>());
-                value.ConfigureInstance(new PluralRoutingTable<MethodInfo>());
-                value.ConfigureInstance(new RoutingTable<Type>());
-
-                value.Configure<EffectiveConfiguration>(ComponentLifecycle.Singleton);
-
-                value.ConfigureProperty<EffectiveConfiguration>(x => x.IsEvent, DefaultConfiguration.DefaultEventNamingConvention);
-                value.ConfigureProperty<EffectiveConfiguration>(x => x.IsCommand, DefaultConfiguration.DefaultCommandNamingConvention);
-                value.ConfigureProperty<EffectiveConfiguration>(x => x.IsHandler, DefaultConfiguration.DefaultHandlerConvention);
-                value.ConfigureProperty<EffectiveConfiguration>(x => x.NamespaceToEndpointMappings, _namespaceToEndpoints);
-
-                value.Configure<InstanceCreator>(ComponentLifecycle.Singleton);
-                value.Configure<Bus>(ComponentLifecycle.Singleton);
-                value.Configure<SubscriptionDistributor>(ComponentLifecycle.Singleton);
-                value.Configure<SagaManager>(ComponentLifecycle.Singleton);
-
-                value.Configure<ChainExecutor>(ComponentLifecycle.PerUnitOfWork);
-                value.Configure<BehaviorChains>(ComponentLifecycle.Singleton);
-
-                value.Configure<MessageToEndpointRoutingTable>(ComponentLifecycle.Singleton);
-                value.Configure<MessageToHandlerRoutingTable>(ComponentLifecycle.Singleton);
-                value.Configure<MessageToStartSagaMapping>(ComponentLifecycle.Singleton);
-
                 _container = value;
             }
         }
 
 
-        public static ConfigureContainer  With()
+        public static ConfigureContainer With()
         {
             return new ConfigureContainer(new Configure());
         }

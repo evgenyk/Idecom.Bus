@@ -3,7 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
+    using Addons.PubSub;
     using Addressing;
+    using Annotations;
     using Behaviors;
     using Interfaces;
     using Interfaces.Addons.PubSub;
@@ -15,20 +18,33 @@
     public class Bus : IBusInstance
     {
         bool _isStarted;
+        [UsedImplicitly]
         public IContainer Container { get; set; }
 
+        [UsedImplicitly]
         public IMessageToHandlerRoutingTable MessageToHandlerRoutingTable { get; set; }
+        [UsedImplicitly]
         public IMessageToEndpointRoutingTable MessageRoutingTable { get; set; }
+        [UsedImplicitly]
         public IMessageToStartSagaMapping MessageToStartSagaMapping { get; set; }
 
+        [UsedImplicitly]
         public IMessageSerializer Serializer { get; set; }
+        [UsedImplicitly]
         public IInstanceCreator InstanceCreator { get; set; }
+        [UsedImplicitly]
         public ISubscriptionDistributor SubscriptionDistributor { get; set; }
+        [UsedImplicitly]
         public ITransport Transport { get; set; }
+        [UsedImplicitly]
         public Address LocalAddress { get; set; }
+        [UsedImplicitly]
         public IEffectiveConfiguration EffectiveConfiguration { get; set; }
+        [UsedImplicitly]
         public ISagaStorage SagaStorage { get; set; }
+        [UsedImplicitly]
         public ISagaManager SagaManager { get; set; }
+        [UsedImplicitly]
         public IBehaviorChains Chains { get; set; }
 
 
@@ -54,6 +70,32 @@
                     throw new ArgumentException("Can not create bus. Container hasn't been provided or misconfigured.");
                 if (Serializer == null)
                     throw new ArgumentException("Can not create bus. Message serializer hasn't been provided or misconfigured.");
+
+
+                Container.ConfigureInstance(new RoutingTable<Address>());
+                Container.ConfigureInstance(new PluralRoutingTable<MethodInfo>());
+                Container.ConfigureInstance(new RoutingTable<Type>());
+
+                Container.Configure<EffectiveConfiguration>(ComponentLifecycle.Singleton);
+
+                Container.ConfigureProperty<EffectiveConfiguration>(x => x.IsEvent, DefaultConfiguration.DefaultEventNamingConvention);
+                Container.ConfigureProperty<EffectiveConfiguration>(x => x.IsCommand, DefaultConfiguration.DefaultCommandNamingConvention);
+                Container.ConfigureProperty<EffectiveConfiguration>(x => x.IsHandler, DefaultConfiguration.DefaultHandlerConvention);
+                Container.ConfigureProperty<EffectiveConfiguration>(x => x.NamespaceToEndpointMappings, _namespaceToEndpoints);
+
+                Container.Configure<InstanceCreator>(ComponentLifecycle.Singleton);
+                Container.Configure<Bus>(ComponentLifecycle.Singleton);
+                Container.Configure<SubscriptionDistributor>(ComponentLifecycle.Singleton);
+                Container.Configure<SagaManager>(ComponentLifecycle.Singleton);
+
+                Container.Configure<ChainExecutor>(ComponentLifecycle.PerUnitOfWork);
+                Container.Configure<BehaviorChains>(ComponentLifecycle.Singleton);
+
+                Container.Configure<MessageToEndpointRoutingTable>(ComponentLifecycle.Singleton);
+                Container.Configure<MessageToHandlerRoutingTable>(ComponentLifecycle.Singleton);
+                Container.Configure<MessageToStartSagaMapping>(ComponentLifecycle.Singleton);
+
+
 
                 Container.Configure<IncommingMessageContext>(ComponentLifecycle.PerUnitOfWork);
                 Container.Configure<OutgoingMessageContext>(ComponentLifecycle.PerUnitOfWork);
