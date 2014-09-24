@@ -5,6 +5,7 @@
     using System.Reflection;
     using Addons.PubSub;
     using Addressing;
+    using Behaviors;
     using Interfaces;
     using Internal;
     using UnicastBus;
@@ -12,10 +13,9 @@
     public class Configure
     {
         readonly List<NamespaceToEndpointMapping> _namespaceToEndpoints;
-
         IContainer _container;
 
-        protected Configure()
+        Configure()
         {
             _namespaceToEndpoints = new List<NamespaceToEndpointMapping>();
         }
@@ -25,26 +25,36 @@
             get { return _container; }
             internal set
             {
-                value.ConfigureInstance(new RoutingTable<Address>());
-                value.ConfigureInstance(new PluralRoutingTable<MethodInfo>());
-                value.ConfigureInstance(new RoutingTable<Type>());
-
-                value.Configure<EffectiveConfiguration>(ComponentLifecycle.Singleton);
-
-                value.ConfigureProperty<EffectiveConfiguration>(x => x.IsEvent, DefaultConfiguration.DefaultEventNamingConvention);
-                value.ConfigureProperty<EffectiveConfiguration>(x => x.IsCommand, DefaultConfiguration.DefaultCommandNamingConvention);
-                value.ConfigureProperty<EffectiveConfiguration>(x => x.IsHandler, DefaultConfiguration.DefaultHandlerConvention);
-                value.ConfigureProperty<EffectiveConfiguration>(x => x.NamespaceToEndpointMappings, _namespaceToEndpoints);
-
-                value.Configure<InstanceCreator>(ComponentLifecycle.Singleton);
-                value.Configure<Bus>(ComponentLifecycle.Singleton);
-                value.Configure<SubscriptionDistributor>(ComponentLifecycle.Singleton);
-                value.Configure<SagaManager>(ComponentLifecycle.Singleton);
-
                 _container = value;
+
+                _container.Configure<EffectiveConfiguration>(ComponentLifecycle.Singleton);
+
+                _container.ConfigureProperty<EffectiveConfiguration>(x => x.IsEvent, DefaultConfiguration.DefaultEventNamingConvention);
+                _container.ConfigureProperty<EffectiveConfiguration>(x => x.IsCommand, DefaultConfiguration.DefaultCommandNamingConvention);
+                _container.ConfigureProperty<EffectiveConfiguration>(x => x.IsHandler, DefaultConfiguration.DefaultHandlerConvention);
+                _container.ConfigureProperty<EffectiveConfiguration>(x => x.NamespaceToEndpointMappings, new List<NamespaceToEndpointMapping>());
+
+                _container.ConfigureInstance(new RoutingTable<Address>());
+                _container.ConfigureInstance(new PluralRoutingTable<MethodInfo>());
+                _container.ConfigureInstance(new RoutingTable<Type>());
+
+                _container.Configure<InstanceCreator>(ComponentLifecycle.Singleton);
+
+
+                _container.Configure<SubscriptionDistributor>(ComponentLifecycle.Singleton);
+                _container.Configure<SagaManager>(ComponentLifecycle.Singleton);
+
+                _container.Configure<ChainExecutor>(ComponentLifecycle.PerUnitOfWork);
+                _container.Configure<BehaviorChains>(ComponentLifecycle.Singleton);
+
+                _container.Configure<MessageToEndpointRoutingTable>(ComponentLifecycle.Singleton);
+                _container.Configure<MessageToHandlerRoutingTable>(ComponentLifecycle.Singleton);
+                _container.Configure<MessageToStartSagaMapping>(ComponentLifecycle.Singleton);
+
+                _container.Configure<IncommingMessageContext>(ComponentLifecycle.PerUnitOfWork);
+                _container.Configure<OutgoingMessageContext>(ComponentLifecycle.PerUnitOfWork);
             }
         }
-
 
         public static ConfigureContainer With()
         {
@@ -54,6 +64,8 @@
         public IBusInstance CreateBus(string queueName = null)
         {
             Container.ConfigureInstance(new Address(queueName));
+            Container.ConfigureProperty<EffectiveConfiguration>(x => x.NamespaceToEndpointMappings, _namespaceToEndpoints);
+            Container.Configure<Bus>(ComponentLifecycle.Singleton);
 
             var bus = Container.Resolve<IBusInstance>();
 
@@ -62,9 +74,9 @@
             return bus;
         }
 
-        public Configure DefineEventsAs(Func<Type, bool> eventsDefenition)
+        public Configure DefineEventsAs(Func<Type, bool> eventsDefinition)
         {
-            Container.ConfigureProperty<EffectiveConfiguration>(x => x.IsEvent, eventsDefenition);
+            Container.ConfigureProperty<EffectiveConfiguration>(x => x.IsEvent, eventsDefinition);
             return this;
         }
 

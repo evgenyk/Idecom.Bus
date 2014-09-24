@@ -1,11 +1,9 @@
 namespace Idecom.Bus.Interfaces.Behaviors
 {
-    public interface IBehaviorChain
-    {
-    }
+    using System;
 
     public interface IBehavior
     {
-
+        void Execute(Action next, IChainExecutionContext context);
     }
 }

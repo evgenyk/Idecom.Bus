@@ -1,26 +1,30 @@
 ﻿namespace Idecom.Bus.Tests
 {
+    using System.Collections;
+    using System.Linq;
     using Implementations;
     using InMemoryInfrastructure;
     using Interfaces;
     using IoC.CastleWindsor;
     using Serializer.JsonNet;
+    using TestingInfrustructure;
+    using Transport;
     using Xunit;
     using Xunit.Should;
 
     public class BasicSendAndPublishTests : IHandle<ACommand>, IHandle<IEvent>
     {
-        static volatile int _commandsHandled;
-        static volatile int _eventsHandled;
+//        static volatile int _commandsHandled;
+//        static volatile int _eventsHandled;
 
         public void Handle(ACommand command)
         {
-            _commandsHandled++;
+            //_commandsHandled++;
         }
 
         public void Handle(IEvent command)
         {
-            _eventsHandled++;
+            //_eventsHandled++;
         }
 
         [Fact]
@@ -28,29 +32,36 @@
         {
             var bus = Configure.With()
                                .WindsorContainer()
+                               .ExposeConfiguration(x => x.Container.ConfigureInstance(new InMemoryBroker()))
                                .InMemoryTransport()
                                .InMemoryPubSub()
                                .JsonNetSerializer()
-                               .CreateBus("app1")
+                               .CreateTestBus("app1")
                                .Start();
 
             bus.SendLocal(new ACommand());
-            _commandsHandled.ShouldBeGreaterThan(0);
+            bus.MessagesReceived.OfType<ACommand>().Count().ShouldBe(1);
         }
 
         [Fact]
         public void RaisingASimpleeventShouldHandleThisEvent()
         {
+            IContainer container = null;
             var bus = Configure.With()
                                .WindsorContainer()
+                               .ExposeConfiguration(x =>
+                                                    {
+                                                        container = x.Container;
+                                                        x.Container.ConfigureInstance(new InMemoryBroker());
+                                                    })
                                .InMemoryTransport()
                                .InMemoryPubSub()
                                .JsonNetSerializer()
-                               .CreateBus("app1")
+                               .CreateTestBus("app1")
                                .Start();
 
             bus.Raise<IEvent>(e => { });
-            _eventsHandled.ShouldBeGreaterThan(0);
+            bus.MessagesReceived.OfType<IEvent>().Count().ShouldBe(1);
         }
     }
 

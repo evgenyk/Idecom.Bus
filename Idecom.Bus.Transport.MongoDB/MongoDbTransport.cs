@@ -7,8 +7,10 @@
     using global::MongoDB.Driver;
     using global::MongoDB.Driver.Builders;
     using Implementations;
+    using Implementations.Behaviors;
     using Implementations.UnicastBus;
     using Interfaces;
+    using Interfaces.Behaviors;
 
     public class MongoDbTransport : ITransport, IBeforeBusStarted, IBeforeBusStopped
     {
@@ -21,8 +23,10 @@
         public IRoutingTable<Address> MesageRoutingTable { get; set; }
         public IMessageSerializer MessageSerializer { get; set; }
         public Address LocalAddress { get; set; }
+        public IBehaviorChains Chains { get; set; }
 
         public int Retries { get; set; }
+        public int WorkersCount { get; set; }
 
         public void BeforeBusStarted()
         {
@@ -43,27 +47,20 @@
             _database.Server.Disconnect();
         }
 
-        public int WorkersCount { get; set; }
-
-        public void ChangeWorkerCount(int workers)
+        public void Send(TransportMessage transportMessage, bool isProcessingIncommingMessage, Action<TransportMessage> delayMessageAction)
         {
-            _receiver.ChangeWorkersCount(workers);
-        }
+            if (isProcessingIncommingMessage)
+            {
+                delayMessageAction(transportMessage);
+                return;
+            }
 
-        public void Send(TransportMessage transportMessage, CurrentMessageContext currentMessageContext = null)
-        {
             if (transportMessage.TargetAddress == null)
                 throw new InvalidOperationException(string.Format("Can not send a message of type {0} as the target address could not be found. did you forget to configure routing?",
                     (transportMessage.MessageType ?? transportMessage.Message.GetType()).Name));
 
-            if (currentMessageContext == null)
-                _sender.Send(transportMessage);
-            else
-                currentMessageContext.DelayedSend(transportMessage);
+            _sender.Send(transportMessage);
         }
-
-        public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
-        public event EventHandler<TransportMessageFinishedEventArgs> TransportMessageFinished;
 
         void CreateQueues(IEnumerable<Address> targetQueues)
         {
@@ -71,9 +68,7 @@
             {
                 
                 if (!_database.CollectionExists(collectionName))
-                    try {
-                        _database.CreateCollection(collectionName);
-                    }
+                    try { _database.CreateCollection(collectionName); }
                     catch (Exception e) {
                         Console.WriteLine("Could not create collection {0} with exception {1}", collectionName, e);
                     }
@@ -86,12 +81,10 @@
 
         public void ProcessMessageReceivedEvent(TransportMessage transportMessage, int attempt, int maxRetries)
         {
-            TransportMessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage, attempt, maxRetries));
-        }
+            var ce = new ChainExecutor(Container);
+            var chain = Chains.GetChainFor(ChainIntent.TransportMessageReceive);
 
-        public void ProcessMessageFinishedEvent(TransportMessage transportMessage)
-        {
-            TransportMessageFinished(this, new TransportMessageFinishedEventArgs(transportMessage));
+            using (var ct = AmbientChainContext.Current.Push(context => { context.IncomingMessageContext = new IncommingMessageContext(transportMessage, 1, Retries); })) { ce.RunWithIt(chain, ct); }
         }
     }
 }

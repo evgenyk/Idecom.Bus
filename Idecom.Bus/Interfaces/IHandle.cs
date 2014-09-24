@@ -1,6 +1,6 @@
 ﻿namespace Idecom.Bus.Interfaces
 {
-    public interface IHandle<in T>
+    public interface IHandle<T>
     {
         void Handle(T command);
     }

@@ -23,7 +23,8 @@
                                        .CreateBus("app1")
                                        .Start();
 
-            busInstance.SendLocal(new SayHelloCommand("Blah"));
+            //var sayHelloCommand = new SayHelloCommand("Blah");
+            //busInstance.SendLocal(sayHelloCommand);
 
             Console.WriteLine("Bus configured. Press any key to close the app.");
             Console.ReadKey();

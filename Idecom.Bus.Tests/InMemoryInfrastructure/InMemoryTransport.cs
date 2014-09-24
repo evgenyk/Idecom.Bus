@@ -1,62 +1,69 @@
 ﻿namespace Idecom.Bus.Tests.InMemoryInfrastructure
 {
     using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Addressing;
+    using Implementations.Behaviors;
     using Implementations.UnicastBus;
     using Interfaces;
+    using Interfaces.Behaviors;
     using Transport;
 
-    static class SortOfInMemoryQueue
+    public class InMemoryBroker
     {
-        public static event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
+        readonly List<Action<TransportMessage>> _subscriptions = new List<Action<TransportMessage>>();
 
-        static void OnTransportMessageReceived(TransportMessageReceivedEventArgs e)
+        public void Enqueue(TransportMessage transportMessage)
         {
-            var handler = TransportMessageReceived;
-            if (handler != null) handler(null, e);
+            var message = new TransportMessage(transportMessage.Message, transportMessage.SourceAddress, transportMessage.TargetAddress, transportMessage.Intent, transportMessage.MessageType,
+                transportMessage.Headers); //copying the message not to have side-effects
+
+            foreach (var subscription in _subscriptions)
+            {
+                var subscription1 = subscription;
+                Task.Factory.StartNew(() => subscription1(message)).Wait();
+            }
         }
 
-        public static void Enque(TransportMessage transportMessage)
+        public void ListenToMessages(Action<TransportMessage> action)
         {
-            OnTransportMessageReceived(new TransportMessageReceivedEventArgs(transportMessage, 1, 1));
+            _subscriptions.Add(action);
         }
     }
 
-
     public class InMemoryTransport : ITransport
     {
-        public InMemoryTransport()
+        public InMemoryTransport(InMemoryBroker inMemoryBroker)
         {
-            SortOfInMemoryQueue.TransportMessageReceived += SortOfInMemoryQueue_TransportMessageReceived;
+            InMemoryBroker = inMemoryBroker;
+            InMemoryBroker.ListenToMessages(TransportMessageReceived);
         }
 
         public int Retries { get; set; }
         public IContainer Container { get; set; }
         public Address Address { get; set; }
+        public IBehaviorChains Chains { get; set; }
+        public IMessageSerializer Serializer { get; set; }
+        public InMemoryBroker InMemoryBroker { get; private set; }
         public int WorkersCount { get; set; }
 
-        public void ChangeWorkerCount(int workers)
+        public void Send(TransportMessage transportMessage, bool isProcessingIncommingMessage, Action<TransportMessage> delayMessageAction)
         {
-        }
-
-        public void Send(TransportMessage transportMessage, CurrentMessageContext currentMessageContext = null)
-        {
-            SortOfInMemoryQueue.Enque(transportMessage);
-        }
-
-        public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
-        public event EventHandler<TransportMessageFinishedEventArgs> TransportMessageFinished;
-
-        void SortOfInMemoryQueue_TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
-        {
-            if (e.TransportMessage.TargetAddress != Address)
-                return;
-
-            using (Container.BeginUnitOfWork())
+            if (isProcessingIncommingMessage)
             {
-                TransportMessageReceived(this, new TransportMessageReceivedEventArgs(e.TransportMessage, 1, Retries));
-                TransportMessageFinished(this, new TransportMessageFinishedEventArgs(e.TransportMessage));
+                delayMessageAction(transportMessage);
+                return;
             }
+            InMemoryBroker.Enqueue(transportMessage);
+        }
+
+        void TransportMessageReceived(TransportMessage transportMessage)
+        {
+            var ce = new ChainExecutor(Container);
+            var chain = Chains.GetChainFor(ChainIntent.TransportMessageReceive);
+
+            using (var ct = AmbientChainContext.Current.Push(context => { context.IncomingMessageContext = new IncommingMessageContext(transportMessage, 1, 1); })) { ce.RunWithIt(chain, ct); }
         }
     }
 }

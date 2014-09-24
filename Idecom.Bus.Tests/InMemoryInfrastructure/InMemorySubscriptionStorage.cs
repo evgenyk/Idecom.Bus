@@ -14,10 +14,10 @@ namespace Idecom.Bus.Tests.InMemoryInfrastructure
             _subscriptions = new Dictionary<Type, List<Address>>();
         }
 
-        public IEnumerable<Address> GetSubscribersFor<T>() where T : class
+        public IEnumerable<Address> GetSubscribersFor(Type type)
         {
-            if (_subscriptions.ContainsKey(typeof (T)))
-                return _subscriptions[typeof (T)];
+            if (_subscriptions.ContainsKey(type))
+                return _subscriptions[type];
             return new Address[] {};
         }
 

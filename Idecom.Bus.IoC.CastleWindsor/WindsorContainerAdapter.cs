@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using Castle.Core;
@@ -11,6 +12,7 @@
     using Interfaces;
     using Utility;
 
+    [DebuggerStepThrough]
     public class WindsorContainerAdapter : IContainer
     {
         readonly IWindsorContainer _container;
@@ -48,7 +50,10 @@
 
         public object Resolve(Type typeToBuild)
         {
-            return _container.Resolve(typeToBuild);
+            try { return _container.Resolve(typeToBuild); }
+            catch (Exception) {
+                return null;
+            }
         }
 
         public T Resolve<T>()

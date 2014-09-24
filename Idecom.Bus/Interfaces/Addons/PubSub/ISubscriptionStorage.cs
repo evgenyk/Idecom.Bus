@@ -6,7 +6,7 @@
 
     public interface ISubscriptionStorage
     {
-        IEnumerable<Address> GetSubscribersFor<T>() where T : class;
+        IEnumerable<Address> GetSubscribersFor(Type type);
         void Subscribe(Address subscriber, Type type);
         void Unsubscribe(Address subscriber, Type type);
     }

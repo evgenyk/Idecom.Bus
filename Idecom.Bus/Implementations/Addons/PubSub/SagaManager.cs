@@ -17,24 +17,24 @@
         public IInstanceCreator InstanceCreator { get; set; }
         public Address Address { get; set; }
 
-        public ISagaStateInstance Resume(Type sagaDataType, CurrentMessageContext currentMessageContext)
+        public ISagaStateInstance Resume(Type sagaDataType, IncommingMessageContext incommingMessageContext)
         {
-            if (!currentMessageContext.TransportMessage.Headers.ContainsKey(SystemHeaders.SagaIdHeaderKey(sagaDataType)))
+            if (!incommingMessageContext.ContainsSagaIdForType(sagaDataType))
                 return null;
 
-            var runningSagaId = currentMessageContext.TransportMessage.Headers[SystemHeaders.SagaIdHeaderKey(sagaDataType)];
+            var runningSagaId = incommingMessageContext.GetSagaIdForType(sagaDataType);
             var sagaState = SagaStorage.Get(runningSagaId) as ISagaState;
             return new SagaStateInstance(Address, runningSagaId, sagaState);
         }
 
-        public ISagaStateInstance Start(Type sagaDataType, CurrentMessageContext currentMessageContext)
+        public ISagaStateInstance Start(Type sagaDataType, IncommingMessageContext incommingMessageContext)
         {
             var sagaId = ShortGuid.NewGuid().ToString();
             var instance = InstanceCreator.CreateInstanceOf(sagaDataType) as ISagaState;
             if (instance == null)
                 throw new Exception("SagaState has to be inherited from ISagaState");
 
-            AddSagaIdToHeaders(sagaId, sagaDataType, currentMessageContext);
+            incommingMessageContext.SetHeader(SystemHeaders.SagaIdHeaderKey(sagaDataType), sagaId);
 
             return new SagaStateInstance(Address, sagaId, instance);
         }
@@ -46,10 +46,14 @@
             return transportMessage;
         }
 
-        void AddSagaIdToHeaders(string sagaId, Type sagaDataType, CurrentMessageContext currentMessageContext)
+        public void CloseSaga(ISagaStateInstance sagaInstance)
         {
-            var headerKey = SystemHeaders.SagaIdHeaderKey(sagaDataType);
-            currentMessageContext.SetHeader(headerKey, sagaId);
+            SagaStorage.Close(sagaInstance.SagaId);
+        }
+
+        public void UpdateSaga(ISagaStateInstance sagaInstance)
+        {
+            SagaStorage.Update(sagaInstance.SagaId, sagaInstance.SagaData);
         }
     }
 }

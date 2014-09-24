@@ -13,7 +13,8 @@
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <TargetFrameworkProfile />
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,6 +24,9 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,9 +35,11 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
@@ -43,19 +49,38 @@
     <Compile Include="Addressing\Address.cs" />
     <Compile Include="Implementations\Addons\PubSub\SagaManager.cs" />
     <Compile Include="Implementations\Addons\PubSub\SubscriptionDistributor.cs" />
+    <Compile Include="Implementations\Behaviors\BehaviorChain.cs" />
+    <Compile Include="Implementations\Behaviors\ChainExecutor.cs" />
     <Compile Include="Implementations\Configure.cs" />
     <Compile Include="Implementations\ConfigureContainer.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\Incoming\DispachMessageToHandlerBehavior.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\Incoming\ResumeSagaBehavior.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\Incoming\MultiplexIncomingTransportMessageToHandlers.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\Incoming\SendDelayedMessagesBehavior.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\ReplyBehavior.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\ThrowIfBusNotStartedBehavior.cs" />
+    <Compile Include="Implementations\MessageToEndpointRoutingTable.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\OutgoingMessageValidationBehavior.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\TransportPublishBehavior.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\TransportSendBehavior.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\TransportSendLocalBehavior.cs" />
     <Compile Include="Implementations\Internal\DefaultConfiguration.cs" />
     <Compile Include="Implementations\Internal\EffectiveConfiguration.cs" />
     <Compile Include="Implementations\InstanceCreator.cs" />
     <Compile Include="Implementations\Internal\NamespaceToEndpointMapping.cs" />
+    <Compile Include="Implementations\MessageToHandlerRoutingTable.cs" />
+    <Compile Include="Implementations\MessageToStartSagaMapping.cs" />
     <Compile Include="Implementations\PluralRoutingTable.cs" />
     <Compile Include="Implementations\NestedConfigurationBase.cs" />
     <Compile Include="Implementations\RoutingTable.cs" />
     <Compile Include="Implementations\Saga.cs" />
     <Compile Include="Implementations\SingleInstanceSagaAttribute.cs" />
+    <Compile Include="Implementations\UnicastBus\BehaviorChains.cs" />
     <Compile Include="Implementations\UnicastBus\Bus.cs" />
-    <Compile Include="Implementations\UnicastBus\CurrentMessageContext.cs" />
+    <Compile Include="Implementations\UnicastBus\HandlerContext.cs" />
+    <Compile Include="Implementations\UnicastBus\IncommingMessageContext.cs" />
+    <Compile Include="Implementations\UnicastBus\OutgoingMessageContext.cs" />
+    <Compile Include="Implementations\UnicastBus\SagaContext.cs" />
     <Compile Include="Interfaces\Addons\PubSub\ISagaStorage.cs" />
     <Compile Include="Interfaces\Addons\PubSub\ISubscriptionDistributor.cs" />
     <Compile Include="Interfaces\Addons\PubSub\ISubscriptionStorage.cs" />
@@ -63,20 +88,27 @@
     <Compile Include="Interfaces\Addons\Sagas\ISagaStateInstance.cs" />
     <Compile Include="Interfaces\Addons\Sagas\ISagaManager.cs" />
     <Compile Include="Interfaces\Addons\Sagas\ISagaState.cs" />
+    <Compile Include="Interfaces\Behaviors\AmbientChainContext.cs" />
+    <Compile Include="Interfaces\Behaviors\ChainExecutionContext.cs" />
+    <Compile Include="Interfaces\Behaviors\DelayedMessageContext.cs" />
     <Compile Include="Interfaces\Behaviors\IBehavior.cs" />
+    <Compile Include="Interfaces\Behaviors\IBehaviorChain.cs" />
+    <Compile Include="Interfaces\Behaviors\IChainExecutor.cs" />
     <Compile Include="Interfaces\IBeforeBusStarted.cs" />
     <Compile Include="Interfaces\IBeforeBusStopped.cs" />
     <Compile Include="Interfaces\IBus.cs" />
     <Compile Include="Interfaces\IBusInstance.cs" />
     <Compile Include="Interfaces\IContainer.cs" />
     <Compile Include="Interfaces\IHandle.cs" />
+    <Compile Include="Interfaces\IMessageToEndpointRoutingTable.cs" />
     <Compile Include="Interfaces\IInstanceCreator.cs" />
     <Compile Include="Interfaces\IMessageContext.cs" />
+    <Compile Include="Interfaces\IMessageToHandlerRoutingTable.cs" />
     <Compile Include="Interfaces\IMessageSerializer.cs" />
+    <Compile Include="Interfaces\IMessageToStartSagaMapping.cs" />
     <Compile Include="Interfaces\IStartThisSagaWhenReceive.cs" />
     <Compile Include="Interfaces\ITransport.cs" />
-    <Compile Include="Transport\TransportMessageFinishedEventArgs.cs" />
-    <Compile Include="Transport\TransportMessageReceivedEventArgs.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Transport\MessageIntent.cs" />
     <Compile Include="Transport\TransportMessage.cs" />
     <Compile Include="Utility\AssemblyScanner.cs" />
@@ -87,9 +119,7 @@
     <Compile Include="Utility\SystemHeaders.cs" />
     <Compile Include="Utility\TypeResolver.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Implementations\Behaviors\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

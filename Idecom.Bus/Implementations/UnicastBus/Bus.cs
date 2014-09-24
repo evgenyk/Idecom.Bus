@@ -2,37 +2,60 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
+    using Addons.PubSub;
     using Addressing;
+    using Annotations;
+    using Behaviors;
     using Interfaces;
     using Interfaces.Addons.PubSub;
     using Interfaces.Addons.Sagas;
+    using Interfaces.Behaviors;
     using Internal;
-    using Transport;
     using Utility;
 
-    class Bus : IBusInstance
+    public class Bus : IBusInstance
     {
         bool _isStarted;
+        [UsedImplicitly]
         public IContainer Container { get; set; }
-        public IMultiRoutingTable<MethodInfo> HandlerRoutingTable { get; set; }
-        public IRoutingTable<Address> MessageRoutingTable { get; set; }
-        public IRoutingTable<Type> MessageToStartSagaMapping { get; set; }
+
+        [UsedImplicitly]
+        public IMessageToHandlerRoutingTable MessageToHandlerRoutingTable { get; set; }
+        [UsedImplicitly]
+        public IMessageToEndpointRoutingTable MessageRoutingTable { get; set; }
+        [UsedImplicitly]
+        public IMessageToStartSagaMapping MessageToStartSagaMapping { get; set; }
+
+        [UsedImplicitly]
         public IMessageSerializer Serializer { get; set; }
+        [UsedImplicitly]
         public IInstanceCreator InstanceCreator { get; set; }
+        [UsedImplicitly]
         public ISubscriptionDistributor SubscriptionDistributor { get; set; }
+        [UsedImplicitly]
         public ITransport Transport { get; set; }
+        [UsedImplicitly]
         public Address LocalAddress { get; set; }
+        [UsedImplicitly]
         public IEffectiveConfiguration EffectiveConfiguration { get; set; }
+        [UsedImplicitly]
         public ISagaStorage SagaStorage { get; set; }
+        [UsedImplicitly]
         public ISagaManager SagaManager { get; set; }
+        [UsedImplicitly]
+        public IBehaviorChains Chains { get; set; }
 
 
         public IMessageContext CurrentMessageContext
         {
-            get { return CurrentMessageContextInternal(); }
+            get { return AmbientChainContext.Current.IncomingMessageContext; }
+        }
+
+        public bool IsStarted
+        {
+            get { return _isStarted; }
         }
 
         public IBusInstance Start()
@@ -42,25 +65,23 @@
                 if (_isStarted)
                     throw new ArgumentException("Can't start bus which already started.");
                 if (Transport == null)
-                    throw new ArgumentException("Can not create bus. Transport hasn't been provided.");
+                    throw new ArgumentException("Can not create bus. Transport hasn't been provided or misconfigured.");
                 if (Container == null)
-                    throw new ArgumentException("Can not create bus. Container hasn't been provided.");
+                    throw new ArgumentException("Can not create bus. Container hasn't been provided or misconfigured.");
                 if (Serializer == null)
-                    throw new ArgumentException("Can not create bus. Message serializer hasn't been provided.");
+                    throw new ArgumentException("Can not create bus. Message serializer hasn't been provided or misconfigured.");
 
-                Container.Configure<CurrentMessageContext>(ComponentLifecycle.PerUnitOfWork);
 
+                Container.Configure<Bus>(ComponentLifecycle.Singleton);
 
                 var allTypes = AssemblyScanner.GetTypes().ToList();
                 var events = allTypes.Where(EffectiveConfiguration.IsEvent).ToList();
                 var commands = allTypes.Where(EffectiveConfiguration.IsCommand).ToList();
                 ApplyHandlerMapping(events, commands, allTypes);
+                var eventsWithHandlers = events.Where(e => MessageToHandlerRoutingTable.ResolveRouteFor(e).Any()).ToList();
 
-                var eventsWithHandlers = events.Where(e => HandlerRoutingTable.ResolveRouteFor(e).Any()).ToList();
-
-
-                Transport.TransportMessageReceived += TransportMessageReceived;
-                Transport.TransportMessageFinished += TransportOnTransportMessageFinished;
+                var behaviors = allTypes.Where(x => typeof (IBehavior).IsAssignableFrom(x) && !x.IsInterface).ToList();
+                behaviors.ForEach(x => Container.Configure(x, ComponentLifecycle.PerUnitOfWork));
 
                 foreach (var beforeBusStarted in Container.ResolveAll<IBeforeBusStarted>())
                 {
@@ -97,144 +118,60 @@
             }
         }
 
+
         public void Send(object message)
         {
-            ExecuteOnlyWhenStarted(
-                () => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Send), CurrentMessageContextInternal()));
+            using (var executionContext = AmbientChainContext.Current.Push(context =>
+                                                                           {
+                                                                               context.OutgoingMessage = message;
+                                                                               context.OutgoingMessageType = message.GetType();
+                                                                           })) {
+                                                                               new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.Send), executionContext);
+                                                                           }
         }
 
         public void SendLocal(object message)
         {
-            ExecuteOnlyWhenStarted(() => Transport.Send(new TransportMessage(message, LocalAddress, LocalAddress, MessageIntent.SendLocal), CurrentMessageContextInternal()));
+            using (var executionContext = AmbientChainContext.Current.Push(context => { context.OutgoingMessage = message; })) {
+                new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.SendLocal), executionContext);
+            }
         }
 
         public void Reply(object message)
         {
-            if (LocalAddress.Equals(CurrentMessageContext.TransportMessage.SourceAddress))
+            if (LocalAddress.Equals(AmbientChainContext.Current.IncomingMessageContext.SourceAddress))
                 throw new Exception(string.Format("Received a message with reply address as a local queue. This can cause an infinite loop and been stopped. Queue: {0}",
-                    CurrentMessageContext.TransportMessage.SourceAddress));
+                    AmbientChainContext.Current.IncomingMessageContext.SourceAddress));
 
-            ExecuteOnlyWhenStarted(
-                () => Transport.Send(new TransportMessage(message, LocalAddress, MessageRoutingTable.ResolveRouteFor(message.GetType()), MessageIntent.Reply), CurrentMessageContextInternal()));
+            var executor = new ChainExecutor(Container);
+
+            using (var executionContext = AmbientChainContext.Current.Push(context =>
+                                                                           {
+                                                                               context.OutgoingMessage = message;
+                                                                               context.OutgoingMessageType = message.GetType();
+                                                                           })) {
+                                                                               executor.RunWithIt(Chains.GetChainFor(ChainIntent.Reply), executionContext);
+                                                                           }
         }
 
-        public void Raise<T>(Action<T> action) where T : class
+        public void Raise<T>(Action<T> action = null) where T : class
         {
             var message = InstanceCreator.CreateInstanceOf<T>();
-            if (action != null)
-                action(message);
+            if (action != null) action(message);
 
-            SubscriptionDistributor.NotifySubscribersOf<T>(message, CurrentMessageContextInternal());
-        }
+            var executor = new ChainExecutor(Container);
 
-        [DebuggerStepThrough]
-        CurrentMessageContext CurrentMessageContextInternal()
-        {
-            var currentMessageContext = Container.Resolve<CurrentMessageContext>();
-            Container.Release(currentMessageContext);
-            return currentMessageContext;
-        }
-
-        [DebuggerStepThrough]
-        void ExecuteOnlyWhenStarted(Action todo)
-        {
-            if (_isStarted || CurrentMessageContext != null)
-                todo();
-            else
-                throw new Exception("Can not send or receive messages while the bus is stopped.");
-        }
-
-        void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
-        {
-            CurrentMessageContext currentMessageContext = null;
-            try
+            using (var context = AmbientChainContext.Current.Push(childContext =>
+                                                                  {
+                                                                      childContext.OutgoingMessage = message;
+                                                                      childContext.OutgoingMessageType = typeof (T);
+                                                                  }))
             {
-                currentMessageContext = Container.Resolve<CurrentMessageContext>();
-                if (currentMessageContext == null)
-                    throw new Exception("Could not resolve current message context");
+                var behaviorChain = Chains.GetChainFor(ChainIntent.Publish);
 
-                currentMessageContext.TransportMessage = e.TransportMessage;
-                currentMessageContext.Attempt = e.Attempt;
-                currentMessageContext.MaxAttempts = e.MaxRetries + 1;
-
-                var message = e.TransportMessage.Message;
-                var type = e.TransportMessage.MessageType ?? message.GetType();
-                var handlerMethods = HandlerRoutingTable.ResolveRouteFor(type);
-
-                var executedHandlers = handlerMethods.Select(handler => ExecuteHandler(message, type, handler, currentMessageContext)).ToList();
-
-                if (executedHandlers.All(x => !x))
-                    Console.WriteLine("Warning: {1} received a message of type {0}, but could not find a handler for it", e.TransportMessage.MessageType, LocalAddress);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error while receiving a message: " + ex);
-                throw;
-            }
-            finally {
-                Container.Release(currentMessageContext);
+                executor.RunWithIt(behaviorChain, context);
             }
         }
-
-        bool ExecuteHandler(object message, Type messageType, MethodInfo handlerMethod, CurrentMessageContext currentMessageContext)
-        {
-            var handler = Container.Resolve(handlerMethod.DeclaringType);
-            Action executeHandler = () => handlerMethod.Invoke(handler, new[] {message});
-
-
-            if (IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType)) //this must be a saga, whether existing or a new one is a diffirent question
-            {
-                var sagaDataType = handlerMethod.DeclaringType.BaseType.GenericTypeArguments.First();
-                var startSagaTypes = MessageToStartSagaMapping.ResolveRouteFor(messageType);
-                var sagaData = startSagaTypes != null ? SagaManager.Start(sagaDataType, currentMessageContext) : SagaManager.Resume(sagaDataType, currentMessageContext);
-
-                if (sagaData == null)
-                {
-                    Console.WriteLine("Warning: SagaNotFound {0}<{1}> for incoming message {2}", handlerMethod.DeclaringType, sagaDataType.Name, messageType.Name);
-                    return false;
-                }
-
-                var sagaDataProperty = handler.GetType().GetProperty("Data");
-                sagaDataProperty.SetValue(handler, sagaData.SagaState);
-
-                try {
-                    executeHandler();
-                }
-                finally
-                {
-                    if (((ISaga) handler).IsClosed)
-                        SagaStorage.Close(sagaData.SagaId);
-                    else
-                        SagaStorage.Update(sagaData.SagaId, sagaData.SagaState);
-                }
-            }
-            else
-            {
-                //normal saga-less handler
-                executeHandler();
-            }
-
-            return true;
-        }
-
-        static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
-        {
-            while (toCheck != null && toCheck != typeof (object))
-            {
-                var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
-                if (generic == cur) { return true; }
-                toCheck = toCheck.BaseType;
-            }
-            return false;
-        }
-
-        /// <summary>
-        ///     TODO: Don't have use fot this event now
-        /// </summary>
-        void TransportOnTransportMessageFinished(object sender, TransportMessageFinishedEventArgs transportMessageFinishedEventArgs)
-        {
-        }
-
 
         void ApplyHandlerMapping(IEnumerable<Type> events, IEnumerable<Type> commands, IEnumerable<Type> allTypes)
         {
@@ -266,9 +203,9 @@
                 var firstParameter = methodInfo.GetParameters().FirstOrDefault();
                 if (firstParameter == null) continue;
 
-                HandlerRoutingTable.RouteTypes(new[] {firstParameter.ParameterType}, methodInfo);
+                MessageToHandlerRoutingTable.RouteTypes(new[] {firstParameter.ParameterType}, methodInfo);
 
-                var methods = HandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
+                var methods = MessageToHandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
                 foreach (var method in methods)
                     Container.Configure(method.DeclaringType, ComponentLifecycle.PerUnitOfWork);
             }

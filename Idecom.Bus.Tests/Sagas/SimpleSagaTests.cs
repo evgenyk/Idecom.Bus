@@ -7,6 +7,7 @@
     using Interfaces.Addons.Sagas;
     using IoC.CastleWindsor;
     using Serializer.JsonNet;
+    using TestingInfrustructure;
     using Xunit;
     using Xunit.Should;
 
@@ -21,9 +22,13 @@
                                .InMemoryTransport()
                                .InMemoryPubSub()
                                .JsonNetSerializer()
-                               .ExposeConfiguration(x => { inMemorySagaPersister = x.Container.Resolve<InMemorySagaPersister>(); })
+                               .ExposeConfiguration(x =>
+                                                    {
+                                                        inMemorySagaPersister = x.Container.Resolve<InMemorySagaPersister>();
+                                                        x.Container.ConfigureInstance(new InMemoryBroker());
+                                                    })
                                .DefineEventsAs(type => type == typeof (IStartSimpleSagaEvent) || type == typeof (ICompleteSimpleSagaEvent))
-                               .CreateBus("app1")
+                               .CreateTestBus("app1")
                                .Start();
 
             bus.Raise<IStartSimpleSagaEvent>();

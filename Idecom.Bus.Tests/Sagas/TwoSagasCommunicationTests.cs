@@ -5,6 +5,7 @@
     using InMemoryInfrastructure;
     using IoC.CastleWindsor;
     using Serializer.JsonNet;
+    using TestingInfrustructure;
     using TwoSagas.FirstSaga;
     using TwoSagas.Messages;
     using TwoSagas.SecondSaga;
@@ -16,27 +17,36 @@
         public void TwoSagasCanTalkToEachOtherWhileKeepingStateSeparateTest()
         {
             InMemorySubscriptionStorage subscriptionStorage = null;
+            var inMemoryBroker = new InMemoryBroker();
 
             var bus1 = Configure.With()
                                 .WindsorContainer()
                                 .InMemoryTransport()
                                 .InMemoryPubSub()
                                 .JsonNetSerializer()
-                                .ExposeConfiguration(x => { subscriptionStorage = x.Container.Resolve<InMemorySubscriptionStorage>(); })
+                                .ExposeConfiguration(x =>
+                                                     {
+                                                         subscriptionStorage = x.Container.Resolve<InMemorySubscriptionStorage>();
+                                                         x.Container.ConfigureInstance(inMemoryBroker);
+                                                     })
                                 .DefineEventsAs(type => type.Namespace != null && type.Namespace.Equals("Idecom.Bus.Tests.Sagas.TwoSagas.Messages", StringComparison.InvariantCultureIgnoreCase))
                                 .DefineHandlersAs(type => type.Namespace != null && type.Namespace.Equals("Idecom.Bus.Tests.Sagas.TwoSagas.FirstSaga", StringComparison.InvariantCultureIgnoreCase))
-                                .CreateBus("app1")
+                                .CreateTestBus("app1")
                                 .Start();
 
             var bus2 = Configure.With()
                                 .WindsorContainer()
-                                .ExposeConfiguration(x => x.Container.ConfigureInstance(subscriptionStorage))
+                                .ExposeConfiguration(x =>
+                                                     {
+                                                         x.Container.ConfigureInstance(inMemoryBroker);
+                                                         x.Container.ConfigureInstance(subscriptionStorage);
+                                                     })
                                 .InMemoryTransport()
                                 .InMemoryPubSub()
                                 .JsonNetSerializer()
                                 .DefineEventsAs(type => type.Namespace != null && type.Namespace.Equals("Idecom.Bus.Tests.Sagas.TwoSagas.Messages", StringComparison.InvariantCultureIgnoreCase))
                                 .DefineHandlersAs(type => type.Namespace != null && type.Namespace.Equals("Idecom.Bus.Tests.Sagas.TwoSagas.SecondSaga", StringComparison.InvariantCultureIgnoreCase))
-                                .CreateBus("app2")
+                                .CreateTestBus("app2")
                                 .Start();
 
             bus1.Raise<IStartFirstSagaEvent>();
