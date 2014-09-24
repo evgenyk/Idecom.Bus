@@ -1,14 +1,14 @@
 ﻿namespace Idecom.Bus.Tests
 {
-    using System;
-    using Addressing;
+    using System.Collections;
+    using System.Linq;
     using Implementations;
-    using Implementations.UnicastBus;
     using InMemoryInfrastructure;
     using Interfaces;
-    using Interfaces.Behaviors;
     using IoC.CastleWindsor;
     using Serializer.JsonNet;
+    using TestingInfrustructure;
+    using Transport;
     using Xunit;
     using Xunit.Should;
 
@@ -36,11 +36,11 @@
                                .InMemoryTransport()
                                .InMemoryPubSub()
                                .JsonNetSerializer()
-                               .CreateBus("app1")
+                               .CreateTestBus("app1")
                                .Start();
 
             bus.SendLocal(new ACommand());
-            //_commandsHandled.ShouldBeGreaterThan(0);
+            bus.MessagesReceived.OfType<ACommand>().Count().ShouldBe(1);
         }
 
         [Fact]
@@ -60,55 +60,8 @@
                                .CreateTestBus("app1")
                                .Start();
 
-            var bus1 = container.Resolve<IBus>();
-            var bus2 = container.Resolve<TestBus>();
-
             bus.Raise<IEvent>(e => { });
-            bus.MessagesReceived.ShouldBe(1);
-        }
-    }
-
-    public class TestBus: Bus
-    {
-        public new TestBus Start()
-        {
-            base.Start();
-            return this;
-        }
-
-        public object MessagesReceived { get; private set; }
-    }
-
-    public class IncomingTransportMessageTraceBehavior : IBehavior
-    {
-        readonly TestBus _testBus;
-
-        public IncomingTransportMessageTraceBehavior(TestBus testBus)
-        {
-            _testBus = testBus;
-        }
-
-        public void Execute(Action next, IChainExecutionContext context)
-        {
-            next();
-        }
-    }
-
-    public static class BusExtensions
-    {
-        public static TestBus CreateTestBus(this Configure config, string queueName)
-        {
-            config.Container.ConfigureInstance(new Address(queueName));
-            config.Container.Configure<TestBus>(ComponentLifecycle.Singleton);
-
-            var bus = config.Container.Resolve<TestBus>();
-
-            config.Container.ParentContainer.ConfigureInstance(bus);
-            config.Container.Release(bus);
-
-            bus.Chains.WrapWith<IncomingTransportMessageTraceBehavior>(ChainIntent.TransportMessageReceive);
-
-            return bus;
+            bus.MessagesReceived.OfType<IEvent>().Count().ShouldBe(1);
         }
     }
 

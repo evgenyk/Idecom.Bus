@@ -27,7 +27,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
         readonly ThreadLocal<ChainExecutionContext> _parentContext;
         ThreadLocal<IncommingMessageContext> _incomingMessageContext;
 
-        Type _messageType;
+        ThreadLocal<Type> _outgoingMessageType;
         ThreadLocal<object> _outgoingMessage;
         ThreadLocal<SagaContext> _sagaContext;
 
@@ -65,17 +65,27 @@ namespace Idecom.Bus.Interfaces.Behaviors
             get
             {
                 if (_outgoingMessage != null) { return _outgoingMessage.Value; }
-                if (_parentContext == null) return _outgoingMessage ?? (_parentContext.IsValueCreated ? null : _parentContext.Value.OutgoingMessage);
+                
+                if (_parentContext == null)
+                    return _outgoingMessage == null ? null : _outgoingMessage.Value;
                 var parentContextValue = _parentContext.Value;
-                return parentContextValue == null ? parentContextValue : parentContextValue.OutgoingMessage;
+                return parentContextValue == null ? _outgoingMessage == null ? null : _outgoingMessage.Value : parentContextValue.OutgoingMessage;
             }
             set { _outgoingMessage = new ThreadLocal<object>(() => value); }
         }
 
         public Type OutgoingMessageType
         {
-            get { return _messageType ?? (_parentContext.IsValueCreated ? null : _parentContext.Value.OutgoingMessageType); }
-            set { _messageType = value; }
+            get
+            {
+                if (_outgoingMessageType != null) { return _outgoingMessageType.Value; }
+
+                if (_parentContext == null)
+                    return _outgoingMessageType == null ? null : _outgoingMessageType.Value;
+                var parentContextValue = _parentContext.Value;
+                return parentContextValue == null ? _outgoingMessageType == null ? null : _outgoingMessageType.Value : parentContextValue.OutgoingMessageType;
+            }
+            set { _outgoingMessageType = new ThreadLocal<Type>(() => value); }
         }
 
         public MethodInfo HandlerMethod { get; set; } //handler method can not be inherited as it's always local

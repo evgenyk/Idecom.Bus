@@ -27,9 +27,8 @@
 
         public interface IAmAnInterface : IAnotherInterface
         {
-#pragma warning disable 108,114
+            // ReSharper disable once CSharpWarnings::CS0108
             string StringProperty { get; set; }
-#pragma warning restore 108,114
         }
 
         public interface IAnotherInterface

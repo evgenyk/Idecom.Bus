@@ -72,6 +72,9 @@
     <Compile Include="Sagas\TwoSagas\Messages\IStartSecondSagaEvent.cs" />
     <Compile Include="Sagas\TwoSagas\SecondSaga\Saga2.cs" />
     <Compile Include="Sagas\TwoSagas\SecondSaga\Saga2State.cs" />
+    <Compile Include="TestingInfrustructure\BusExtensions.cs" />
+    <Compile Include="TestingInfrustructure\IncomingTransportMessageTraceBehavior.cs" />
+    <Compile Include="TestingInfrustructure\TestBus.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

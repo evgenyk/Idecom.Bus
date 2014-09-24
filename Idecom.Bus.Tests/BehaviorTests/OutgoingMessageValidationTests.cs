@@ -9,6 +9,7 @@
     using Interfaces.Behaviors;
     using IoC.CastleWindsor;
     using Serializer.JsonNet;
+    using TestingInfrustructure;
     using Xunit;
 
     public class OutgoingMessageValidationTests
@@ -32,7 +33,7 @@
                                .InMemoryTransport()
                                .InMemoryPubSub()
                                .JsonNetSerializer()
-                               .CreateBus("app1")
+                               .CreateTestBus("app1")
                                .Start();
 
             Assert.Throws<ValidationException>(() => bus.Send(new ACommand()));
