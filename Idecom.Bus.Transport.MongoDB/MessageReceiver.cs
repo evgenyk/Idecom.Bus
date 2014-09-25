@@ -18,7 +18,7 @@ namespace Idecom.Bus.Transport.MongoDB
         Thread _queueReaderThread;
         MaxWorkersTaskScheduler _scheduler;
         bool _stopReaderThread;
-        int _workersCount;
+        readonly int _workersCount;
 
         public MessageReceiver(int workersCount, IMessageSerializer serializer)
         {
@@ -152,13 +152,6 @@ namespace Idecom.Bus.Transport.MongoDB
             _stopReaderThread = true;
             _queueReaderThread.Join();
             _scheduler.Dispose();
-        }
-
-        public void ChangeWorkersCount(int workers)
-        {
-            Stop();
-            _workersCount = workers;
-            Start();
         }
     }
 }
