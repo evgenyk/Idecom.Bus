@@ -13,29 +13,29 @@
     {
         public void Handle(SayHelloCommand command)
         {
-            Console.WriteLine("Said goodbuy to a friend");
+            Console.WriteLine("04 \t Said goodbuy to a friend");
             Bus.Reply(new SayGoodByeCommand("See you"));
         }
 
         public void Handle(SeeYouCommand command)
         {
             Data.Started = false;
-            Console.WriteLine("Received See you back");
+            Console.WriteLine("06 \t Received See you back");
             CloseSaga();
-            Console.WriteLine("Closed saga");
+            Console.WriteLine("07 \t Closed saga");
         }
 
         public void Handle(IMetAFriendEvent command)
         {
             if (Data.Started)
             {
-                Console.WriteLine("Saga already started");
+                Console.WriteLine("Saga already started while it shouldn't have been");
                 return;
             }
             Data.Started = true;
-            Console.WriteLine("Met a friend, said hi");
+            Console.WriteLine("02 \t Met a friend, said hi");
             var sayHelloCommand = new SayHelloCommand("Hi");
-            Bus.Send(sayHelloCommand);
+            Bus.Reply(sayHelloCommand);
             Data.FriendSaidHello = true;
         }
     }

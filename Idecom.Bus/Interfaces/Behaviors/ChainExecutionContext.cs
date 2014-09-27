@@ -1,6 +1,7 @@
 namespace Idecom.Bus.Interfaces.Behaviors
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
@@ -15,6 +16,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
         object OutgoingMessage { get; set; }
         Type OutgoingMessageType { get; set; }
         MethodInfo HandlerMethod { get; set; }
+        ConcurrentDictionary<string, string> OutgoingHeaders { get; }
         IChainExecutionContext Push(Action<IChainExecutionContext> populator);
         void DelayMessage(TransportMessage transportMessage, ChainExecutionContext context = null);
         IEnumerable<TransportMessage> GetDelayedMessages(ChainExecutionContext context = null);
@@ -28,19 +30,34 @@ namespace Idecom.Bus.Interfaces.Behaviors
         ThreadLocal<IncommingMessageContext> _incomingMessageContext;
 
         ThreadLocal<Type> _outgoingMessageType;
+        ThreadLocal<ConcurrentDictionary<string, string>> _outgoingHeaders;
         ThreadLocal<object> _outgoingMessage;
+
         ThreadLocal<SagaContext> _sagaContext;
 
         internal ChainExecutionContext(ChainExecutionContext parentContext = null)
         {
             _parentContext = parentContext != null ? new ThreadLocal<ChainExecutionContext>(() => parentContext) : null;
 
-            if (_parentContext == null) { _delayedMessageContext = new ThreadLocal<DelayedMessageContext>(() => new DelayedMessageContext()); }
+            if (_parentContext != null) return;
+            
+            // those things leave only in the top-mopst context for misterious reasons you'd understand when read code more closely
+            _delayedMessageContext = new ThreadLocal<DelayedMessageContext>(() => new DelayedMessageContext());
+            _outgoingHeaders = new ThreadLocal<ConcurrentDictionary<string, string>>(() => new ConcurrentDictionary<string, string>());
         }
 
         public DelayedMessageContext DelayedMessageContext
         {
             get { return _delayedMessageContext.Value ?? (_parentContext.IsValueCreated ? null : _parentContext.Value.DelayedMessageContext); }
+        }
+
+        public ConcurrentDictionary<string, string> OutgoingHeaders
+        {
+            get
+            {
+                if (_parentContext != null) { return _parentContext.Value.OutgoingHeaders; }
+                return _outgoingHeaders.Value;
+            }
         }
 
         public SagaContext SagaContext

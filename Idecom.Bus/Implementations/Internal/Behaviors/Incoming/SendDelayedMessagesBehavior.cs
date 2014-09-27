@@ -22,6 +22,8 @@ namespace Idecom.Bus.Implementations.Internal.Behaviors.Incoming
                 if (context.IncomingMessageContext != null) {
                     foreach (var sagaHeader in context.IncomingMessageContext.GetSagaHeaders()) { transportMessage.Headers[sagaHeader.Key] = sagaHeader.Value; }
                 }
+                foreach (var outgoingHeader in context.OutgoingHeaders) { transportMessage.Headers[outgoingHeader.Key] = outgoingHeader.Value; }
+
                 _transport.Send(transportMessage, false, null);
             }
         }

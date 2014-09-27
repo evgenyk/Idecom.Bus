@@ -23,6 +23,7 @@
                                        .CreateBus("app2");
 
             var bus = busInstance.Start();
+            Console.WriteLine("01 \t Sending IMetAFriendEvent");
             bus.Raise<IMetAFriendEvent>(x =>
                                         {
                                             x.Name = "sdfsdfs";

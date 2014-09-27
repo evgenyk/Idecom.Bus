@@ -1,6 +1,7 @@
 ﻿namespace Idecom.Bus.Implementations.Addons.PubSub
 {
     using System;
+    using System.Collections.Concurrent;
     using Addressing;
     using Interfaces;
     using Interfaces.Addons.PubSub;
@@ -24,14 +25,17 @@
             return new SagaStateInstance(Address, runningSagaId, sagaState);
         }
 
-        public ISagaStateInstance Start(Type sagaDataType, IncommingMessageContext incommingMessageContext)
+        public ISagaStateInstance Start(Type sagaDataType, ConcurrentDictionary<string, string> outgoingHeaders)
         {
             var sagaId = ShortGuid.NewGuid().ToString();
             var instance = InstanceCreator.CreateInstanceOf(sagaDataType) as ISagaState;
+
+            Console.WriteLine("Started saga for {0} with id {1}", sagaDataType.FullName, sagaId);
+
             if (instance == null)
                 throw new Exception("SagaState has to be inherited from ISagaState");
 
-            incommingMessageContext.SetHeader(SystemHeaders.SagaIdHeaderKey(sagaDataType), sagaId);
+            outgoingHeaders.AddOrUpdate(SystemHeaders.SagaIdHeaderKey(sagaDataType), s => sagaId, (s, s1) => sagaId);
 
             return new SagaStateInstance(Address, sagaId, instance);
         }

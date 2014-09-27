@@ -10,12 +10,10 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
     public class IncommingMessageContext : IMessageContext
     {
-        readonly Dictionary<string, string> _headers;
         readonly TransportMessage _incomingTransportMessage;
 
         protected IncommingMessageContext()
         {
-            _headers = new Dictionary<string, string>();
         }
 
         public IncommingMessageContext(TransportMessage incomingTransportMessage, int attempt, int maxAttempts) : this()
@@ -43,14 +41,9 @@ namespace Idecom.Bus.Implementations.UnicastBus
         public int Attempt { get; set; }
         public int MaxAttempts { get; set; }
 
-        public void SetHeader(string key, string value)
+        public IEnumerable<KeyValuePair<string, string>> IncomingHeaders
         {
-            _headers[key] = value;
-        }
-
-        public string GetHeader(string key)
-        {
-            return _headers.ContainsKey(key) ? _headers[key] : null;
+            get { return _incomingTransportMessage.Headers; }
         }
 
         public bool ContainsSagaIdForType(Type sagaDataType)
@@ -65,7 +58,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
 
         public IEnumerable<KeyValuePair<string, string>> GetSagaHeaders()
         {
-            return _headers.Where(header => header.Key.StartsWith(SystemHeaders.SagaIdPrefix, StringComparison.InvariantCultureIgnoreCase));
+            return _incomingTransportMessage.Headers.Where(header => header.Key.StartsWith(SystemHeaders.SagaIdPrefix, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }

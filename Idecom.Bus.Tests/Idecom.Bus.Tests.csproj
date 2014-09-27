@@ -74,6 +74,7 @@
     <Compile Include="Sagas\TwoSagasCommunicationTests.cs" />
     <Compile Include="Sagas\TwoSagas\FirstSaga\Saga1.cs" />
     <Compile Include="Sagas\TwoSagas\FirstSaga\Saga1State.cs" />
+    <Compile Include="Sagas\TwoSagas\Messages\IRsumeFirstSagaAsEventFromSecondSaga.cs" />
     <Compile Include="Sagas\TwoSagas\Messages\IStartFirstSagaEvent.cs" />
     <Compile Include="Sagas\TwoSagas\Messages\IStartSecondSagaEvent.cs" />
     <Compile Include="Sagas\TwoSagas\SecondSaga\Saga2.cs" />

@@ -24,10 +24,9 @@
             if (IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType)) //this must be a saga, whether existing or a new one is a diffirent question
             {
                 var sagaDataType = handlerMethod.DeclaringType.BaseType.GenericTypeArguments.First();
-                var startSagaTypes =
-                    _messageToStartSagaMapping.ResolveRouteFor(context.IncomingMessageContext.IncommingMessageType);
+                var startSagaTypes = _messageToStartSagaMapping.ResolveRouteFor(context.IncomingMessageContext.IncommingMessageType);
                 ISagaStateInstance sagaData;
-                if (startSagaTypes != null) sagaData = _sagaManager.Start(sagaDataType, context.IncomingMessageContext);
+                if (startSagaTypes != null) sagaData = _sagaManager.Start(sagaDataType, context.OutgoingHeaders);
                 else
                 {
                     sagaData = _sagaManager.Resume(sagaDataType, context.IncomingMessageContext);
@@ -36,7 +35,7 @@
                         var sagaId = "no saga id present in incoming message headers";
                         if (context.IncomingMessageContext.ContainsSagaIdForType(sagaDataType))
                             sagaId = context.IncomingMessageContext.GetSagaIdForType(sagaDataType);
-                        Console.WriteLine("Could not find saga data for message type: " + context.IncomingMessageContext.IncommingMessageType + ", sagaId: " + sagaId);
+                        Console.WriteLine("Could not find saga data for message type: {0}, sagaId: {1}", context.IncomingMessageContext.IncommingMessageType, sagaId);
                         return;
                     }
                 }
