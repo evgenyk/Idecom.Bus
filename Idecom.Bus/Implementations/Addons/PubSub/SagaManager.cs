@@ -1,13 +1,10 @@
 ﻿namespace Idecom.Bus.Implementations.Addons.PubSub
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using Addressing;
     using Interfaces;
     using Interfaces.Addons.PubSub;
     using Interfaces.Addons.Sagas;
-    using Transport;
     using UnicastBus;
     using Utility;
 
@@ -37,13 +34,6 @@
             incommingMessageContext.SetHeader(SystemHeaders.SagaIdHeaderKey(sagaDataType), sagaId);
 
             return new SagaStateInstance(Address, sagaId, instance);
-        }
-
-        public TransportMessage PrepareSend(TransportMessage transportMessage, Dictionary<string, string> incomingHeaders, Dictionary<string, string> outgoingHeaders)
-        {
-            foreach (var header in incomingHeaders.Concat(outgoingHeaders).Where(keyValuePair => keyValuePair.Key.StartsWith(SystemHeaders.SagaIdPrefix)))
-                transportMessage.Headers[header.Key] = header.Value;
-            return transportMessage;
         }
 
         public void CloseSaga(ISagaStateInstance sagaInstance)
