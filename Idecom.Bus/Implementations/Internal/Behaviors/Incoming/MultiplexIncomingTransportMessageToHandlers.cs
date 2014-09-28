@@ -22,12 +22,11 @@
 
         public void Execute(Action next, IChainExecutionContext context)
         {
-            var handlers = _messageToHandlerRoutingTable.ResolveRouteFor(context.IncomingMessageContext.IncommingMessageType);
+            var handlers = _messageToHandlerRoutingTable.ResolveRouteFor(context.IncomingMessageContext.IncommingMessageType).ToList();
 
             if (!handlers.Any())
             {
-                //TODO: throw new Exception(string.Format("Count not find handlers for an incoming message of type {0}", context.IncomingMessageContext.IncomingTransportMessage.MessageType));
-                var heh = 2;
+                //TODO: throw new Exception(string.Format("Couldn't find handlers for an incoming message of type {0}", context.IncomingMessageContext.IncomingTransportMessage.MessageType));
             }
 
             foreach (var method in handlers)
