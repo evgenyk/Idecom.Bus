@@ -1,4 +1,4 @@
-﻿namespace Idecom.Bus.Tests.InMemoryInfrastructure
+﻿namespace Idecom.Bus.Testing.InMemoryInfrastructure
 {
     using System.Collections.Generic;
     using Interfaces.Addons.PubSub;

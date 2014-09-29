@@ -2,12 +2,12 @@
 {
     using System.Linq;
     using Implementations;
-    using InMemoryInfrastructure;
     using Interfaces;
     using Interfaces.Addons.Sagas;
     using IoC.CastleWindsor;
     using Serializer.JsonNet;
-    using TestingInfrustructure;
+    using Testing.InMemoryInfrastructure;
+    using Testing.TestingInfrustructure;
     using Xunit;
     using Xunit.Should;
 

@@ -1,4 +1,4 @@
-﻿namespace Idecom.Bus.Tests.InMemoryInfrastructure
+﻿namespace Idecom.Bus.Testing.InMemoryInfrastructure
 {
     using Implementations;
     using Interfaces;
@@ -14,7 +14,7 @@
             return configure;
         }
 
-        public static Configure InMemoryPubSub(this Configure configure, int workersCount = 1, int retries = 1)
+        public static Configure InMemoryPubSub(this Configure configure)
         {
             configure.Container.Configure<InMemorySubscriptionStorage>(ComponentLifecycle.Singleton);
             configure.Container.Configure<InMemorySagaPersister>(ComponentLifecycle.Singleton);

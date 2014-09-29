@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30324.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Idecom.Bus", "Idecom.Bus\Idecom.Bus.csproj", "{EE090F5D-3B56-4773-8B22-28EEEC9D18E2}"
 EndProject
@@ -31,6 +31,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Idecom.Bus.SampleApp2", "Idecom.Bus.SampleApp2\Idecom.Bus.SampleApp2.csproj", "{85E12375-3A63-4FB6-AE15-EDDAB755E2AE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Idecom.Bus.PubSub.MongoDB", "Idecom.Bus.PubSub.MongoDB\Idecom.Bus.PubSub.MongoDB.csproj", "{9DD532AF-0C9B-427E-9100-02B526707105}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Idecom.Bus.Testing", "Idecom.Bus.Testing\Idecom.Bus.Testing.csproj", "{A6554D03-7DF4-49C6-BA5C-DEEDFB424F9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -74,6 +76,10 @@ Global
 		{9DD532AF-0C9B-427E-9100-02B526707105}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DD532AF-0C9B-427E-9100-02B526707105}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DD532AF-0C9B-427E-9100-02B526707105}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6554D03-7DF4-49C6-BA5C-DEEDFB424F9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6554D03-7DF4-49C6-BA5C-DEEDFB424F9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6554D03-7DF4-49C6-BA5C-DEEDFB424F9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6554D03-7DF4-49C6-BA5C-DEEDFB424F9A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,5 +94,6 @@ Global
 		{33461395-4EE4-4A46-802C-0AF8EA8F72D8} = {6E87FB2A-FCC6-4B0B-BD1C-85DC0744C90D}
 		{85E12375-3A63-4FB6-AE15-EDDAB755E2AE} = {D695A140-3121-4E7E-96EA-53C24CD19CDF}
 		{9DD532AF-0C9B-427E-9100-02B526707105} = {6E87FB2A-FCC6-4B0B-BD1C-85DC0744C90D}
+		{A6554D03-7DF4-49C6-BA5C-DEEDFB424F9A} = {6E87FB2A-FCC6-4B0B-BD1C-85DC0744C90D}
 	EndGlobalSection
 EndGlobal

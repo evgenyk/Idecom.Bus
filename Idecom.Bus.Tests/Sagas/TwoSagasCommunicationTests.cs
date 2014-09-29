@@ -2,10 +2,10 @@
 {
     using System;
     using Implementations;
-    using InMemoryInfrastructure;
     using IoC.CastleWindsor;
     using Serializer.JsonNet;
-    using TestingInfrustructure;
+    using Testing.InMemoryInfrastructure;
+    using Testing.TestingInfrustructure;
     using TwoSagas.FirstSaga;
     using TwoSagas.Messages;
     using TwoSagas.SecondSaga;

@@ -3,11 +3,11 @@
     using System.Collections;
     using System.Linq;
     using Implementations;
-    using InMemoryInfrastructure;
     using Interfaces;
     using IoC.CastleWindsor;
     using Serializer.JsonNet;
-    using TestingInfrustructure;
+    using Testing.InMemoryInfrastructure;
+    using Testing.TestingInfrustructure;
     using Transport;
     using Xunit;
     using Xunit.Should;

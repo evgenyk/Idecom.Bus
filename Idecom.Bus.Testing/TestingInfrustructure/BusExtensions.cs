@@ -1,4 +1,4 @@
-﻿namespace Idecom.Bus.Tests.TestingInfrustructure
+﻿namespace Idecom.Bus.Testing.TestingInfrustructure
 {
     using Addressing;
     using Implementations;

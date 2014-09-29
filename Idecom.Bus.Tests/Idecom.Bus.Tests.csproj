@@ -63,10 +63,6 @@
   <ItemGroup>
     <Compile Include="BehaviorTests\ChainExecutionContextTests.cs" />
     <Compile Include="BehaviorTests\OutgoingMessageValidationTests.cs" />
-    <Compile Include="InMemoryInfrastructure\InMemoryConfiguration.cs" />
-    <Compile Include="InMemoryInfrastructure\InMemorySagaPersister.cs" />
-    <Compile Include="InMemoryInfrastructure\InMemorySubscriptionStorage.cs" />
-    <Compile Include="InMemoryInfrastructure\InMemoryTransport.cs" />
     <Compile Include="InterfaceProxyGeneratorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BasicSendAndPublishTests.cs" />
@@ -79,9 +75,6 @@
     <Compile Include="Sagas\TwoSagas\Messages\IStartSecondSagaEvent.cs" />
     <Compile Include="Sagas\TwoSagas\SecondSaga\Saga2.cs" />
     <Compile Include="Sagas\TwoSagas\SecondSaga\Saga2State.cs" />
-    <Compile Include="TestingInfrustructure\BusExtensions.cs" />
-    <Compile Include="TestingInfrustructure\IncomingTransportMessageTraceBehavior.cs" />
-    <Compile Include="TestingInfrustructure\TestBus.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -95,6 +88,10 @@
     <ProjectReference Include="..\Idecom.Bus.Serializer.JsonNet\Idecom.Bus.Serializer.JsonNet.csproj">
       <Project>{8a0fc948-3ca2-4eac-87c9-9d76ce180b7a}</Project>
       <Name>Idecom.Bus.Serializer.JsonNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Idecom.Bus.Testing\Idecom.Bus.Testing.csproj">
+      <Project>{a6554d03-7df4-49c6-ba5c-deedfb424f9a}</Project>
+      <Name>Idecom.Bus.Testing</Name>
     </ProjectReference>
     <ProjectReference Include="..\Idecom.Bus\Idecom.Bus.csproj">
       <Project>{ee090f5d-3b56-4773-8b22-28eeec9d18e2}</Project>
