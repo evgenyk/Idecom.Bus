@@ -5,6 +5,7 @@ namespace Idecom.Bus.Transport.MongoDB
     using System.Threading.Tasks;
     using global::MongoDB.Driver;
     using global::MongoDB.Driver.Builders;
+    using global::MongoDB.Driver.Linq;
     using Interfaces;
     using Utility;
 
@@ -123,13 +124,17 @@ namespace Idecom.Bus.Transport.MongoDB
 
         MongoTransportMessageEntity ReceiveTransportMessageFromQueue()
         {
-            var query = Query<MongoTransportMessageEntity>.EQ(x => x.Status, MessageProcessingStatus.AwaitingDispatch);
-            var update =
-                Update<MongoTransportMessageEntity>.Set(x => x.Status, MessageProcessingStatus.ReceivedByConsumer)
-                                                   .Set(x => x.ReceivedBy, ApplicationIdGenerator.GenerateId())
-                                                   .Set(x => x.ReceiveTimeUtc, DateTime.UtcNow);
+            var args = new FindAndModifyArgs()
+                       {
+                           Query = Query<MongoTransportMessageEntity>.EQ(x => x.Status, MessageProcessingStatus.AwaitingDispatch),
+                           Update = Update<MongoTransportMessageEntity>.Set(x => x.Status, MessageProcessingStatus.ReceivedByConsumer)
+                                                                       .Set(x => x.ReceivedBy, ApplicationIdGenerator.GenerateId())
+                                                                       .Set(x => x.ReceiveTimeUtc, DateTime.UtcNow),
+                           SortBy = SortBy<MongoTransportMessageEntity>.Ascending(entity => entity.Id),
+                           Upsert = true,
+                       };
 
-            var transportMessages = _localCollection.FindAndModify(query, SortBy.Null, update, true);
+            var transportMessages = _localCollection.FindAndModify(args);
 
             var transportMessage = transportMessages.GetModifiedDocumentAs<MongoTransportMessageEntity>();
             return transportMessage;
