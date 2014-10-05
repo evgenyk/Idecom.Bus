@@ -22,6 +22,7 @@ namespace Idecom.Bus.Tests.Sagas.TwoSagas.FirstSaga
         public void Handle(IRsumeFirstSagaAsEventFromSecondSaga command)
         {
             Bus.CurrentMessageContext.IncomingHeaders.Count().ShouldBe(2);
+            CloseSaga();
         }
     }
 }

@@ -5,9 +5,10 @@ namespace Idecom.Bus.Interfaces.Behaviors
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using System.Threading;
+    using System.Runtime.Remoting.Messaging;
     using Implementations.UnicastBus;
     using Transport;
+    using Utility;
 
     public interface IChainExecutionContext : IDisposable
     {
@@ -25,38 +26,37 @@ namespace Idecom.Bus.Interfaces.Behaviors
 
     public class ChainExecutionContext : IChainExecutionContext
     {
-        readonly ThreadLocal<DelayedMessageContext> _delayedMessageContext;
-        readonly ThreadLocal<ChainExecutionContext> _parentContext;
-        ThreadLocal<IncommingMessageContext> _incomingMessageContext;
+        readonly DelayedMessageContext _delayedMessageContext;
+        readonly ConcurrentDictionary<string, string> _outgoingHeaders;
+        readonly ChainExecutionContext _parentContext;
+        IncommingMessageContext _incomingMessageContext;
+        object _outgoingMessage;
+        Type _outgoingMessageType;
+        SagaContext _sagaContext;
 
-        ThreadLocal<Type> _outgoingMessageType;
-        ThreadLocal<ConcurrentDictionary<string, string>> _outgoingHeaders;
-        ThreadLocal<object> _outgoingMessage;
-
-        ThreadLocal<SagaContext> _sagaContext;
 
         internal ChainExecutionContext(ChainExecutionContext parentContext = null)
         {
-            _parentContext = parentContext != null ? new ThreadLocal<ChainExecutionContext>(() => parentContext) : null;
+            _parentContext = parentContext;
+            if (_parentContext != null)
+                return;
 
-            if (_parentContext != null) return;
-            
-            // those things leave only in the top-mopst context for misterious reasons you'd understand when read code more closely
-            _delayedMessageContext = new ThreadLocal<DelayedMessageContext>(() => new DelayedMessageContext());
-            _outgoingHeaders = new ThreadLocal<ConcurrentDictionary<string, string>>(() => new ConcurrentDictionary<string, string>());
+            // those things leave only in the top-most context for misterious reasons you'd understand when read code more closely
+            _delayedMessageContext = new DelayedMessageContext();
+            _outgoingHeaders = new ConcurrentDictionary<string, string>();
         }
 
         public DelayedMessageContext DelayedMessageContext
         {
-            get { return _delayedMessageContext.Value ?? (_parentContext.IsValueCreated ? null : _parentContext.Value.DelayedMessageContext); }
+            get { return _delayedMessageContext ?? (_parentContext == null ? null : _parentContext.DelayedMessageContext); }
         }
 
         public ConcurrentDictionary<string, string> OutgoingHeaders
         {
             get
             {
-                if (_parentContext != null) { return _parentContext.Value.OutgoingHeaders; }
-                return _outgoingHeaders.Value;
+                if (_parentContext != null) { return _parentContext.OutgoingHeaders; }
+                return _outgoingHeaders;
             }
         }
 
@@ -65,15 +65,15 @@ namespace Idecom.Bus.Interfaces.Behaviors
             get
             {
                 if (_sagaContext != null)
-                    return _sagaContext.Value;
-                return _parentContext == null ? null : _parentContext.Value.SagaContext;
+                    return _sagaContext;
+                return _parentContext == null ? null : _parentContext.SagaContext;
             }
             set
             {
                 if (_parentContext == null)
-                    _sagaContext = new ThreadLocal<SagaContext>(() => value);
+                    _sagaContext = value;
                 else
-                { _parentContext.Value.SagaContext = value; }
+                { _parentContext.SagaContext = value; }
             }
         }
 
@@ -81,28 +81,28 @@ namespace Idecom.Bus.Interfaces.Behaviors
         {
             get
             {
-                if (_outgoingMessage != null) { return _outgoingMessage.Value; }
-                
+                if (_outgoingMessage != null) { return _outgoingMessage; }
+
                 if (_parentContext == null)
-                    return _outgoingMessage == null ? null : _outgoingMessage.Value;
-                var parentContextValue = _parentContext.Value;
-                return parentContextValue == null ? _outgoingMessage == null ? null : _outgoingMessage.Value : parentContextValue.OutgoingMessage;
+                    return _outgoingMessage;
+                var parentContextValue = _parentContext;
+                return parentContextValue == null ? _outgoingMessage : parentContextValue.OutgoingMessage;
             }
-            set { _outgoingMessage = new ThreadLocal<object>(() => value); }
+            set { _outgoingMessage = value; }
         }
 
         public Type OutgoingMessageType
         {
             get
             {
-                if (_outgoingMessageType != null) { return _outgoingMessageType.Value; }
+                if (_outgoingMessageType != null) { return _outgoingMessageType; }
 
                 if (_parentContext == null)
-                    return _outgoingMessageType == null ? null : _outgoingMessageType.Value;
-                var parentContextValue = _parentContext.Value;
-                return parentContextValue == null ? _outgoingMessageType == null ? null : _outgoingMessageType.Value : parentContextValue.OutgoingMessageType;
+                    return _outgoingMessageType;
+                var parentContextValue = _parentContext;
+                return parentContextValue == null ? _outgoingMessageType : parentContextValue.OutgoingMessageType;
             }
-            set { _outgoingMessageType = new ThreadLocal<Type>(() => value); }
+            set { _outgoingMessageType = value; }
         }
 
         public MethodInfo HandlerMethod { get; set; } //handler method can not be inherited as it's always local
@@ -112,7 +112,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
             if (context == null) { context = this; }
 
             if (context._parentContext != null)
-                DelayMessage(transportMessage, context._parentContext.Value);
+                DelayMessage(transportMessage, context._parentContext);
             else context.DelayedMessageContext.Enqueue(transportMessage);
         }
 
@@ -121,14 +121,14 @@ namespace Idecom.Bus.Interfaces.Behaviors
             get
             {
                 if (_incomingMessageContext != null)
-                    return _incomingMessageContext.Value;
-                return _parentContext == null ? null : _parentContext.Value.IncomingMessageContext;
+                    return _incomingMessageContext;
+                return _parentContext == null ? null : _parentContext.IncomingMessageContext;
             }
             set
             {
-                if (_parentContext == null) { _incomingMessageContext = new ThreadLocal<IncommingMessageContext>(() => value); }
+                if (_parentContext == null) { _incomingMessageContext = value; }
                 else
-                { _parentContext.Value.IncomingMessageContext = value; }
+                { _parentContext.IncomingMessageContext = value; }
             }
         }
 
@@ -144,7 +144,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
             if (context == null) { context = this; }
 
             if (context._parentContext != null)
-                foreach (var transportMessage in GetDelayedMessages(context._parentContext.Value)) yield return transportMessage;
+                foreach (var transportMessage in GetDelayedMessages(context._parentContext)) yield return transportMessage;
             else
                 while (context.DelayedMessageContext.DelayedMessages.Any()) yield return context.DelayedMessageContext.DelayedMessages.Dequeue();
         }
@@ -156,6 +156,9 @@ namespace Idecom.Bus.Interfaces.Behaviors
 
         public void Dispose()
         {
+            if (_parentContext == null)
+                CallContext.FreeNamedDataSlot(SystemHeaders.CallContext.AmbientContext);
+            else _parentContext.Dispose();
         }
     }
 }

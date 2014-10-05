@@ -5,7 +5,7 @@
     using System.Diagnostics;
     using Addressing;
 
-    [DebuggerStepThrough]
+    [DebuggerStepThrough, Serializable]
     public class TransportMessage
     {
         public TransportMessage(object message, Address sourceAddress, Address targetAddress, MessageIntent intent, Type messageType, Dictionary<string, string> headers = null)

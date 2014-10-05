@@ -1,6 +1,7 @@
 ﻿namespace Idecom.Bus.SampleApp1.Bus1Handlers
 {
     using System;
+    using System.Threading;
     using Implementations;
     using Interfaces;
     using SampleMessages;
@@ -19,8 +20,8 @@
 
         public void Handle(SeeYouCommand command)
         {
+            Console.WriteLine(Thread.CurrentThread.ManagedThreadId + " \t 06 \t Received See you back");
             Data.Started = false;
-            Console.WriteLine("06 \t Received See you back");
             CloseSaga();
             Console.WriteLine("07 \t Closed saga");
         }

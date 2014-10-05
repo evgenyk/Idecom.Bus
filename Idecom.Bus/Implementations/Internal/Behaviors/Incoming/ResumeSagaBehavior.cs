@@ -25,32 +25,47 @@
             {
                 var sagaDataType = handlerMethod.DeclaringType.BaseType.GenericTypeArguments.First();
                 var startSagaTypes = _messageToStartSagaMapping.ResolveRouteFor(context.IncomingMessageContext.IncommingMessageType);
-                ISagaStateInstance sagaData;
-                if (startSagaTypes != null) sagaData = _sagaManager.Start(sagaDataType, context.OutgoingHeaders);
+                ISagaStateInstance sagaInstance;
+
+                if (startSagaTypes != null)
+                {
+                    Console.WriteLine("Starting saga...");
+                    sagaInstance = _sagaManager.Start(sagaDataType, context.OutgoingHeaders);
+                }
                 else
                 {
-                    sagaData = _sagaManager.Resume(sagaDataType, context.IncomingMessageContext);
-                    if (sagaData == null)
+                    var sagaId = "no saga id present in incoming message headers";
+                    if (context.IncomingMessageContext.ContainsSagaIdForType(sagaDataType))
+                        sagaId = context.IncomingMessageContext.GetSagaIdForType(sagaDataType);
+
+                    Console.WriteLine("Resuming saga " + sagaId);
+                    sagaInstance = _sagaManager.ResumeSaga(sagaDataType, context.IncomingMessageContext);
+                    if (sagaInstance == null | (sagaInstance != null && sagaInstance.SagaData == null))
                     {
-                        var sagaId = "no saga id present in incoming message headers";
-                        if (context.IncomingMessageContext.ContainsSagaIdForType(sagaDataType))
-                            sagaId = context.IncomingMessageContext.GetSagaIdForType(sagaDataType);
-                        Console.WriteLine("Could not find saga data for message type: {0}, sagaId: {1}", context.IncomingMessageContext.IncommingMessageType, sagaId);
-                        return;
+                        var message = string.Format("This could never happen under normal circumstances. Could not find saga data for message type: {0}, sagaId: {1}",
+                            context.IncomingMessageContext.IncommingMessageType, sagaId);
+                        Console.WriteLine(message);
+                        throw new Exception(message);
                     }
                 }
 
-                if (sagaData != null) { context.SagaContext = new SagaContext {SagaState = sagaData}; }
+                if (sagaInstance != null) { context.SagaContext = new SagaContext {SagaState = sagaInstance}; }
 
                 next();
 
-                if (sagaData == null) return;
+                if (sagaInstance == null) return;
 
-                if (context.SagaContext.HandlerClosedSaga) { _sagaManager.CloseSaga(sagaData); }
-                else _sagaManager.UpdateSaga(sagaData);
+                if (context.SagaContext.HandlerClosedSaga)
+                {
+                    Console.WriteLine("Closed saga id {0}", sagaInstance.SagaId);
+                    _sagaManager.CloseSaga(sagaInstance);
+                }
+                else _sagaManager.UpdateSaga(sagaInstance);
             }
             else
-            { next(); }
+            {
+                next();
+            }
         }
 
 

@@ -1,6 +1,5 @@
 namespace Idecom.Bus.Implementations.UnicastBus
 {
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using Behaviors;

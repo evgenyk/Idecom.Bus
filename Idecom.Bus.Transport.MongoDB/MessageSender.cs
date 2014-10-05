@@ -1,6 +1,7 @@
 ﻿namespace Idecom.Bus.Transport.MongoDB
 {
     using System;
+    using System.Linq;
     using global::MongoDB.Driver;
     using Interfaces;
 
@@ -39,6 +40,9 @@
             var mongoMessage = new MongoTransportMessageEntity(transportMessage.SourceAddress, transportMessage.TargetAddress, transportMessage.Intent, serializedMessage, type,
                 transportMessage.Headers);
             targetCollection.Insert(mongoMessage, WriteConcern.Acknowledged);
+
+            Console.WriteLine("Sent message :" + transportMessage.MessageType + " headers: " + (transportMessage.Headers.Any() ? transportMessage.Headers.Select(x=>x.Value).Aggregate((a, b)=> a + b) : string.Empty));
+
         }
 
         public void Stop()

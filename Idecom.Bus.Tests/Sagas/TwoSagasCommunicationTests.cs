@@ -1,6 +1,8 @@
 ﻿namespace Idecom.Bus.Tests.Sagas
 {
     using System;
+    using System.Linq;
+    using Castle.Core.Internal;
     using Implementations;
     using IoC.CastleWindsor;
     using Serializer.JsonNet;
@@ -49,6 +51,9 @@
                                 .CreateTestBus("app2")
                                 .Start();
 
+
+            //Enumerable.Range(1, 15).AsParallel().ForEach(i => bus1.Raise<IStartFirstSagaEvent>());
+            
             bus1.Raise<IStartFirstSagaEvent>();
 
             Assert.True(Saga1.Started);

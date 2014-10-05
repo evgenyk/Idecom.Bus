@@ -47,7 +47,8 @@ namespace Idecom.Bus.Utility
             var newType = typeBuilder.CreateType();
 
             lock (SyncRoot)
-                ImplementationCache.Add(@interface, newType);
+                if (!ImplementationCache.ContainsKey(@interface))
+                    ImplementationCache.Add(@interface, newType);
 
             return newType;
         }

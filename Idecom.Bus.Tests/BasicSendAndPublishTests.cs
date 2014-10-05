@@ -1,5 +1,6 @@
 ﻿namespace Idecom.Bus.Tests
 {
+    using System;
     using System.Collections;
     using System.Linq;
     using Implementations;
@@ -14,17 +15,13 @@
 
     public class BasicSendAndPublishTests : IHandle<ACommand>, IHandle<IEvent>
     {
-//        static volatile int _commandsHandled;
-//        static volatile int _eventsHandled;
 
         public void Handle(ACommand command)
         {
-            //_commandsHandled++;
         }
 
         public void Handle(IEvent command)
         {
-            //_eventsHandled++;
         }
 
         [Fact]
@@ -46,14 +43,9 @@
         [Fact]
         public void RaisingASimpleeventShouldHandleThisEvent()
         {
-            IContainer container = null;
             var bus = Configure.With()
                                .WindsorContainer()
-                               .ExposeConfiguration(x =>
-                                                    {
-                                                        container = x.Container;
-                                                        x.Container.ConfigureInstance(new InMemoryBroker());
-                                                    })
+                               .ExposeConfiguration(x => x.Container.ConfigureInstance(new InMemoryBroker()))
                                .InMemoryTransport()
                                .InMemoryPubSub()
                                .JsonNetSerializer()

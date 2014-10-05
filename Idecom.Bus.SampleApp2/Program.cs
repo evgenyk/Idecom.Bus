@@ -24,11 +24,15 @@
 
             var bus = busInstance.Start();
             Console.WriteLine("01 \t Sending IMetAFriendEvent");
-            bus.Raise<IMetAFriendEvent>(x =>
-                                        {
-                                            x.Name = "sdfsdfs";
-                                            x.Uri = new Uri("http://www.com");
-                                        });
+
+            for (int i = 1; i < 100; i++) 
+            {
+                bus.Raise<IMetAFriendEvent>(x =>
+                {
+                    x.Name = "sdfsdfs";
+                    x.Uri = new Uri("http://www.com");
+                });
+            }
 
 
             Console.WriteLine("Bus configured. Press any key to close the app.");

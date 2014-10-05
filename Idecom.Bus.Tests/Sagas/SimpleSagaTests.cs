@@ -33,6 +33,32 @@
 
             bus.Raise<IStartSimpleSagaEvent>();
             inMemorySagaPersister.SagaStorage.Count().ShouldBe(0);
+            bus.Stop();
+        }
+
+        [Fact]
+        public void StartTenSagasCloseTenSagas()
+        {
+            InMemorySagaPersister inMemorySagaPersister = null;
+            var bus = Configure.With()
+                               .WindsorContainer()
+                               .InMemoryTransport()
+                               .InMemoryPubSub()
+                               .JsonNetSerializer()
+                               .ExposeConfiguration(x =>
+                               {
+                                   inMemorySagaPersister = x.Container.Resolve<InMemorySagaPersister>();
+                                   x.Container.ConfigureInstance(new InMemoryBroker());
+                               })
+                               .DefineEventsAs(type => type == typeof(IStartSimpleSagaEvent) || type == typeof(ICompleteSimpleSagaEvent))
+                               .CreateTestBus("app1")
+                               .Start();
+
+            for (int i = 0; i < 10; i++) {
+                bus.Raise<IStartSimpleSagaEvent>();
+            }
+            inMemorySagaPersister.SagaStorage.Count().ShouldBe(0);
+            
         }
     }
 

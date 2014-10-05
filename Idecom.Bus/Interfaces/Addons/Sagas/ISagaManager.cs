@@ -6,7 +6,7 @@
 
     public interface ISagaManager
     {
-        ISagaStateInstance Resume(Type sagaDataType, IncommingMessageContext incommingMessageContext);
+        ISagaStateInstance ResumeSaga(Type sagaDataType, IncommingMessageContext incommingMessageContext);
         ISagaStateInstance Start(Type sagaDataType, ConcurrentDictionary<string, string> outgoingHeaders);
         void CloseSaga(ISagaStateInstance sagaInstance);
         void UpdateSaga(ISagaStateInstance sagaInstance);

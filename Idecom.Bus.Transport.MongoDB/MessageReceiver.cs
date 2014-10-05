@@ -5,7 +5,6 @@ namespace Idecom.Bus.Transport.MongoDB
     using System.Threading.Tasks;
     using global::MongoDB.Driver;
     using global::MongoDB.Driver.Builders;
-    using global::MongoDB.Driver.Linq;
     using Interfaces;
     using Utility;
 
@@ -131,7 +130,7 @@ namespace Idecom.Bus.Transport.MongoDB
                                                                        .Set(x => x.ReceivedBy, ApplicationIdGenerator.GenerateId())
                                                                        .Set(x => x.ReceiveTimeUtc, DateTime.UtcNow),
                            SortBy = SortBy<MongoTransportMessageEntity>.Ascending(entity => entity.Id),
-                           Upsert = true,
+                           Upsert = false,
                        };
 
             var transportMessages = _localCollection.FindAndModify(args);

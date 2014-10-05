@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using Addressing;
     using global::MongoDB.Driver;
     using global::MongoDB.Driver.Builders;
@@ -81,10 +82,12 @@
 
         public void ProcessMessageReceivedEvent(TransportMessage transportMessage, int attempt, int maxRetries)
         {
+            Console.WriteLine(Thread.CurrentThread.ManagedThreadId +  ": Received an incoming message of type " + (transportMessage.MessageType == null ? transportMessage.Message.GetType().ToString() : transportMessage.MessageType.Name));
+
             var ce = new ChainExecutor(Container);
             var chain = Chains.GetChainFor(ChainIntent.TransportMessageReceive);
 
-            using (var ct = AmbientChainContext.Current.Push(context => { context.IncomingMessageContext = new IncommingMessageContext(transportMessage, 1, Retries); })) { ce.RunWithIt(chain, ct); }
+            using (var ct = AmbientChainContext.Current.Push(context => { context.IncomingMessageContext = new IncommingMessageContext(transportMessage, attempt, maxRetries); })) { ce.RunWithIt(chain, ct); }
         }
     }
 }

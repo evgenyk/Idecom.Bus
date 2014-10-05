@@ -28,7 +28,7 @@
         public interface IAmAnInterface : IAnotherInterface
         {
             // ReSharper disable once CSharpWarnings::CS0108
-            string StringProperty { get; set; }
+            string StringProperty { get; set; } //hiding is intended here
         }
 
         public interface IAnotherInterface
