@@ -6,4 +6,10 @@
         {
         }
     }
+    public class ConfigureLogging : NestedConfigurationBase
+    {
+        public ConfigureLogging(Configure rootConfiguration) : base(rootConfiguration)
+        {
+        }
+    }
 }

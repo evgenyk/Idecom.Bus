@@ -4,20 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{85E12375-3A63-4FB6-AE15-EDDAB755E2AE}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{365DA9C2-7754-45B3-A466-5424ADE2DBD9}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Idecom.Bus.SampleApp2</RootNamespace>
-    <AssemblyName>Idecom.Bus.SampleApp2</AssemblyName>
+    <RootNamespace>Idecom.Bus.Logging.Log4Net</RootNamespace>
+    <AssemblyName>Idecom.Bus.Logging.Log4Net</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -25,10 +22,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -37,14 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Castle.Core">
-      <HintPath>..\packages\Castle.Core.3.3.1\lib\net45\Castle.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Castle.Windsor, Version=3.3.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Castle.Windsor.3.3.0\lib\net45\Castle.Windsor.dll</HintPath>
-    </Reference>
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
@@ -57,39 +44,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Handlers\SayHelloApp2Saga.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Bootstrap.cs" />
+    <Compile Include="Log4NetLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Idecom.Bus.IoC.CastleWindsor\Idecom.Bus.IoC.CastleWindsor.csproj">
-      <Project>{ecf7264e-6522-4653-a47b-dcfff6df5efd}</Project>
-      <Name>Idecom.Bus.IoC.CastleWindsor</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Idecom.Bus.Logging.Log4Net\Idecom.Bus.Logging.Log4Net.csproj">
-      <Project>{365DA9C2-7754-45B3-A466-5424ADE2DBD9}</Project>
-      <Name>Idecom.Bus.Logging.Log4Net</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Idecom.Bus.PubSub.MongoDB\Idecom.Bus.PubSub.MongoDB.csproj">
-      <Project>{9dd532af-0c9b-427e-9100-02b526707105}</Project>
-      <Name>Idecom.Bus.PubSub.MongoDB</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Idecom.Bus.SampleMessages\Idecom.Bus.SampleMessages.csproj">
-      <Project>{e20aa1bc-93b3-44d1-9ff0-35dae236f1d7}</Project>
-      <Name>Idecom.Bus.SampleMessages</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Idecom.Bus.Serializer.JsonNet\Idecom.Bus.Serializer.JsonNet.csproj">
-      <Project>{8a0fc948-3ca2-4eac-87c9-9d76ce180b7a}</Project>
-      <Name>Idecom.Bus.Serializer.JsonNet</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Idecom.Bus.Transport.MongoDB\Idecom.Bus.Transport.MongoDB.csproj">
-      <Project>{cdca2fd0-b0fc-4544-b731-6daf7fd14752}</Project>
-      <Name>Idecom.Bus.Transport.MongoDB</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Idecom.Bus\Idecom.Bus.csproj">
       <Project>{ee090f5d-3b56-4773-8b22-28eeec9d18e2}</Project>
       <Name>Idecom.Bus</Name>

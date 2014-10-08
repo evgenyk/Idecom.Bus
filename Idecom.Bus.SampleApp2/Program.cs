@@ -4,6 +4,7 @@
     using Castle.Windsor;
     using Implementations;
     using IoC.CastleWindsor;
+    using Logging.Log4Net;
     using PubSub.MongoDB;
     using SampleMessages;
     using Serializer.JsonNet;
@@ -16,6 +17,7 @@
             var container = new WindsorContainer();
             var busInstance = Configure.With()
                                        .WindsorContainer(container)
+                                       .Log4Net()
                                        .MongoDbTransport("mongodb://localhost", "messageHub")
                                        .JsonNetSerializer()
                                        .RouteMessagesFromNamespaceTo<SayHelloCommand>("app1")

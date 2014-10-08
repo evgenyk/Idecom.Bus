@@ -10,12 +10,17 @@
     using Interfaces.Addons.PubSub;
     using Interfaces.Addons.Sagas;
     using Interfaces.Behaviors;
+    using Interfaces.Logging;
     using Internal;
     using Utility;
 
+    [LoggerName("Bus")]
     public class Bus : IBusInstance
     {
         bool _isStarted;
+
+        [UsedImplicitly]
+        public ILog Log { get; set; }
 
         [UsedImplicitly]
         public IContainer Container { get; set; }
@@ -71,6 +76,8 @@
         {
             lock (this)
             {
+                Log.Debug("Something happened...");
+
                 if (_isStarted)
                     throw new ArgumentException("Can't start bus which already started.");
                 if (Transport == null)
@@ -232,4 +239,5 @@
             messageToStartSagaMapping.ForEach(x => MessageToStartSagaMapping.RouteType(x.message, x.type));
         }
     }
+
 }

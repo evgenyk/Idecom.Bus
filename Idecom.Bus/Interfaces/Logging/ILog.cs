@@ -1,6 +1,7 @@
 ﻿namespace Idecom.Bus.Interfaces.Logging
 {
     using System;
+    using System.Runtime.CompilerServices;
 
     public interface ILog
     {
@@ -16,4 +17,7 @@
         void Error(string message, Exception exception);
         void ErrorFormat(string format, params object[] args);
     }
+
+
+
 }

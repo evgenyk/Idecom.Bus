@@ -6,6 +6,7 @@
     using Implementations;
     using Interfaces;
     using IoC.CastleWindsor;
+    using Logging.Log4Net;
     using Serializer.JsonNet;
     using Testing.InMemoryInfrastructure;
     using Testing.TestingInfrustructure;
@@ -29,6 +30,7 @@
         {
             var bus = Configure.With()
                                .WindsorContainer()
+                                .Log4Net()
                                .ExposeConfiguration(x => x.Container.ConfigureInstance(new InMemoryBroker()))
                                .InMemoryTransport()
                                .InMemoryPubSub()
@@ -45,6 +47,7 @@
         {
             var bus = Configure.With()
                                .WindsorContainer()
+                                .Log4Net()
                                .ExposeConfiguration(x => x.Container.ConfigureInstance(new InMemoryBroker()))
                                .InMemoryTransport()
                                .InMemoryPubSub()

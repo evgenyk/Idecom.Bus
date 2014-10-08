@@ -5,6 +5,7 @@
     using Interfaces;
     using Interfaces.Addons.Sagas;
     using IoC.CastleWindsor;
+    using Logging.Log4Net;
     using Serializer.JsonNet;
     using Testing.InMemoryInfrastructure;
     using Testing.TestingInfrustructure;
@@ -19,6 +20,7 @@
             InMemorySagaPersister inMemorySagaPersister = null;
             var bus = Configure.With()
                                .WindsorContainer()
+                                .Log4Net()
                                .InMemoryTransport()
                                .InMemoryPubSub()
                                .JsonNetSerializer()
@@ -42,6 +44,7 @@
             InMemorySagaPersister inMemorySagaPersister = null;
             var bus = Configure.With()
                                .WindsorContainer()
+                               .Log4Net()
                                .InMemoryTransport()
                                .InMemoryPubSub()
                                .JsonNetSerializer()

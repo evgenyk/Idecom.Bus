@@ -85,6 +85,10 @@
       <Project>{ECF7264E-6522-4653-A47B-DCFFF6DF5EFD}</Project>
       <Name>Idecom.Bus.IoC.CastleWindsor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Idecom.Bus.Logging.Log4Net\Idecom.Bus.Logging.Log4Net.csproj">
+      <Project>{365DA9C2-7754-45B3-A466-5424ADE2DBD9}</Project>
+      <Name>Idecom.Bus.Logging.Log4Net</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Idecom.Bus.Serializer.JsonNet\Idecom.Bus.Serializer.JsonNet.csproj">
       <Project>{8a0fc948-3ca2-4eac-87c9-9d76ce180b7a}</Project>
       <Name>Idecom.Bus.Serializer.JsonNet</Name>

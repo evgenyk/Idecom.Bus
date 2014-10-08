@@ -109,6 +109,7 @@
     <Compile Include="Interfaces\IStartThisSagaWhenReceive.cs" />
     <Compile Include="Interfaces\ITransport.cs" />
     <Compile Include="Interfaces\Logging\ILog.cs" />
+    <Compile Include="Interfaces\Logging\LoggerNameAttribute.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Transport\MessageIntent.cs" />
     <Compile Include="Transport\TransportMessage.cs" />
