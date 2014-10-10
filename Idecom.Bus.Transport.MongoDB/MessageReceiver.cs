@@ -1,6 +1,7 @@
 namespace Idecom.Bus.Transport.MongoDB
 {
     using System;
+    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using global::MongoDB.Driver;
@@ -58,7 +59,9 @@ namespace Idecom.Bus.Transport.MongoDB
                                                     while (_scheduler.TasksPending > 0)
                                                         Thread.Sleep(2); //All workers are busy
 
+
                                                     var mongoTransportMessageEntity = ReceiveTransportMessageFromQueue();
+
                                                     if (mongoTransportMessageEntity == null)
                                                     {
                                                         lastEmptyQueueSleepMs += 20;
@@ -72,9 +75,13 @@ namespace Idecom.Bus.Transport.MongoDB
                                                     new Task(
                                                         () =>
                                                         {
-                                                            using (_container.BeginUnitOfWork()) {
+                                                            var heh = Stopwatch.StartNew();
+                                                            using (_container.BeginUnitOfWork())
+                                                            {
                                                                 ProcessWithRetry(mongoTransportMessageEntity.ToTransportMessage(_serializer), mongoTransportMessageEntity);
                                                             }
+                                                            var elapsed = heh.ElapsedMilliseconds;
+                                                            Console.WriteLine(elapsed);
                                                         }).Start(_scheduler);
                                                 }
                                             });

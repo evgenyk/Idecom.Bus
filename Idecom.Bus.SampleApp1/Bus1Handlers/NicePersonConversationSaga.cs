@@ -4,6 +4,7 @@
     using System.Threading;
     using Implementations;
     using Interfaces;
+    using Interfaces.Logging;
     using SampleMessages;
 
     [SingleInstanceSaga]
@@ -12,29 +13,31 @@
                                               IHandle<SayHelloCommand>,
                                               IHandle<SeeYouCommand>
     {
+        public ILog Log { get; set; }
+
         public void Handle(SayHelloCommand command)
         {
-            Console.WriteLine("04 \t Said goodbuy to a friend");
+            Log.Debug("04 \t Said goodbuy to a friend");
             Bus.Reply(new SayGoodByeCommand("See you"));
         }
 
         public void Handle(SeeYouCommand command)
         {
-            Console.WriteLine(Thread.CurrentThread.ManagedThreadId + " \t 06 \t Received See you back");
+            Log.Debug(Thread.CurrentThread.ManagedThreadId + " \t 06 \t Received See you back");
             Data.Started = false;
             CloseSaga();
-            Console.WriteLine("07 \t Closed saga");
+            Log.Debug("07 \t Closed saga");
         }
 
         public void Handle(IMetAFriendEvent command)
         {
             if (Data.Started)
             {
-                Console.WriteLine("Saga already started while it shouldn't have been");
+                Log.Debug("Saga already started while it shouldn't have been");
                 return;
             }
             Data.Started = true;
-            Console.WriteLine("02 \t Met a friend, said hi");
+            Log.Debug("02 \t Met a friend, said hi");
             var sayHelloCommand = new SayHelloCommand("Hi");
             Bus.Reply(sayHelloCommand);
             Data.FriendSaidHello = true;

@@ -5,12 +5,14 @@
     using Interfaces;
     using Interfaces.Addons.Sagas;
     using Interfaces.Behaviors;
+    using Interfaces.Logging;
     using UnicastBus;
 
     public class ResumeSagaBehavior : IBehavior
     {
         readonly IMessageToStartSagaMapping _messageToStartSagaMapping;
         readonly ISagaManager _sagaManager;
+        public ILog Log { get; set; }
 
         public ResumeSagaBehavior(IMessageToStartSagaMapping messageToStartSagaMapping, ISagaManager sagaManager)
         {
@@ -21,7 +23,7 @@
         public void Execute(Action next, IChainExecutionContext context)
         {
             var handlerMethod = context.HandlerMethod;
-            if (IsSubclassOfRawGeneric(typeof (Saga<>), handlerMethod.DeclaringType)) //this must be a saga, whether existing or a new one is a diffirent question
+            if (IsSubclassOfRawGeneric(typeof(Saga<>), handlerMethod.DeclaringType)) //this must be a saga, whether existing or a new one is a diffirent question
             {
                 var sagaDataType = handlerMethod.DeclaringType.BaseType.GenericTypeArguments.First();
                 var startSagaTypes = _messageToStartSagaMapping.ResolveRouteFor(context.IncomingMessageContext.IncommingMessageType);
@@ -29,7 +31,7 @@
 
                 if (startSagaTypes != null)
                 {
-                    Console.WriteLine("Starting saga...");
+                    Log.Debug("Starting saga...");
                     sagaInstance = _sagaManager.Start(sagaDataType, context.OutgoingHeaders);
                 }
                 else
@@ -38,18 +40,19 @@
                     if (context.IncomingMessageContext.ContainsSagaIdForType(sagaDataType))
                         sagaId = context.IncomingMessageContext.GetSagaIdForType(sagaDataType);
 
-                    Console.WriteLine("Resuming saga " + sagaId);
+                    Log.Debug("Resuming saga " + sagaId);
                     sagaInstance = _sagaManager.ResumeSaga(sagaDataType, context.IncomingMessageContext);
                     if (sagaInstance == null | (sagaInstance != null && sagaInstance.SagaData == null))
                     {
                         var message = string.Format("This could never happen under normal circumstances. Could not find saga data for message type: {0}, sagaId: {1}",
                             context.IncomingMessageContext.IncommingMessageType, sagaId);
-                        Console.WriteLine(message);
+                        
+                        Log.Debug(message);
                         throw new Exception(message);
                     }
                 }
 
-                if (sagaInstance != null) { context.SagaContext = new SagaContext {SagaState = sagaInstance}; }
+                if (sagaInstance != null) { context.SagaContext = new SagaContext { SagaState = sagaInstance }; }
 
                 next();
 
@@ -57,7 +60,7 @@
 
                 if (context.SagaContext.HandlerClosedSaga)
                 {
-                    Console.WriteLine("Closed saga id {0}", sagaInstance.SagaId);
+                    Log.DebugFormat("Closed saga id {0}", sagaInstance.SagaId);
                     _sagaManager.CloseSaga(sagaInstance);
                 }
                 else _sagaManager.UpdateSaga(sagaInstance);
@@ -71,7 +74,7 @@
 
         static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
         {
-            while (toCheck != null && toCheck != typeof (object))
+            while (toCheck != null && toCheck != typeof(object))
             {
                 var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
                 if (generic == cur) { return true; }

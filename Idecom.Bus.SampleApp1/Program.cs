@@ -15,13 +15,13 @@
     {
         static void Main()
         {
-            ICollection config = log4net.Config.XmlConfigurator.Configure();
+            log4net.Config.XmlConfigurator.Configure();
 
             var container = new WindsorContainer();
             var busInstance = Configure.With()
                                        .WindsorContainer(container)
                                        .Log4Net()
-                                       .MongoDbTransport("mongodb://localhost", "messageHub")
+                                       .MongoDbTransport("mongodb://localhost", "messageHub", 8)
                                        .JsonNetSerializer()
                                        .RouteMessagesFromNamespaceTo<SayHelloCommand>("app2")
                                        .MongoPublisher("mongodb://localhost", "messageHub")

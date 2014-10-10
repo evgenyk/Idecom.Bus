@@ -12,6 +12,7 @@
     using Implementations.UnicastBus;
     using Interfaces;
     using Interfaces.Behaviors;
+    using Interfaces.Logging;
 
     public class MongoDbTransport : ITransport, IBeforeBusStarted, IBeforeBusStopped
     {
@@ -25,6 +26,7 @@
         public IMessageSerializer MessageSerializer { get; set; }
         public Address LocalAddress { get; set; }
         public IBehaviorChains Chains { get; set; }
+        public ILog Log { get; set; }
 
         public int Retries { get; set; }
         public int WorkersCount { get; set; }
@@ -71,7 +73,7 @@
                 if (!_database.CollectionExists(collectionName))
                     try { _database.CreateCollection(collectionName); }
                     catch (Exception e) {
-                        Console.WriteLine("Could not create collection {0} with exception {1}", collectionName, e);
+                        Log.ErrorFormat("Could not create collection {0} with exception {1}", collectionName, e);
                     }
                 var mongoCollection = _database.GetCollection(collectionName);
                 const string dequeueIndexName = "Stataus_Id";
@@ -82,7 +84,7 @@
 
         public void ProcessMessageReceivedEvent(TransportMessage transportMessage, int attempt, int maxRetries)
         {
-            Console.WriteLine(Thread.CurrentThread.ManagedThreadId +  ": Received an incoming message of type " + (transportMessage.MessageType == null ? transportMessage.Message.GetType().ToString() : transportMessage.MessageType.Name));
+            Log.DebugFormat("{0}: Received an incoming message of type {1}", Thread.CurrentThread.ManagedThreadId, (transportMessage.MessageType == null ? transportMessage.Message.GetType().ToString() : transportMessage.MessageType.Name));
 
             var ce = new ChainExecutor(Container);
             var chain = Chains.GetChainFor(ChainIntent.TransportMessageReceive);

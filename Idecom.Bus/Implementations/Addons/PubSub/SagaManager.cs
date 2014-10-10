@@ -6,6 +6,7 @@
     using Interfaces;
     using Interfaces.Addons.PubSub;
     using Interfaces.Addons.Sagas;
+    using Interfaces.Logging;
     using UnicastBus;
     using Utility;
 
@@ -14,6 +15,7 @@
         public ISagaStorage SagaStorage { get; set; }
         public IInstanceCreator InstanceCreator { get; set; }
         public Address Address { get; set; }
+        public ILog Log { get; set; }
 
         public ISagaStateInstance ResumeSaga(Type sagaDataType, IncommingMessageContext incommingMessageContext)
         {
@@ -32,7 +34,7 @@
 
             var instance = InstanceCreator.CreateInstanceOf(sagaDataType) as ISagaState;
 
-            //TODO: Console.WriteLine("Started saga for {0} with id {1}", sagaDataType.FullName, sagaId);
+            Log.DebugFormat("Started saga for {0} with id {1}", sagaDataType.FullName, sagaId);
 
             if (instance == null)
                 throw new Exception("SagaState has to be inherited from ISagaState");

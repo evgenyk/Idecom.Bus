@@ -5,6 +5,7 @@
     using Implementations;
     using Interfaces;
     using Interfaces.Addons.Sagas;
+    using Interfaces.Logging;
     using SampleMessages;
 
     [UsedImplicitly]
@@ -12,18 +13,20 @@
                                     IStartThisSagaWhenReceive<SayHelloCommand>,
                                     IHandle<SayGoodByeCommand>
     {
+        public ILog Log { get; set; }
+
         public void Handle(SayGoodByeCommand command)
         {
-            Console.WriteLine("05 \t A friend said good bye, said see you");
+            Log.Debug("05 \t A friend said good bye, said see you");
             Bus.Reply(new SeeYouCommand("See you"));
             
             CloseSaga();
-            Console.WriteLine("05 \t Closed saga");
+            Log.Debug("05 \t Closed saga");
         }
 
         public void Handle(SayHelloCommand command)
         {
-            Console.WriteLine("03 \t A friend said hello");
+            Log.Debug("03 \t A friend said hello");
 
             Bus.Reply(new SayHelloCommand("Hello back to you!!"));
         }

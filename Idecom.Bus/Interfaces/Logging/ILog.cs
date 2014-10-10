@@ -1,7 +1,6 @@
 ﻿namespace Idecom.Bus.Interfaces.Logging
 {
     using System;
-    using System.Runtime.CompilerServices;
 
     public interface ILog
     {

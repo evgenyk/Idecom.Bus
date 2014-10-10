@@ -16,7 +16,8 @@
         {
             get
             {
-                var declaringType = new StackFrame(2, true).GetMethod().DeclaringType;
+                if (_logger != null) { return _logger; }
+                var declaringType = new StackFrame(2, true).GetMethod().DeclaringType;  //this property, then method that logs
                 var loggerNameAttribute = declaringType.GetCustomAttribute<LoggerNameAttribute>();
                 return _logger ?? (_logger = LogManager.GetLogger(loggerNameAttribute == null ? (declaringType == null ? "UnspecifiedLogger" : declaringType.Name) : loggerNameAttribute.Name));
             }
@@ -30,10 +31,12 @@
 
         public void Debug(string message, Exception exception)
         {
+            Logger.Debug(message, exception);
         }
 
         public void DebugFormat(string format, params object[] args)
         {
+            Logger.DebugFormat(format, args);
         }
 
         public void Info(string message)
