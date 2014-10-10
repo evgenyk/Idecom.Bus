@@ -75,13 +75,10 @@ namespace Idecom.Bus.Transport.MongoDB
                                                     new Task(
                                                         () =>
                                                         {
-                                                            var heh = Stopwatch.StartNew();
                                                             using (_container.BeginUnitOfWork())
                                                             {
                                                                 ProcessWithRetry(mongoTransportMessageEntity.ToTransportMessage(_serializer), mongoTransportMessageEntity);
                                                             }
-                                                            var elapsed = heh.ElapsedMilliseconds;
-                                                            Console.WriteLine(elapsed);
                                                         }).Start(_scheduler);
                                                 }
                                             });

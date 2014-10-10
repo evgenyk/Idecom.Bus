@@ -17,7 +17,7 @@
         MongoCollection<SagaStorageEntity> _collection;
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }
-        public IRoutingTable<Type> SagaRoutingTable { get; set; }
+        public IMessageToStartSagaMapping SagaRoutingTable { get; set; }
         public Address Address { get; set; }
 
         public void BeforeBusStarted()

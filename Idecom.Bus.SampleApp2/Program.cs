@@ -21,7 +21,7 @@
             var busInstance = Configure.With()
                                        .WindsorContainer(container)
                                        .Log4Net()
-                                       .MongoDbTransport("mongodb://localhost", "messageHub", 1)
+                                       .MongoDbTransport("mongodb://localhost", "messageHub", 4)
                                        .JsonNetSerializer()
                                        .RouteMessagesFromNamespaceTo<SayHelloCommand>("app1")
                                        .MongoPublisher("mongodb://localhost", "messageHub")
