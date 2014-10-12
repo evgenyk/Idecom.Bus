@@ -32,18 +32,18 @@
             var log = LogManager.GetLogger("Program");
             log.Debug("01 \t Sending IMetAFriendEvent");
 
-//            for (int i = 1; i < 100; i++)
-//            {
-//                if (i % 1000 == 0)
-//                {
-//                    log.Debug(i);
-//                }
-//                bus.Raise<IMetAFriendEvent>(x =>
-//                {
-//                    x.Name = "sdfsdfs";
-//                    x.Uri = new Uri("http://www.com");
-//                });
-//            }
+            for (int i = 1; i < 1000; i++)
+            {
+                if (i % 1000 == 0)
+                {
+                    log.Debug(i);
+                }
+                bus.Raise<IMetAFriendEvent>(x =>
+                {
+                    x.Name = "sdfsdfs";
+                    x.Uri = new Uri("http://www.com");
+                });
+            }
 
 
             Console.WriteLine("Bus configured. Press any key to close the app.");
