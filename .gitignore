@@ -174,3 +174,8 @@ UpgradeLog*.htm
 FakesAssemblies/
 _GeneratedNuGetPackages
 /Idecom.Bus.sln.DotSettings
+/Idecom.Bus.Transport.MongoDB/Idecom.Bus.Transport.MongoDB.csproj.DotSettings
+/Idecom.Bus.sln.ide/edb.chk
+/Idecom.Bus.sln.ide/edbres00001.jrs
+/Idecom.Bus.sln.ide/edbres00002.jrs
+/Idecom.Bus.sln.ide/storage.ide

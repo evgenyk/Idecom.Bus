@@ -40,8 +40,6 @@
                 transportMessage.Headers);
             targetCollection.Insert(mongoMessage, WriteConcern.Acknowledged);
 
-            //Log.DebugFormat("Sent message :{0} headers: {1}", transportMessage.MessageType, (transportMessage.Headers.Any() ? transportMessage.Headers.Select(x => x.Value).Aggregate((a, b) => a + b) : string.Empty));
-
         }
 
         public void Stop()
