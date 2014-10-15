@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>Idecom.Bus.IoC.CastleWindsor</id>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <title>Idecom.Bus.IoC.CastleWindsor</title>
     <authors>Evgeny Komarevtsev</authors>
     <owners>Evgeny Komarevtsev</owners>
@@ -14,8 +14,8 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\debug\Idecom.Bus.IoC.CastleWindsor.dll" target="lib" />
-    <file src="bin\debug\Idecom.Bus.IoC.CastleWindsor.pdb" target="lib" />
-    <file src="**\*.cs" target="src" exclude="bin\**;obj\**;tools\**" />
+    <file src="..\Idecom.Bus.IoC.CastleWindsor\bin\debug\Idecom.Bus.IoC.CastleWindsor.dll" target="lib" />
+    <file src="..\Idecom.Bus.IoC.CastleWindsor\bin\debug\Idecom.Bus.IoC.CastleWindsor.pdb" target="lib" />
+    <file src="..\Idecom.Bus.IoC.CastleWindsor\**\*.cs" target="src" exclude="bin\**;obj\**;tools\**" />
   </files>
 </package>

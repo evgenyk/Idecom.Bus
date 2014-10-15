@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Idecom.Bus</id>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
     <authors>Evgeny Komarevtsev</authors>
     <owners>Evgeny Komarevtsev</owners>
     <description>Idecom message bus - low friction service bus with pluggable everything</description>
@@ -11,8 +11,8 @@
     </dependencies>
   </metadata>
  <files>
-    <file src="bin\debug\Idecom.Bus.dll" target="lib" />
-    <file src="bin\debug\Idecom.Bus.pdb" target="lib" />
-    <file src="**\*.cs" target="src" exclude="bin\**;obj\**;tools\**" />
+    <file src="..\Idecom.Bus\bin\debug\Idecom.Bus.dll" target="lib" />
+    <file src="..\Idecom.Bus\bin\debug\Idecom.Bus.pdb" target="lib" />
+    <file src="..\Idecom.Bus\**\*.cs" target="src" exclude="bin\**;obj\**;tools\**" />
   </files>
 </package>

@@ -6,7 +6,6 @@
     <authors>Evgeny Komarevtsev</authors>
     <owners>Evgeny Komarevtsev</owners>
     <description>Idecom message bus meta package with default Serializer, Container and Transport</description>
-    <releaseNotes></releaseNotes>
     <dependencies>
       <dependency id="Idecom.Bus.Transport.MongoDB" />
       <dependency id="Idecom.Bus.Serializer.JsonNet" />
