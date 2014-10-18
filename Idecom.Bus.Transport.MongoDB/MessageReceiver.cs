@@ -79,7 +79,7 @@ namespace Idecom.Bus.Transport.MongoDB
                                                             {
                                                                 ProcessWithRetry(mongoTransportMessageEntity.ToTransportMessage(_serializer), mongoTransportMessageEntity);
                                                             }
-                                                        }).Start(_scheduler);
+                                                        }, TaskCreationOptions.LongRunning).Start(_scheduler);
                                                 }
                                             });
             _queueReaderThread.Start();

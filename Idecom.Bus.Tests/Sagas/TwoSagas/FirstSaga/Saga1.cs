@@ -16,12 +16,12 @@ namespace Idecom.Bus.Tests.Sagas.TwoSagas.FirstSaga
         {
             Assert.NotNull(Data);
             Started = true;
-            Bus.Raise<IStartSecondSagaEvent>();
+            Bus.Publish<IStartSecondSagaEvent>();
         }
 
         public void Handle(IRsumeFirstSagaAsEventFromSecondSaga command)
         {
-            Bus.CurrentMessageContext.IncomingHeaders.Count().ShouldBe(2);
+            Bus.IncomingMessageContext.IncomingHeaders.Count().ShouldBe(2);
             CloseSaga();
         }
     }

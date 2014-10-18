@@ -120,9 +120,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
         {
             get
             {
-                if (_incomingMessageContext != null)
-                    return _incomingMessageContext;
-                return _parentContext == null ? null : _parentContext.IncomingMessageContext;
+                return _incomingMessageContext ?? _parentContext?.IncomingMessageContext;
             }
             set
             {

@@ -90,6 +90,10 @@
       <Project>{cdca2fd0-b0fc-4544-b731-6daf7fd14752}</Project>
       <Name>Idecom.Bus.Transport.MongoDB</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Idecom.Bus.Transport.RabbitMq\Idecom.Bus.Transport.RabbitMq.csproj">
+      <Project>{FF30878A-2D9E-4475-BD8C-D86D9A1925C8}</Project>
+      <Name>Idecom.Bus.Transport.RabbitMq</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Idecom.Bus\Idecom.Bus.csproj">
       <Project>{ee090f5d-3b56-4773-8b22-28eeec9d18e2}</Project>
       <Name>Idecom.Bus</Name>

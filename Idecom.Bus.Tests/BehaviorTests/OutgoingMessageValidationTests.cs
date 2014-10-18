@@ -40,7 +40,7 @@
 
             Assert.Throws<ValidationException>(() => bus.Send(new ACommand()));
             Assert.Throws<ValidationException>(() => bus.SendLocal(new ACommand()));
-            Assert.Throws<ValidationException>(() => bus.Raise<ACommand>());
+            Assert.Throws<ValidationException>(() => bus.Publish<ACommand>());
         }
 
         public class ACommand

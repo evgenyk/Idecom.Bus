@@ -33,7 +33,7 @@
                                .CreateTestBus("app1")
                                .Start();
 
-            bus.Raise<IStartSimpleSagaEvent>();
+            bus.Publish<IStartSimpleSagaEvent>();
             inMemorySagaPersister.SagaStorage.Count().ShouldBe(0);
             bus.Stop();
         }
@@ -58,7 +58,7 @@
                                .Start();
 
             for (int i = 0; i < 10; i++) {
-                bus.Raise<IStartSimpleSagaEvent>();
+                bus.Publish<IStartSimpleSagaEvent>();
             }
             inMemorySagaPersister.SagaStorage.Count().ShouldBe(0);
             
@@ -77,7 +77,7 @@
 
         public void Handle(IStartSimpleSagaEvent command)
         {
-            Bus.Raise<ICompleteSimpleSagaEvent>();
+            Bus.Publish<ICompleteSimpleSagaEvent>();
         }
     }
 

@@ -57,7 +57,7 @@
 
             //Enumerable.Range(1, 15).AsParallel().ForEach(i => bus1.Raise<IStartFirstSagaEvent>());
             
-            bus1.Raise<IStartFirstSagaEvent>();
+            bus1.Publish<IStartFirstSagaEvent>();
 
             Assert.True(Saga1.Started);
             Assert.True(Saga2.Started);

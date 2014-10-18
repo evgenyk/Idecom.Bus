@@ -1,6 +1,5 @@
 ﻿namespace Idecom.Bus.SampleApp2.Handlers
 {
-    using System;
     using Annotations;
     using Implementations;
     using Interfaces;

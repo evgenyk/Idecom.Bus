@@ -53,19 +53,10 @@
         public IEffectiveConfiguration EffectiveConfiguration { get; set; }
 
         [UsedImplicitly]
-        public ISagaStorage SagaStorage { get; set; }
-
-        [UsedImplicitly]
-        public ISagaManager SagaManager { get; set; }
-
-        [UsedImplicitly]
         public IBehaviorChains Chains { get; set; }
 
 
-        public IMessageContext CurrentMessageContext
-        {
-            get { return AmbientChainContext.Current.IncomingMessageContext; }
-        }
+        public IMessageContext IncomingMessageContext => AmbientChainContext.Current.IncomingMessageContext;
 
         public bool IsStarted
         {
@@ -171,7 +162,7 @@
                                                                            }
         }
 
-        public void Raise<T>(Action<T> action = null) where T : class
+        public void Publish<T>(Action<T> action = null) where T : class
         {
             var message = InstanceCreator.CreateInstanceOf<T>();
             if (action != null) action(message);

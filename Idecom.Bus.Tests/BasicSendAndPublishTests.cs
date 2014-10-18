@@ -55,7 +55,7 @@
                                .CreateTestBus("app1")
                                .Start();
 
-            bus.Raise<IEvent>(e => { });
+            bus.Publish<IEvent>(e => { });
             bus.MessagesReceived.OfType<IEvent>().Count().ShouldBe(1);
         }
     }

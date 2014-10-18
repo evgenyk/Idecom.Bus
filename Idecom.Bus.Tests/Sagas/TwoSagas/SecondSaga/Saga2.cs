@@ -16,7 +16,7 @@ namespace Idecom.Bus.Tests.Sagas.TwoSagas.SecondSaga
         {
             Assert.NotNull(Data);
             Started = true;
-            Bus.Raise<IRsumeFirstSagaAsEventFromSecondSaga>();
+            Bus.Publish<IRsumeFirstSagaAsEventFromSecondSaga>();
             CloseSaga();
         }
     }

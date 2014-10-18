@@ -4,12 +4,14 @@
     using System.Collections;
     using Castle.Windsor;
     using Implementations;
+    using Interfaces;
     using IoC.CastleWindsor;
     using Logging.Log4Net;
     using PubSub.MongoDB;
     using SampleMessages;
     using Serializer.JsonNet;
     using Transport.MongoDB;
+    using Transport.RabbitMq;
 
     class Program
     {
@@ -18,10 +20,11 @@
             log4net.Config.XmlConfigurator.Configure();
 
             var container = new WindsorContainer();
-            var busInstance = Configure.With()
+            IBusInstance busInstance = Configure.With()
                                        .WindsorContainer(container)
                                        .Log4Net()
-                                       .MongoDbTransport("mongodb://localhost", "messageHub", 4)
+                                       .RabbitMqTransport("localhost")
+                                       //.MongoDbTransport("mongodb://localhost", "messageHub", 4)
                                        .JsonNetSerializer()
                                        .RouteMessagesFromNamespaceTo<SayHelloCommand>("app2")
                                        .MongoPublisher("mongodb://localhost", "messageHub")

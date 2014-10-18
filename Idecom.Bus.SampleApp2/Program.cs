@@ -10,6 +10,7 @@
     using SampleMessages;
     using Serializer.JsonNet;
     using Transport.MongoDB;
+    using Transport.RabbitMq;
 
     class Program
     {
@@ -21,7 +22,8 @@
             var busInstance = Configure.With()
                                        .WindsorContainer(container)
                                        .Log4Net()
-                                       .MongoDbTransport("mongodb://localhost", "messageHub", 4)
+                                       //.MongoDbTransport("mongodb://localhost", "messageHub", 4)
+                                       .RabbitMqTransport("localhost")
                                        .JsonNetSerializer()
                                        .RouteMessagesFromNamespaceTo<SayHelloCommand>("app1")
                                        .MongoPublisher("mongodb://localhost", "messageHub")
@@ -32,13 +34,13 @@
             var log = LogManager.GetLogger("Program");
             log.Debug("01 \t Sending IMetAFriendEvent");
 
-            for (int i = 1; i < 1000; i++)
+            for (int i = 1; i < 2; i++)
             {
                 if (i % 1000 == 0)
                 {
                     log.Debug(i);
                 }
-                bus.Raise<IMetAFriendEvent>(x =>
+                bus.Publish<IMetAFriendEvent>(x =>
                 {
                     x.Name = "sdfsdfs";
                     x.Uri = new Uri("http://www.com");
