@@ -7,18 +7,18 @@
     using Interfaces.Addons.PubSub;
     using Transport;
 
-    class SubscriptionDistributor : ISubscriptionDistributor
+    class RoutingAwareSubscriptionDistributor : ISubscriptionDistributor
     {
-        public SubscriptionDistributor(ISubscriptionStorage storage, Address localAddress, ITransport transport)
+        public RoutingAwareSubscriptionDistributor(ISubscriptionStorage storage, Address localAddress, ITransport transport)
         {
             Storage = storage;
             LocalAddress = localAddress;
             Transport = transport;
         }
 
-        public ISubscriptionStorage Storage { get; private set; }
-        public Address LocalAddress { get; private set; }
-        public ITransport Transport { get; private set; }
+        ISubscriptionStorage Storage { get; set; }
+        Address LocalAddress { get; set; }
+        ITransport Transport { get; set; }
 
         public void NotifySubscribersOf(Type messageType, object message, bool isProcessingIncomingMessage, Action<TransportMessage> delayMessageAction)
         {

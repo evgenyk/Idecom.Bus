@@ -48,7 +48,7 @@
     </Compile>
     <Compile Include="Addressing\Address.cs" />
     <Compile Include="Implementations\Addons\PubSub\SagaManager.cs" />
-    <Compile Include="Implementations\Addons\PubSub\SubscriptionDistributor.cs" />
+    <Compile Include="Implementations\Addons\PubSub\RoutingAwareSubscriptionDistributor.cs" />
     <Compile Include="Implementations\Behaviors\BehaviorChain.cs" />
     <Compile Include="Implementations\Behaviors\ChainExecutor.cs" />
     <Compile Include="Implementations\Configure.cs" />

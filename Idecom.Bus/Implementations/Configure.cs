@@ -40,8 +40,6 @@
 
                 _container.Configure<InstanceCreator>(ComponentLifecycle.Singleton);
 
-
-                _container.Configure<SubscriptionDistributor>(ComponentLifecycle.Singleton);
                 _container.Configure<SagaManager>(ComponentLifecycle.Singleton);
 
                 _container.Configure<ChainExecutor>(ComponentLifecycle.PerUnitOfWork);
@@ -64,6 +62,10 @@
         public IBusInstance CreateBus(string queueName = null)
         {
             Container.ConfigureInstance(new Address(queueName));
+
+
+            Container.Configure<RoutingAwareSubscriptionDistributor>(ComponentLifecycle.Singleton);
+
             Container.ConfigureProperty<EffectiveConfiguration>(x => x.NamespaceToEndpointMappings, _namespaceToEndpoints);
             Container.Configure<Bus>(ComponentLifecycle.Singleton);
 
