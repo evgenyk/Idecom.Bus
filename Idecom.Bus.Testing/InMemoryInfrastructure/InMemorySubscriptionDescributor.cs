@@ -1,4 +1,4 @@
-﻿namespace Idecom.Bus.Implementations.Addons.PubSub
+﻿namespace Idecom.Bus.Testing.InMemoryInfrastructure
 {
     using System;
     using System.Collections.Generic;
@@ -7,27 +7,19 @@
     using Interfaces.Addons.PubSub;
     using Transport;
 
-    public class RoutingAwareSubscriptionDistributor : ISubscriptionDistributor
+    public class InMemorySubscriptionDescributor : ISubscriptionDistributor
     {
-        public RoutingAwareSubscriptionDistributor(ISubscriptionStorage storage, Address localAddress, ITransport transport)
-        {
-            Storage = storage;
-            LocalAddress = localAddress;
-            Transport = transport;
-        }
+        public ISubscriptionStorage Storage { get; set; }
+        public ITransport Transport { get; set; }
+        public Address LocalAddress { get; set; }
 
-        ISubscriptionStorage Storage { get; set; }
-        Address LocalAddress { get; set; }
-        ITransport Transport { get; set; }
-
-        public void NotifySubscribersOf(Type messageType, object message, bool isProcessingIncomingMessage, Action<TransportMessage> delayMessageAction)
+        public void NotifySubscribersOf(Type messageType, object message, bool isProcessingIncommingMessage, Action<TransportMessage> delayMessageAction)
         {
             var subscribers = Storage.GetSubscribersFor(messageType);
-
             foreach (var subscriber in subscribers)
             {
                 var transportMessage = new TransportMessage(message, LocalAddress, subscriber, MessageIntent.Publish, messageType);
-                Transport.Send(transportMessage, isProcessingIncomingMessage, delayMessageAction);
+                Transport.Send(transportMessage, isProcessingIncommingMessage, delayMessageAction);
             }
         }
 

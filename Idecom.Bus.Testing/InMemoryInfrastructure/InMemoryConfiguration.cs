@@ -17,7 +17,8 @@
         public static Configure InMemoryPubSub(this Configure configure)
         {
             configure.Container.Configure<InMemorySubscriptionStorage>(ComponentLifecycle.Singleton);
-            configure.Container.Configure<InMemorySagaPersister>(ComponentLifecycle.Singleton);
+            configure.Container.Configure<InMemorySagaStorage>(ComponentLifecycle.Singleton);
+            configure.Container.Configure<InMemorySubscriptionDescributor>(ComponentLifecycle.Singleton);
 
             return configure;
         }

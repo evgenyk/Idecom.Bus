@@ -63,7 +63,6 @@
         {
             Container.ConfigureInstance(new Address(queueName));
 
-
             Container.Configure<RoutingAwareSubscriptionDistributor>(ComponentLifecycle.Singleton);
 
             Container.ConfigureProperty<EffectiveConfiguration>(x => x.NamespaceToEndpointMappings, _namespaceToEndpoints);

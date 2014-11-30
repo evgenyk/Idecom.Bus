@@ -17,7 +17,7 @@
         [Fact]
         public void CanStartAndFinishSagaTest()
         {
-            InMemorySagaPersister inMemorySagaPersister = null;
+            InMemorySagaStorage inMemorySagaStorage = null;
             var bus = Configure.With()
                                .WindsorContainer()
                                 .Log4Net()
@@ -26,7 +26,7 @@
                                .JsonNetSerializer()
                                .ExposeConfiguration(x =>
                                                     {
-                                                        inMemorySagaPersister = x.Container.Resolve<InMemorySagaPersister>();
+                                                        inMemorySagaStorage = x.Container.Resolve<InMemorySagaStorage>();
                                                         x.Container.ConfigureInstance(new InMemoryBroker());
                                                     })
                                .DefineEventsAs(type => type == typeof (IStartSimpleSagaEvent) || type == typeof (ICompleteSimpleSagaEvent))
@@ -34,14 +34,14 @@
                                .Start();
 
             bus.Publish<IStartSimpleSagaEvent>();
-            inMemorySagaPersister.SagaStorage.Count().ShouldBe(0);
+            inMemorySagaStorage.SagaStorage.Count().ShouldBe(0);
             bus.Stop();
         }
 
         [Fact]
         public void StartTenSagasCloseTenSagas()
         {
-            InMemorySagaPersister inMemorySagaPersister = null;
+            InMemorySagaStorage inMemorySagaStorage = null;
             var bus = Configure.With()
                                .WindsorContainer()
                                .Log4Net()
@@ -50,7 +50,7 @@
                                .JsonNetSerializer()
                                .ExposeConfiguration(x =>
                                {
-                                   inMemorySagaPersister = x.Container.Resolve<InMemorySagaPersister>();
+                                   inMemorySagaStorage = x.Container.Resolve<InMemorySagaStorage>();
                                    x.Container.ConfigureInstance(new InMemoryBroker());
                                })
                                .DefineEventsAs(type => type == typeof(IStartSimpleSagaEvent) || type == typeof(ICompleteSimpleSagaEvent))
@@ -60,7 +60,7 @@
             for (int i = 0; i < 10; i++) {
                 bus.Publish<IStartSimpleSagaEvent>();
             }
-            inMemorySagaPersister.SagaStorage.Count().ShouldBe(0);
+            inMemorySagaStorage.SagaStorage.Count().ShouldBe(0);
             
         }
     }

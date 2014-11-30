@@ -56,7 +56,10 @@
         public IBehaviorChains Chains { get; set; }
 
 
-        public IMessageContext IncomingMessageContext => AmbientChainContext.Current.IncomingMessageContext;
+        public IMessageContext IncomingMessageContext
+        {
+            get { return AmbientChainContext.Current.IncomingMessageContext; }
+        }
 
         public bool IsStarted
         {
@@ -99,7 +102,7 @@
                 if (events.Any())
                     if (SubscriptionDistributor == null)
                         throw new Exception(string.Format("Could not start pub/sub infrustructure: found {0} event(s) but SubscriptionsDistributor has not been configured", events.Count));
-
+                 
                 SubscriptionDistributor.Unsubscribe(events.Except(eventsWithHandlers));
                 SubscriptionDistributor.SubscribeTo(eventsWithHandlers);
 

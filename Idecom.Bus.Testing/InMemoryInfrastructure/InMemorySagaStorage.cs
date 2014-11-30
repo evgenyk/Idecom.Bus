@@ -3,11 +3,11 @@
     using System.Collections.Generic;
     using Interfaces.Addons.PubSub;
 
-    public class InMemorySagaPersister : ISagaStorage
+    public class InMemorySagaStorage : ISagaStorage
     {
         public Dictionary<string, object> SagaStorage;
 
-        public InMemorySagaPersister()
+        public InMemorySagaStorage()
         {
             SagaStorage = new Dictionary<string, object>();
         }

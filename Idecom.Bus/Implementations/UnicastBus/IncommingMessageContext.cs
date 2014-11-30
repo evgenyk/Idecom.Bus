@@ -23,10 +23,25 @@ namespace Idecom.Bus.Implementations.UnicastBus
             MaxAttempts = maxAttempts;
         }
 
-        public Type IncommingMessageType => _incomingTransportMessage.MessageType ?? _incomingTransportMessage.Message.GetType();
-        public Address SourceAddress => _incomingTransportMessage.SourceAddress;
-        public object IncommingMessage => _incomingTransportMessage.Message;
-        public IEnumerable<KeyValuePair<string, string>> IncomingHeaders => _incomingTransportMessage.Headers;
+        public Type IncommingMessageType
+        {
+            get { return _incomingTransportMessage.MessageType ?? _incomingTransportMessage.Message.GetType(); }
+        }
+
+        public Address SourceAddress
+        {
+            get { return _incomingTransportMessage.SourceAddress; }
+        }
+
+        public object IncommingMessage
+        {
+            get { return _incomingTransportMessage.Message; }
+        }
+
+        public IEnumerable<KeyValuePair<string, string>> IncomingHeaders
+        {
+            get { return _incomingTransportMessage.Headers; }
+        }
 
         public int Attempt { get; set; }
         public int MaxAttempts { get; set; }
