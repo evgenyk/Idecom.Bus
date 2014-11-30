@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Idecom.Bus.Logging.Log4Net</id>
+    <version>1.0.0</version>
+    <title>Idecom.Bus.Logging.Log4Net</title>
+    <authors>Evgeny Komarevtsev</authors>
+    <owners>Evgeny Komarevtsev</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Idecom.Bus log4net integration</description>
+    <dependencies>
+      <dependency id="Idecom.Bus" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\Idecom.Bus.Logging.Log4Net\bin\debug\Idecom.Bus.Logging.Log4Net.dll" target="lib" />
+    <file src="..\Idecom.Bus.Logging.Log4Net\bin\debug\Idecom.Bus.Logging.Log4Net.pdb" target="lib" />
+    <file src="..\Idecom.Bus.Logging.Log4Net\**\*.cs" target="src" exclude="bin\**;obj\**;tools\**" />
+  </files>
+</package>
