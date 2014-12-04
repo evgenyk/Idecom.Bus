@@ -14,13 +14,17 @@
     using Internal;
     using Utility;
 
-    [LoggerName("Bus")]
     public class Bus : IBusInstance
     {
         bool _isStarted;
 
-        [UsedImplicitly]
-        public ILog Log { get; set; }
+        ILog _log;
+
+        public Bus(Address localAddress, ILogFactory logFactory)
+        {
+            LocalAddress = localAddress;
+            _log = logFactory.GetLogger(LocalAddress.ToString());
+        }
 
         [UsedImplicitly]
         public IContainer Container { get; set; }
@@ -70,7 +74,7 @@
         {
             lock (this)
             {
-                Log.Debug("Something happened...");
+                _log.Debug("Something happened...");
 
                 if (_isStarted)
                     throw new ArgumentException("Can't start bus which already started.");
@@ -133,12 +137,12 @@
         public void Send(object message)
         {
             using (var executionContext = AmbientChainContext.Current.Push(context =>
-                                                                           {
-                                                                               context.OutgoingMessage = message;
-                                                                               context.OutgoingMessageType = message.GetType();
-                                                                           })) {
-                                                                               new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.Send), executionContext);
-                                                                           }
+                    {
+                        context.OutgoingMessage = message;
+                        context.OutgoingMessageType = message.GetType();
+                    })) {
+                        new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.Send), executionContext);
+                    }
         }
 
         public void SendLocal(object message)
@@ -157,12 +161,12 @@
             var executor = new ChainExecutor(Container);
 
             using (var executionContext = AmbientChainContext.Current.Push(context =>
-                                                                           {
-                                                                               context.OutgoingMessage = message;
-                                                                               context.OutgoingMessageType = message.GetType();
-                                                                           })) {
-                                                                               executor.RunWithIt(Chains.GetChainFor(ChainIntent.Reply), executionContext);
-                                                                           }
+                {
+                    context.OutgoingMessage = message;
+                    context.OutgoingMessageType = message.GetType();
+                })) {
+                    executor.RunWithIt(Chains.GetChainFor(ChainIntent.Reply), executionContext);
+                }
         }
 
         public void Publish<T>(Action<T> action = null) where T : class
@@ -173,10 +177,10 @@
             var executor = new ChainExecutor(Container);
 
             using (var context = AmbientChainContext.Current.Push(childContext =>
-                                                                  {
-                                                                      childContext.OutgoingMessage = message;
-                                                                      childContext.OutgoingMessageType = typeof (T);
-                                                                  }))
+                {
+                    childContext.OutgoingMessage = message;
+                    childContext.OutgoingMessageType = typeof (T);
+                }))
             {
                 var behaviorChain = Chains.GetChainFor(ChainIntent.Publish);
 
@@ -203,11 +207,11 @@
             Func<Type, Type, bool> implementsType = (y, compareType) => y.IsGenericType && y.GetGenericTypeDefinition() == compareType;
 
             var handlers = allTypes.Where(EffectiveConfiguration.IsHandler).SelectMany(type => type.GetMethods()
-                                                                                                   .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
-                                                                                                                .Where(type.GetInterfaces()
-                                                                                                                           .Where(intface => implementsType(intface, typeof (IHandle<>)))
-                                                                                                                           .SelectMany(intfs => intfs.GenericTypeArguments).Contains)
-                                                                                                                .Any()));
+                .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
+                            .Where(type.GetInterfaces()
+                                        .Where(intface => implementsType(intface, typeof (IHandle<>)))
+                                        .SelectMany(intfs => intfs.GenericTypeArguments).Contains)
+                            .Any()));
 
             foreach (var methodInfo in handlers)
             {

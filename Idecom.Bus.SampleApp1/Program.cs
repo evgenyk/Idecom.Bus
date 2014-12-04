@@ -23,12 +23,22 @@
             IBusInstance busInstance = Configure.With()
                                        .WindsorContainer(container)
                                        .Log4Net()
-                                       .RabbitMqTransport("localhost")
-                                       //.MongoDbTransport("mongodb://localhost", "messageHub", 4)
+                                       //.RabbitMqTransport("localhost")
+                                       .MongoDbTransport("mongodb://localhost", "messageHub", 4)
                                        .JsonNetSerializer()
                                        .RouteMessagesFromNamespaceTo<SayHelloCommand>("app2")
                                        .MongoPublisher("mongodb://localhost", "messageHub")
                                        .CreateBus("app1")
+                                       .Start();
+
+            IBusInstance busInstance2 = Configure.With()
+                                       .WindsorContainer(container)
+                                       .Log4Net()
+                                       .MongoDbTransport("mongodb://localhost", "messageHub", 4)
+                                       .JsonNetSerializer()
+                                       .RouteMessagesFromNamespaceTo<SayHelloCommand>("app2")
+                                       .MongoPublisher("mongodb://localhost", "messageHub")
+                                       .CreateBus("app2")
                                        .Start();
 
             //var sayHelloCommand = new SayHelloCommand("Blah");

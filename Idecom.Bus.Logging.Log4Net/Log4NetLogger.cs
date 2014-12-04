@@ -1,42 +1,31 @@
 ﻿namespace Idecom.Bus.Logging.Log4Net
 {
     using System;
-    using System.Diagnostics;
-    using System.Reflection;
-    using System.Runtime.CompilerServices;
-    using Interfaces.Logging;
     using log4net;
     using ILog = Interfaces.Logging.ILog;
 
-    public class Log4NetLogger: ILog
+    public class Log4NetLogger : ILog
     {
-        log4net.ILog _logger;
+        readonly log4net.ILog _logger;
 
-        log4net.ILog Logger
+        public Log4NetLogger(string name)
         {
-            get
-            {
-                if (_logger != null) { return _logger; }
-                var declaringType = new StackFrame(2, true).GetMethod().DeclaringType;  //this property, then method that logs
-                var loggerNameAttribute = declaringType.GetCustomAttribute<LoggerNameAttribute>();
-                return _logger ?? (_logger = LogManager.GetLogger(loggerNameAttribute == null ? (declaringType == null ? "UnspecifiedLogger" : declaringType.Name) : loggerNameAttribute.Name));
-            }
+            _logger = LogManager.GetLogger(name);
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         public void Debug(string message)
         {
-            Logger.Debug(message);
+            _logger.Debug(message);
         }
 
         public void Debug(string message, Exception exception)
         {
-            Logger.Debug(message, exception);
+            _logger.Debug(message, exception);
         }
 
         public void DebugFormat(string format, params object[] args)
         {
-            Logger.DebugFormat(format, args);
+            _logger.DebugFormat(format, args);
         }
 
         public void Info(string message)

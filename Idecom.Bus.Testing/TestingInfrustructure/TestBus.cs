@@ -1,11 +1,13 @@
 ﻿namespace Idecom.Bus.Testing.TestingInfrustructure
 {
     using System.Collections.Generic;
+    using Addressing;
     using Implementations.UnicastBus;
+    using Interfaces;
 
     public class TestBus: Bus
     {
-        public TestBus()
+        public TestBus(Address localAddress, ILogFactory logFactory) : base(localAddress, logFactory)
         {
             MessagesReceived = new List<object>();
         }

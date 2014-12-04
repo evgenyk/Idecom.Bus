@@ -1,19 +1,23 @@
 ﻿namespace Idecom.Bus.Transport.MongoDB
 {
     using System;
+    using Addressing;
     using global::MongoDB.Driver;
     using Interfaces;
+    using Interfaces.Logging;
 
     class MessageSender
     {
         readonly MongoDatabase _database;
         readonly IMessageSerializer _serializer;
         bool _isStarted;
+        ILog _log;
 
-        public MessageSender(MongoDatabase database, IMessageSerializer serializer)
+        public MessageSender(MongoDatabase database, IMessageSerializer serializer, ILogFactory logFactory, Address address)
         {
             _database = database;
             _serializer = serializer;
+            _log = logFactory.GetLogger(string.Format("{0} MessageSender", address));
         }
 
         public bool IsStarted
@@ -23,6 +27,7 @@
 
         public void Start()
         {
+            _log.Debug("Started");
             _isStarted = true;
         }
 
@@ -44,6 +49,7 @@
 
         public void Stop()
         {
+            _log.Debug("Stopped");
             _isStarted = false;
         }
     }

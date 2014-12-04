@@ -7,6 +7,7 @@
     using Addressing;
     using Behaviors;
     using Interfaces;
+    using Interfaces.Logging;
     using Internal;
     using UnicastBus;
 
@@ -104,6 +105,12 @@
         {
             exposeConfigurationAction(this);
             return this;
+        }
+
+        public void SetLogger(Func<string, ILog> func)
+        {
+            var loggerFactory = new LogFactory(func);
+            _container.ConfigureInstance(loggerFactory);
         }
     }
 }

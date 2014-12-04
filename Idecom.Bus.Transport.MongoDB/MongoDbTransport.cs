@@ -19,14 +19,23 @@
         MongoDatabase _database;
         MessageReceiver _receiver;
         MessageSender _sender;
+        readonly Address _localAddress;
+        readonly ILogFactory _logFactory;
+        readonly ILog _log;
+
+        public MongoDbTransport(Address localAddress, ILogFactory logFactory)
+        {
+            _localAddress = localAddress;
+            _logFactory = logFactory;
+            _log = logFactory.GetLogger(string.Format("{0} MongoDbTransport", localAddress));
+        }
+
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }
         public IContainer Container { get; set; }
         public IRoutingTable<Address> MesageRoutingTable { get; set; }
         public IMessageSerializer MessageSerializer { get; set; }
-        public Address LocalAddress { get; set; }
         public IBehaviorChains Chains { get; set; }
-        public ILog Log { get; set; }
 
         public int Retries { get; set; }
         public int WorkersCount { get; set; }
@@ -34,10 +43,10 @@
         public void BeforeBusStarted()
         {
             _database = new MongoClient(ConnectionString).GetServer().GetDatabase(DatabaseName);
-            CreateQueues(MesageRoutingTable.GetDestinations().Union(new[] {LocalAddress}));
-            var localCollection = _database.GetCollection<MongoTransportMessageEntity>(LocalAddress.ToString());
+            CreateQueues(MesageRoutingTable.GetDestinations().Union(new[] {_localAddress}));
+            var localCollection = _database.GetCollection<MongoTransportMessageEntity>(_localAddress.ToString());
 
-            _sender = new MessageSender(_database, MessageSerializer);
+            _sender = new MessageSender(_database, MessageSerializer, _logFactory, _localAddress);
             _sender.Start();
             _receiver = new MessageReceiver(this, localCollection, WorkersCount, Retries, MessageSerializer, Container);
             _receiver.Start();
@@ -73,7 +82,7 @@
                 if (!_database.CollectionExists(collectionName))
                     try { _database.CreateCollection(collectionName); }
                     catch (Exception e) {
-                        Log.ErrorFormat("Could not create collection {0} with exception {1}", collectionName, e);
+                        _log.ErrorFormat("Could not create collection {0} with exception {1}", collectionName, e);
                     }
                 var mongoCollection = _database.GetCollection(collectionName);
                 const string dequeueIndexName = "Stataus_Id";
@@ -84,7 +93,7 @@
 
         public void ProcessMessageReceivedEvent(TransportMessage transportMessage, int attempt, int maxRetries)
         {
-            Log.DebugFormat("{0}: Received an incoming message of type {1}", Thread.CurrentThread.ManagedThreadId, (transportMessage.MessageType == null ? transportMessage.Message.GetType().ToString() : transportMessage.MessageType.Name));
+            _log.DebugFormat("{0}: Received an incoming message of type {1}", Thread.CurrentThread.ManagedThreadId, (transportMessage.MessageType == null ? transportMessage.Message.GetType().ToString() : transportMessage.MessageType.Name));
 
             var ce = new ChainExecutor(Container);
             var chain = Chains.GetChainFor(ChainIntent.TransportMessageReceive);

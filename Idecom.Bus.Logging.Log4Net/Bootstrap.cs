@@ -7,7 +7,7 @@
     {
         public static Configure Log4Net(this ConfigureLogging configure)
         {
-            configure.Container.Configure<Log4NetLogger>(ComponentLifecycle.Transient);
+            configure.RootConfiguration.SetLogger((name) => new Log4NetLogger(name));
             return configure.RootConfiguration;
         }
     }
