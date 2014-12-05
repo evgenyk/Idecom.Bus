@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using Addressing;
     using Interfaces;
     using Interfaces.Addons.Sagas;
     using Interfaces.Behaviors;
@@ -12,10 +13,11 @@
     {
         readonly IMessageToStartSagaMapping _messageToStartSagaMapping;
         readonly ISagaManager _sagaManager;
-        public ILog Log { get; set; }
+        readonly ILog _log;
 
-        public ResumeSagaBehavior(IMessageToStartSagaMapping messageToStartSagaMapping, ISagaManager sagaManager)
+        public ResumeSagaBehavior(IMessageToStartSagaMapping messageToStartSagaMapping, ISagaManager sagaManager, Address address, ILogFactory logFactory)
         {
+            _log = logFactory.GetLogger(string.Format("{0} ResumeSagaBehavior", address));
             _messageToStartSagaMapping = messageToStartSagaMapping;
             _sagaManager = sagaManager;
         }
@@ -31,7 +33,7 @@
 
                 if (startSagaTypes != null)
                 {
-                    Log.Debug("Starting saga...");
+                    _log.Debug("Starting saga...");
                     sagaInstance = _sagaManager.Start(sagaDataType, context.OutgoingHeaders);
                 }
                 else
@@ -40,14 +42,14 @@
                     if (context.IncomingMessageContext.ContainsSagaIdForType(sagaDataType))
                         sagaId = context.IncomingMessageContext.GetSagaIdForType(sagaDataType);
 
-                    Log.Debug("Resuming saga " + sagaId);
+                    _log.Debug("Resuming saga " + sagaId);
                     sagaInstance = _sagaManager.ResumeSaga(sagaDataType, context.IncomingMessageContext);
                     if (sagaInstance == null | (sagaInstance != null && sagaInstance.SagaData == null))
                     {
                         var message = string.Format("This could never happen under normal circumstances. Could not find saga data for message type: {0}, sagaId: {1}",
                             context.IncomingMessageContext.IncommingMessageType, sagaId);
                         
-                        Log.Debug(message);
+                        _log.Debug(message);
                         throw new Exception(message);
                     }
                 }
@@ -60,7 +62,7 @@
 
                 if (context.SagaContext.HandlerClosedSaga)
                 {
-                    Log.DebugFormat("Closed saga id {0}", sagaInstance.SagaId);
+                    _log.DebugFormat("Closed saga id {0}", sagaInstance.SagaId);
                     _sagaManager.CloseSaga(sagaInstance);
                 }
                 else _sagaManager.UpdateSaga(sagaInstance);

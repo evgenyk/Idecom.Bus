@@ -74,7 +74,7 @@
         {
             lock (this)
             {
-                _log.Debug("Something happened...");
+                _log.DebugFormat("Starting bus...");
 
                 if (_isStarted)
                     throw new ArgumentException("Can't start bus which already started.");
@@ -112,6 +112,7 @@
 
 
                 _isStarted = true;
+                _log.DebugFormat("Started");
             }
             return this;
         }

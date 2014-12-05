@@ -93,7 +93,7 @@
 
         public void ProcessMessageReceivedEvent(TransportMessage transportMessage, int attempt, int maxRetries)
         {
-            _log.DebugFormat("{0}: Received an incoming message of type {1}", Thread.CurrentThread.ManagedThreadId, (transportMessage.MessageType == null ? transportMessage.Message.GetType().ToString() : transportMessage.MessageType.Name));
+            _log.DebugFormat("Received an incoming message of type {0}", (transportMessage.MessageType == null ? transportMessage.Message.GetType().ToString() : transportMessage.MessageType.Name));
 
             var ce = new ChainExecutor(Container);
             var chain = Chains.GetChainFor(ChainIntent.TransportMessageReceive);

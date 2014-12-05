@@ -4,7 +4,7 @@
     using Implementations;
     using Interfaces;
     using Interfaces.Addons.Sagas;
-    using Interfaces.Logging;
+    using log4net;
     using SampleMessages;
 
     [UsedImplicitly]
@@ -12,20 +12,20 @@
                                     IStartThisSagaWhenReceive<SayHelloCommand>,
                                     IHandle<SayGoodByeCommand>
     {
-        public ILog Log { get; set; }
+        readonly log4net.ILog _log = LogManager.GetLogger("SayHelloApp2Saga");
 
         public void Handle(SayGoodByeCommand command)
         {
-            Log.Debug("05 \t A friend said good bye, said see you");
+            _log.Debug("05 \t A friend said good bye, said see you");
             Bus.Reply(new SeeYouCommand("See you"));
             
             CloseSaga();
-            Log.Debug("05 \t Closed saga");
+            _log.Debug("05 \t Closed saga");
         }
 
         public void Handle(SayHelloCommand command)
         {
-            Log.Debug("03 \t A friend said hello");
+            _log.Debug("03 \t A friend said hello");
 
             Bus.Reply(new SayHelloCommand("Hello back to you!!"));
         }

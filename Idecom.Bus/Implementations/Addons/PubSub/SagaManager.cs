@@ -15,7 +15,12 @@
         public ISagaStorage SagaStorage { get; set; }
         public IInstanceCreator InstanceCreator { get; set; }
         public Address Address { get; set; }
-        public ILog Log { get; set; }
+        readonly ILog _log;
+
+        public SagaManager(Address address, ILogFactory logFactory)
+        {
+            _log = logFactory.GetLogger(string.Format("{0} SagaManager", address));
+        }
 
         public ISagaStateInstance ResumeSaga(Type sagaDataType, IncommingMessageContext incommingMessageContext)
         {
@@ -34,7 +39,7 @@
 
             var instance = InstanceCreator.CreateInstanceOf(sagaDataType) as ISagaState;
 
-            Log.DebugFormat("Started saga for {0} with id {1}", sagaDataType.FullName, sagaId);
+            _log.DebugFormat("Started saga for {0} with id {1}", sagaDataType.FullName, sagaId);
 
             if (instance == null)
                 throw new Exception("SagaState has to be inherited from ISagaState");

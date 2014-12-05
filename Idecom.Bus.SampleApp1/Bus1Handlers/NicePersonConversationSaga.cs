@@ -1,10 +1,9 @@
 ﻿namespace Idecom.Bus.SampleApp1.Bus1Handlers
 {
-    using System;
     using System.Threading;
     using Implementations;
     using Interfaces;
-    using Interfaces.Logging;
+    using log4net;
     using SampleMessages;
 
     [SingleInstanceSaga]
@@ -13,31 +12,31 @@
                                               IHandle<SayHelloCommand>,
                                               IHandle<SeeYouCommand>
     {
-        public ILog Log { get; set; }
+        readonly ILog _log = LogManager.GetLogger("NicePersonConversationSaga");
 
         public void Handle(SayHelloCommand command)
         {
-            Log.Debug("04 \t Said goodbuy to a friend");
+            _log.Debug("04 \t Said goodbuy to a friend");
             Bus.Reply(new SayGoodByeCommand("See you"));
         }
 
         public void Handle(SeeYouCommand command)
         {
-            Log.Debug(Thread.CurrentThread.ManagedThreadId + " \t 06 \t Received See you back");
+            _log.Debug(Thread.CurrentThread.ManagedThreadId + " \t 06 \t Received See you back");
             Data.Started = false;
             CloseSaga();
-            Log.Debug("07 \t Closed saga");
+            _log.Debug("07 \t Closed saga");
         }
 
         public void Handle(IMetAFriendEvent command)
         {
             if (Data.Started)
             {
-                Log.Debug("Saga already started while it shouldn't have been");
+                _log.Debug("Saga already started while it shouldn't have been");
                 return;
             }
             Data.Started = true;
-            Log.Debug("02 \t Met a friend, said hi");
+            _log.Debug("02 \t Met a friend, said hi");
             var sayHelloCommand = new SayHelloCommand("Hi");
             Bus.Reply(sayHelloCommand);
             Data.FriendSaidHello = true;
