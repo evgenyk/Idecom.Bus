@@ -30,26 +30,32 @@
 
         public void Info(string message)
         {
+            _logger.Info(message);
         }
 
         public void Info(string message, Exception exception)
         {
+            _logger.Info(message, exception);
         }
 
         public void InfoFormat(string format, params object[] args)
         {
+            _logger.InfoFormat(format, args);
         }
 
         public void Error(string message)
         {
+            _logger.Error(message);
         }
 
         public void Error(string message, Exception exception)
         {
+            _logger.Error(message, exception);
         }
 
         public void ErrorFormat(string format, params object[] args)
         {
+            _logger.ErrorFormat(format, args);
         }
     }
 }
