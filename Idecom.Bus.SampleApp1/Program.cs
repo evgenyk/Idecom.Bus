@@ -31,18 +31,8 @@
                                        .CreateBus("app1")
                                        .Start();
 
-//            IBusInstance busInstance2 = Configure.With()
-//                                       .WindsorContainer(container)
-//                                       .Log4Net()
-//                                       .MongoDbTransport("mongodb://localhost", "messageHub", 4)
-//                                       .JsonNetSerializer()
-//                                       .RouteMessagesFromNamespaceTo<SayHelloCommand>("app2")
-//                                       .MongoPublisher("mongodb://localhost", "messageHub")
-//                                       .CreateBus("app2")
-//                                       .Start();
-
-            //var sayHelloCommand = new SayHelloCommand("Blah");
-            //busInstance.SendLocal(sayHelloCommand);
+            var sayHelloCommand = new SayHelloCommand("Blah");
+            busInstance.SendLocal(sayHelloCommand);
 
             Console.WriteLine("Bus configured. Press any key to close the app.");
             Console.ReadKey();
