@@ -24,7 +24,7 @@
                                        .WindsorContainer(container)
                                        .Log4Net()
                                        //.RabbitMqTransport("localhost")
-                                       .MongoDbTransport("mongodb://localhost", "messageHub", 4)
+                                       .MongoDbTransport("mongodb://localhost", "messageHub", 1)
                                        .JsonNetSerializer()
                                        .RouteMessagesFromNamespaceTo<SayHelloCommand>("app2")
                                        .MongoPublisher("mongodb://localhost", "messageHub")

@@ -1,6 +1,6 @@
 namespace Idecom.Bus.Transport.MongoDB
 {
-    enum MessageProcessingStatus
+    public enum MessageProcessingStatus
     {
         AwaitingDispatch = 0,
         ReceivedByConsumer = 1,

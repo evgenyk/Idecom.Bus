@@ -87,7 +87,15 @@
                 var mongoCollection = _database.GetCollection(collectionName);
                 const string dequeueIndexName = "Stataus_Id";
                 if (!mongoCollection.IndexExists(dequeueIndexName))
-                    mongoCollection.CreateIndex(IndexKeys<MongoTransportMessageEntity>.Ascending(x => x.Id).Ascending(x => x.Status), IndexOptions.SetName(dequeueIndexName));
+                    try
+                    {
+                        var indexKeysBuilder = IndexKeys<MongoTransportMessageEntity>.Ascending(x => x.Id).Ascending(x => x.Status);
+                        var indexOptionsBuilder = IndexOptions.SetName(dequeueIndexName);
+                        mongoCollection.CreateIndex(indexKeysBuilder, indexOptionsBuilder);
+                    }
+                    catch (Exception e) {
+                        _log.ErrorFormat("Could not create index {0} with exception {1}", dequeueIndexName, e);
+                    }
             }
         }
 

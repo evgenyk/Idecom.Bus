@@ -115,7 +115,7 @@ namespace Idecom.Bus.Transport.MongoDB
             var query = Query<MongoTransportMessageEntity>.EQ(x => x.Id, mongoTransportMessageEntity.Id);
             var update = Update<MongoTransportMessageEntity>.Set(x => x.FailedTimeUtc, DateTime.UtcNow)
                                                             .Set(x => x.Status, MessageProcessingStatus.PermanentlyFailed)
-                                                            .Set(x => x.FailureReason, exception.Message);
+                                                            .Set(x => x.FailureReason, string.Format("{0}[{1}]", exception.Message, exception.StackTrace));
             _localCollection.Update(query, update, UpdateFlags.Multi, WriteConcern.Acknowledged);
         }
 

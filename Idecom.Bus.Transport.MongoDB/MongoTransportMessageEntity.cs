@@ -7,7 +7,7 @@ namespace Idecom.Bus.Transport.MongoDB
     using Interfaces;
     using Utility;
 
-    class MongoTransportMessageEntity
+    public class MongoTransportMessageEntity
     {
         protected MongoTransportMessageEntity()
         {
