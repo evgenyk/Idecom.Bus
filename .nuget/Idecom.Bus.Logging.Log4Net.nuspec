@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>Idecom.Bus.Logging.Log4Net</id>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <title>Idecom.Bus.Logging.Log4Net</title>
     <authors>Evgeny Komarevtsev</authors>
     <owners>Evgeny Komarevtsev</owners>
@@ -10,6 +10,7 @@
     <description>Idecom.Bus log4net integration</description>
     <dependencies>
       <dependency id="Idecom.Bus" />
+      <dependency id="log4net" version="2.0.3" />
     </dependencies>
   </metadata>
   <files>
