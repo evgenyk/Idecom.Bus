@@ -94,7 +94,7 @@
                 ApplyHandlerMapping(events, commands, allTypes);
                 var eventsWithHandlers = events.Where(e => MessageToHandlerRoutingTable.ResolveRouteFor(e).Any()).ToList();
 
-                var behaviors = allTypes.Where(x => typeof (IBehavior).IsAssignableFrom(x) && !x.IsInterface).ToList();
+                var behaviors = allTypes.Where(x => typeof(IBehavior).IsAssignableFrom(x) && !x.IsInterface).ToList();
                 behaviors.ForEach(x => Container.Configure(x, ComponentLifecycle.PerUnitOfWork));
 
                 foreach (var beforeBusStarted in Container.ResolveAll<IBeforeBusStarted>())
@@ -105,10 +105,15 @@
 
                 if (events.Any())
                     if (SubscriptionDistributor == null)
-                        throw new Exception(string.Format("Could not start pub/sub infrustructure: found {0} event(s) but SubscriptionsDistributor has not been configured", events.Count));
-                 
-                SubscriptionDistributor.Unsubscribe(events.Except(eventsWithHandlers));
-                SubscriptionDistributor.SubscribeTo(eventsWithHandlers);
+                    {
+                        _log.ErrorFormat("Could not start pub/sub infrustructure: found {0} event(s) but SubscriptionsDistributor has not been configured: {1}", events.Count, events.Select(x => x.Name).Aggregate((a, b) => a + ", " + b));
+                    }
+                    else
+                    {
+                        SubscriptionDistributor.Unsubscribe(events.Except(eventsWithHandlers));
+                        SubscriptionDistributor.SubscribeTo(eventsWithHandlers);
+                    }
+
 
 
                 _isStarted = true;
@@ -141,14 +146,16 @@
                     {
                         context.OutgoingMessage = message;
                         context.OutgoingMessageType = message.GetType();
-                    })) {
-                        new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.Send), executionContext);
-                    }
+                    }))
+            {
+                new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.Send), executionContext);
+            }
         }
 
         public void SendLocal(object message)
         {
-            using (var executionContext = AmbientChainContext.Current.Push(context => { context.OutgoingMessage = message; })) {
+            using (var executionContext = AmbientChainContext.Current.Push(context => { context.OutgoingMessage = message; }))
+            {
                 new ChainExecutor(Container).RunWithIt(Chains.GetChainFor(ChainIntent.SendLocal), executionContext);
             }
         }
@@ -165,9 +172,10 @@
                 {
                     context.OutgoingMessage = message;
                     context.OutgoingMessageType = message.GetType();
-                })) {
-                    executor.RunWithIt(Chains.GetChainFor(ChainIntent.Reply), executionContext);
-                }
+                }))
+            {
+                executor.RunWithIt(Chains.GetChainFor(ChainIntent.Reply), executionContext);
+            }
         }
 
         public void Publish<T>(Action<T> action = null) where T : class
@@ -180,7 +188,7 @@
             using (var context = AmbientChainContext.Current.Push(childContext =>
                 {
                     childContext.OutgoingMessage = message;
-                    childContext.OutgoingMessageType = typeof (T);
+                    childContext.OutgoingMessageType = typeof(T);
                 }))
             {
                 var behaviorChain = Chains.GetChainFor(ChainIntent.Publish);
@@ -210,7 +218,7 @@
             var handlers = allTypes.Where(EffectiveConfiguration.IsHandler).SelectMany(type => type.GetMethods()
                 .Where(x => x.GetParameters().Select(parameter => parameter.ParameterType)
                             .Where(type.GetInterfaces()
-                                        .Where(intface => implementsType(intface, typeof (IHandle<>)))
+                                        .Where(intface => implementsType(intface, typeof(IHandle<>)))
                                         .SelectMany(intfs => intfs.GenericTypeArguments).Contains)
                             .Any()));
 
@@ -219,7 +227,7 @@
                 var firstParameter = methodInfo.GetParameters().FirstOrDefault();
                 if (firstParameter == null) continue;
 
-                MessageToHandlerRoutingTable.RouteTypes(new[] {firstParameter.ParameterType}, methodInfo);
+                MessageToHandlerRoutingTable.RouteTypes(new[] { firstParameter.ParameterType }, methodInfo);
 
                 var methods = MessageToHandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
                 foreach (var method in methods)
@@ -228,12 +236,12 @@
 
 
             var enumerable = allTypes.Where(x => x.GetInterfaces()
-                                                  .Any(intface => implementsType(intface, typeof (IStartThisSagaWhenReceive<>)))).ToList();
+                                                  .Any(intface => implementsType(intface, typeof(IStartThisSagaWhenReceive<>)))).ToList();
             var messageToStartSagaMapping = enumerable
                 .SelectMany(type => type.GetInterfaces()
-                                        .Where(intface => implementsType(intface, typeof (IStartThisSagaWhenReceive<>)))
+                                        .Where(intface => implementsType(intface, typeof(IStartThisSagaWhenReceive<>)))
                                         .Where(intfs => intfs.IsGenericType && intfs.GetGenericArguments().Any())
-                                        .Select(y => new {type, message = y.GenericTypeArguments.First()})).ToList();
+                                        .Select(y => new { type, message = y.GenericTypeArguments.First() })).ToList();
 
             messageToStartSagaMapping.ForEach(x => MessageToStartSagaMapping.RouteType(x.message, x.type));
         }
