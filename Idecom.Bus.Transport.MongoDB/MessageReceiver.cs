@@ -1,12 +1,13 @@
 namespace Idecom.Bus.Transport.MongoDB
 {
     using System;
-    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
+    using Addressing;
     using global::MongoDB.Driver;
     using global::MongoDB.Driver.Builders;
     using Interfaces;
+    using Interfaces.Logging;
     using Utility;
 
     class MessageReceiver
@@ -20,6 +21,7 @@ namespace Idecom.Bus.Transport.MongoDB
         MaxWorkersTaskScheduler _scheduler;
         bool _stopReaderThread;
         readonly int _workersCount;
+        ILog _log;
 
         public MessageReceiver(int workersCount, IMessageSerializer serializer)
         {
@@ -32,9 +34,10 @@ namespace Idecom.Bus.Transport.MongoDB
                                int workersCount,
                                int retries,
                                IMessageSerializer serializer,
-                               IContainer container)
+                               IContainer container, ILogFactory logFactory, Address address)
             : this(workersCount, serializer)
         {
+            _log = logFactory.GetLogger(string.Format("{0} MessageSender", address));
             WorkersCount = workersCount;
             _transport = transport;
             _localCollection = localCollection;
@@ -102,13 +105,12 @@ namespace Idecom.Bus.Transport.MongoDB
                 catch (Exception exception)
                 {
                     if (attempt == _retries + 1)
-                        FailMessage(mongoTransportMessageEntity, exception);
+                        FailMessage(mongoTransportMessageEntity, exception, attempt);
                 }
             }
-            //sending messages after current message been handled only.
         }
 
-        void FailMessage(MongoTransportMessageEntity mongoTransportMessageEntity, Exception exception)
+        void FailMessage(MongoTransportMessageEntity mongoTransportMessageEntity, Exception exception, int attempt)
         {
             while (exception.InnerException != null)
                 exception = exception.InnerException;
@@ -117,6 +119,8 @@ namespace Idecom.Bus.Transport.MongoDB
                                                             .Set(x => x.Status, MessageProcessingStatus.PermanentlyFailed)
                                                             .Set(x => x.FailureReason, string.Format("{0}[{1}]", exception.Message, exception.StackTrace));
             _localCollection.Update(query, update, UpdateFlags.Multi, WriteConcern.Acknowledged);
+
+            _log.WarnFormat("Message {0} failed processing {1} times and is moved to the error queue with exception \"{2}\"", mongoTransportMessageEntity.MessageType, attempt + 1, exception.Message);
         }
 
         void AchknowledgeMessageProcessed(MongoTransportMessageEntity mongoTransportMessageEntity)

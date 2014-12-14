@@ -12,6 +12,10 @@
         void Info(string message, Exception exception);
         void InfoFormat(string format, params object[] args);
 
+        void Warn(string message);
+        void Warn(string message, Exception exception);
+        void WarnFormat(string format, params object[] args);
+
         void Error(string message);
         void Error(string message, Exception exception);
         void ErrorFormat(string format, params object[] args);

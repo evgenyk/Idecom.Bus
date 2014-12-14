@@ -48,7 +48,7 @@
 
             _sender = new MessageSender(_database, MessageSerializer, _logFactory, _localAddress);
             _sender.Start();
-            _receiver = new MessageReceiver(this, localCollection, WorkersCount, Retries, MessageSerializer, Container);
+            _receiver = new MessageReceiver(this, localCollection, WorkersCount, Retries, MessageSerializer, Container, _logFactory, _localAddress);
             _receiver.Start();
         }
 

@@ -43,6 +43,21 @@
             _logger.InfoFormat(format, args);
         }
 
+        public void Warn(string message)
+        {
+            _logger.Warn(message);
+        }
+
+        public void Warn(string message, Exception exception)
+        {
+            _logger.Warn(message, exception);
+        }
+
+        public void WarnFormat(string format, params object[] args)
+        {
+            _logger.WarnFormat(format, args);
+        }
+
         public void Error(string message)
         {
             _logger.Error(message);
