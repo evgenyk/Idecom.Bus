@@ -26,7 +26,7 @@
             if (resolveRouteFor == null) { throw new Exception(string.Format("Could not resolve a route to {0}", context.OutgoingMessageType)); }
 
             var transportMessage = new TransportMessage(context.OutgoingMessage, _localAddress, resolveRouteFor, MessageIntent.Send, context.OutgoingMessageType);
-            _transport.Send(transportMessage, context.IncomingMessageContext == null, message => context.DelayMessage(message));
+            _transport.Send(transportMessage, context.IsProcessingIncomingMessage(), message => context.DelayMessage(message));
             next();
         }
     }
