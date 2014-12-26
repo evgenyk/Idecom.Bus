@@ -14,9 +14,6 @@
 
             var bus = config.Container.Resolve<TestBus>();
 
-            config.Container.ParentContainer.ConfigureInstance(bus);
-            config.Container.Release(bus);
-
             bus.Chains.WrapWith<IncomingTransportMessageTraceBehavior>(ChainIntent.TransportMessageReceive);
 
             return bus;
