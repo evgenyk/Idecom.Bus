@@ -1,8 +1,5 @@
 ﻿namespace Idecom.Bus.Tests
 {
-    using System;
-    using System.Collections;
-    using System.Linq;
     using Implementations;
     using Interfaces;
     using IoC.CastleWindsor;
@@ -10,7 +7,6 @@
     using Serializer.JsonNet;
     using Testing.InMemoryInfrastructure;
     using Testing.TestingInfrustructure;
-    using Transport;
     using Xunit;
     using Xunit.Should;
 
@@ -39,7 +35,7 @@
                                .Start();
 
             bus.SendLocal(new ACommand());
-            bus.MessagesReceived.OfType<ACommand>().Count().ShouldBe(1);
+            bus.Snapshot.HasBeenHandled<ACommand>().ShouldBe(true);
         }
 
         [Fact]
@@ -56,7 +52,7 @@
                                .Start();
 
             bus.Publish<IEvent>(e => { });
-            bus.MessagesReceived.OfType<IEvent>().Count().ShouldBe(1);
+            bus.Snapshot.HasBeenHandled<IEvent>().ShouldBe(true);
         }
     }
 

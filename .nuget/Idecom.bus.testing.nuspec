@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Idecom.Bus.Testing</id>
+    <version>1.0.0</version>
+    <authors>Evgeny Komarevtsev</authors>
+    <owners>Evgeny Komarevtsev</owners>
+    <description>Idecom message bus testing framework</description>
+    <releaseNotes></releaseNotes>
+    <dependencies>
+    </dependencies>
+  </metadata>
+ <files>
+    <file src="..\Idecom.Bus.Testing\bin\debug\Idecom.Bus.Testing.dll" target="lib" />
+    <file src="..\Idecom.Bus.Testing\bin\debug\Idecom.Bus.Testing.pdb" target="lib" />
+    <file src="..\Idecom.Bus.Testing\**\*.cs" target="src" exclude="bin\**;obj\**;tools\**" />
+  </files>
+</package>

@@ -14,7 +14,8 @@
 
         public void Execute(Action next, IChainExecutionContext context)
         {
-            _testBus.MessagesReceived.Add(context.IncomingMessageContext.IncommingMessage);
+            var messageTelemetry = new MessageWithTelemetry(context.IncomingMessageContext.IncommingMessage);
+            _testBus.Snapshot.Push(messageTelemetry);
             next();
         }
     }

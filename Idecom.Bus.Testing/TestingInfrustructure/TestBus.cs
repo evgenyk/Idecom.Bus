@@ -1,7 +1,7 @@
 ﻿namespace Idecom.Bus.Testing.TestingInfrustructure
 {
-    using System.Collections.Generic;
     using Addressing;
+    using Annotations;
     using Implementations.UnicastBus;
     using Interfaces;
 
@@ -9,7 +9,7 @@
     {
         public TestBus(Address localAddress, ILogFactory logFactory) : base(localAddress, logFactory)
         {
-            MessagesReceived = new List<object>();
+            Snapshot = new MessagesSnapshot();
         }
 
         public new TestBus Start()
@@ -18,6 +18,6 @@
             return this; //returning TestBus instead to expose more stuff for testing purposes
         }
 
-        public IList<object> MessagesReceived { get; private set; }
+        public IMessagesSnapshot Snapshot { get; private set; }
     }
 }
