@@ -55,6 +55,11 @@
             }
         }
 
+        public List<NamespaceToEndpointMapping> NamespaceToEndpoints
+        {
+            get { return _namespaceToEndpoints; }
+        }
+
         public static ConfigureContainer With()
         {
             return new ConfigureContainer(new Configure());
@@ -63,10 +68,9 @@
         public IBusInstance CreateBus(string queueName = null)
         {
             Container.ConfigureInstance(new Address(queueName));
-
             Container.Configure<RoutingAwareSubscriptionDistributor>(ComponentLifecycle.Singleton);
-
             Container.ConfigureProperty<EffectiveConfiguration>(x => x.NamespaceToEndpointMappings, _namespaceToEndpoints);
+
             Container.Configure<Bus>(ComponentLifecycle.Singleton);
 
             var bus = Container.Resolve<IBusInstance>();
