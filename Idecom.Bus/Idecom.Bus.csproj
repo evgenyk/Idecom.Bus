@@ -76,6 +76,11 @@
     <Compile Include="Implementations\RoutingTable.cs" />
     <Compile Include="Implementations\Saga.cs" />
     <Compile Include="Implementations\SingleInstanceSagaAttribute.cs" />
+    <Compile Include="Implementations\Telemetry\ChainTelemetry.cs" />
+    <Compile Include="Implementations\Telemetry\Snaps\BehaviorInvocation.cs" />
+    <Compile Include="Implementations\Telemetry\Snaps\HandlerInvocation.cs" />
+    <Compile Include="Implementations\Telemetry\TelemetrySnapBase.cs" />
+    <Compile Include="Implementations\Telemetry\TelemetryToken.cs" />
     <Compile Include="Implementations\UnicastBus\BehaviorChains.cs" />
     <Compile Include="Implementations\UnicastBus\Bus.cs" />
     <Compile Include="Implementations\UnicastBus\HandlerContext.cs" />
@@ -111,6 +116,11 @@
     <Compile Include="Interfaces\IStartThisSagaWhenReceive.cs" />
     <Compile Include="Interfaces\ITransport.cs" />
     <Compile Include="Interfaces\Logging\ILog.cs" />
+    <Compile Include="Interfaces\Telemetry\IChainTelemetry.cs" />
+    <Compile Include="Interfaces\Telemetry\IHaveHandler.cs" />
+    <Compile Include="Interfaces\Telemetry\IHaveIncomingMessageType.cs" />
+    <Compile Include="Interfaces\Telemetry\ITelemetrySnap.cs" />
+    <Compile Include="Interfaces\Telemetry\ITelemetryToken.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Transport\MessageIntent.cs" />
     <Compile Include="Transport\TransportMessage.cs" />

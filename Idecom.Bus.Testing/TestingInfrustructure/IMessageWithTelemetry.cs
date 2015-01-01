@@ -4,7 +4,8 @@
 
     public interface IMessageWithTelemetry
     {
-        object Message { get; }
+        Type MessageType { get; }
+        object Handler { get; }
         DateTime TimeReceived { get; }
     }
 }

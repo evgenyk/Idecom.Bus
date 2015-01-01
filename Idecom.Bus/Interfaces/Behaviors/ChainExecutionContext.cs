@@ -6,7 +6,10 @@ namespace Idecom.Bus.Interfaces.Behaviors
     using System.Linq;
     using System.Reflection;
     using System.Runtime.Remoting.Messaging;
+    using Implementations.Behaviors;
+    using Implementations.Telemetry;
     using Implementations.UnicastBus;
+    using Telemetry;
     using Transport;
     using Utility;
 
@@ -22,6 +25,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
         void DelayMessage(TransportMessage transportMessage, ChainExecutionContext context = null);
         IEnumerable<TransportMessage> GetDelayedMessages(ChainExecutionContext context = null);
         bool IsProcessingIncomingMessage();
+        IChainTelemetry Telemetry { get; }
     }
 
     public class ChainExecutionContext : IChainExecutionContext
@@ -33,10 +37,13 @@ namespace Idecom.Bus.Interfaces.Behaviors
         object _outgoingMessage;
         Type _outgoingMessageType;
         SagaContext _sagaContext;
+        readonly IChainTelemetry _telemetry;
 
 
         internal ChainExecutionContext(ChainExecutionContext parentContext = null)
         {
+            _telemetry = new ChainTelemetry();
+
             _parentContext = parentContext;
             if (_parentContext != null)
                 return;
@@ -58,6 +65,11 @@ namespace Idecom.Bus.Interfaces.Behaviors
                 if (_parentContext != null) { return _parentContext.OutgoingHeaders; }
                 return _outgoingHeaders;
             }
+        }
+
+        public IChainTelemetry Telemetry
+        {
+            get { return _telemetry; }
         }
 
         public SagaContext SagaContext

@@ -19,6 +19,7 @@
             var bus = config.Container.Resolve<TestBus>();
 
             bus.Chains.WrapWith<IncomingTransportMessageTraceBehavior>(ChainIntent.TransportMessageReceive);
+            bus.Chains.WrapWith<IncomingTransportMessageTraceBehavior>(ChainIntent.IncomingMessageHandling);
 
             return bus;
         }

@@ -2,7 +2,7 @@
 {
     public interface IMessagesSnapshot
     {
-        bool HasBeenHandled<T>(int numberOfTimes = 1);
+        void HasBeenHandled<TMessage, THandler>(int numberOfTimes = 1);
         void Push(IMessageWithTelemetry messageInfo);
     }
 }

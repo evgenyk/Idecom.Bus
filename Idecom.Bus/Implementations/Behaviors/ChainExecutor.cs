@@ -5,6 +5,8 @@ namespace Idecom.Bus.Implementations.Behaviors
     using System.Linq;
     using Interfaces;
     using Interfaces.Behaviors;
+    using Telemetry;
+    using Telemetry.Snaps;
 
     public class ChainExecutor : IChainExecutor
     {
@@ -31,16 +33,28 @@ namespace Idecom.Bus.Implementations.Behaviors
             var nextType = behaviorQueue.Dequeue();
 
             var behavior = container.Resolve(nextType) as IBehavior;
+            using (context.Telemetry.RecordStart(new BehaviorInvocation(behavior)))
+            {
 
-            if (behavior != null)
-                behavior.Execute(() =>
-                                 {
-                                     if (!behaviorQueue.Any()) { return; }
 
-                                     IBehavior behavior1 = null;
-                                     try { behavior1 = ExecuteNextBehavior(_container, behaviorQueue, context); }
-                                     finally { _container.Release(behavior1); }
-                                 }, context);
+                if (behavior != null)
+                    behavior.Execute(() =>
+                                     {
+                                         if (!behaviorQueue.Any())
+                                             return;
+
+                                         IBehavior behavior1 = null;
+
+                                         try
+                                         {
+                                             behavior1 = ExecuteNextBehavior(_container, behaviorQueue, context); //context has to be a tree
+                                         }
+                                         finally
+                                         {
+                                             _container.Release(behavior1);
+                                         }
+                                     }, context);
+            }
             return behavior;
         }
     }

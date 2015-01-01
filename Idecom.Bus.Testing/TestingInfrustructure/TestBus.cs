@@ -1,7 +1,6 @@
 ﻿namespace Idecom.Bus.Testing.TestingInfrustructure
 {
     using Addressing;
-    using Annotations;
     using Implementations.UnicastBus;
     using Interfaces;
 

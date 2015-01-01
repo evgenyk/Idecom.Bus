@@ -4,13 +4,15 @@
 
     public class MessageWithTelemetry : IMessageWithTelemetry
     {
-        public MessageWithTelemetry(object message)
+        public MessageWithTelemetry(Type messageType, object handler)
         {
-            Message = message;
+            MessageType = messageType;
+            Handler = handler;
             TimeReceived = DateTime.Now;
         }
 
-        public object Message { get; private set; }
+        public Type MessageType { get; private set; }
+        public object Handler { get; private set; }
 
         public DateTime TimeReceived { get; private set; }
     }

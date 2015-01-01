@@ -8,7 +8,6 @@
     using Testing.InMemoryInfrastructure;
     using Testing.TestingInfrustructure;
     using Xunit;
-    using Xunit.Should;
 
     public class BasicSendAndPublishTests : IHandle<ACommand>, IHandle<IEvent>
     {
@@ -35,7 +34,7 @@
                                .Start();
 
             bus.SendLocal(new ACommand());
-            bus.Snapshot.HasBeenHandled<ACommand>().ShouldBe(true);
+            bus.Snapshot.HasBeenHandled<ACommand, BasicSendAndPublishTests>();
         }
 
         [Fact]
@@ -52,7 +51,7 @@
                                .Start();
 
             bus.Publish<IEvent>(e => { });
-            bus.Snapshot.HasBeenHandled<IEvent>().ShouldBe(true);
+            bus.Snapshot.HasBeenHandled<IEvent, BasicSendAndPublishTests>();
         }
     }
 

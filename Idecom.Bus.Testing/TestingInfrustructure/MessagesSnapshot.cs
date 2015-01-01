@@ -1,5 +1,6 @@
 ﻿namespace Idecom.Bus.Testing.TestingInfrustructure
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -12,9 +13,12 @@
             _incomingMessages = new List<IMessageWithTelemetry>();
         }
 
-        public bool HasBeenHandled<T>(int numberOfTimes = 1)
+        public void HasBeenHandled<TMessage, THandler>(int numberOfTimes = 1)
         {
-            return _incomingMessages.Select(telemetry => telemetry.Message).OfType<T>().Any();
+            var hasBeenHandled = _incomingMessages.Any(x => x.MessageType == typeof(TMessage) && x.Handler.GetType() == typeof(THandler));
+            
+            if (!hasBeenHandled)
+                throw new Exception(string.Format("Message {0} was not handled by handler {1} in this session", typeof (TMessage).Name, typeof (THandler).Name));
         }
 
         public void Push(IMessageWithTelemetry messageInfo)
