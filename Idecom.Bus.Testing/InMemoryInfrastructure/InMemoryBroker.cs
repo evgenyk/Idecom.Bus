@@ -7,7 +7,13 @@ namespace Idecom.Bus.Testing.InMemoryInfrastructure
 
     public class InMemoryBroker
     {
+        readonly bool _startNewTasks;
         readonly List<Action<TransportMessage>> _subscriptions = new List<Action<TransportMessage>>();
+
+        public InMemoryBroker(bool startNewTasks = true)
+        {
+            _startNewTasks = startNewTasks;
+        }
 
         public void Enqueue(TransportMessage transportMessage)
         {
@@ -17,7 +23,15 @@ namespace Idecom.Bus.Testing.InMemoryInfrastructure
             foreach (var subscription in _subscriptions)
             {
                 var subscription1 = subscription;
-                Task.Factory.StartNew(() => subscription1(message)).Wait();
+
+                if (_startNewTasks)
+                {
+                    Task.Factory.StartNew(() => subscription1(message)).Wait();
+                }
+                else
+                {
+                    subscription1(message);
+                }
             }
         }
 

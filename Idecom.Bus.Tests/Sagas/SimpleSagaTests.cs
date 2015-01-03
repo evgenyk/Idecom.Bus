@@ -17,8 +17,7 @@
         [Fact]
         public void CanStartAndFinishSagaTest()
         {
-            InMemorySagaStorage inMemorySagaStorage = null;
-            var bus = Configure.With()
+            TestBus bus = Configure.With()
                                .WindsorContainer()
                                 .Log4Net()
                                .InMemoryTransport()
@@ -26,16 +25,14 @@
                                .JsonNetSerializer()
                                .ExposeConfiguration(x =>
                                                     {
-                                                        inMemorySagaStorage = x.Container.Resolve<InMemorySagaStorage>();
-                                                        x.Container.ConfigureInstance(new InMemoryBroker());
+                                                        x.Container.ConfigureInstance(new InMemoryBroker(false));
                                                     })
                                .DefineEventsAs(type => type == typeof (IStartSimpleSagaEvent) || type == typeof (ICompleteSimpleSagaEvent))
                                .CreateTestBus("app1")
                                .Start();
 
             bus.Publish<IStartSimpleSagaEvent>();
-            inMemorySagaStorage.SagaStorage.Count().ShouldBe(0);
-            bus.Stop();
+            bus.Snapshot.HasBeenHandled<IStartSimpleSagaEvent, SimpleSaga>();
         }
 
         [Fact]
