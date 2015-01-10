@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>Idecom.Bus.Serializer.JsonNet</id>
-    <version>1.0.14</version>
+    <version>1.0.15</version>
     <title>Idecom.Bus.Serializer.JsonNet</title>
     <authors>Evgeny Komarevtsev</authors>
     <owners>Evgeny Komarevtsev</owners>

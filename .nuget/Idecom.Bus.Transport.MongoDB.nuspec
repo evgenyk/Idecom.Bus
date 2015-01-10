@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>Idecom.Bus.Transport.MongoDB</id>
-    <version>1.0.15</version>
+    <version>1.0.16</version>
     <title>Idecom.Bus.Transport.MongoDB</title>
     <authors>Evgeny Komarevtsev</authors>
     <owners>Evgeny Komarevtsev</owners>
