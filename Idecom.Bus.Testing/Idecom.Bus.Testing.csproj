@@ -59,7 +59,9 @@
     <Compile Include="InMemoryInfrastructure\InMemorySubscriptionStorage.cs" />
     <Compile Include="InMemoryInfrastructure\InMemoryTransport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestingInfrustructure\BehaviorInvocation.cs" />
     <Compile Include="TestingInfrustructure\BusExtensions.cs" />
+    <Compile Include="TestingInfrustructure\IBehaviorInvocation.cs" />
     <Compile Include="TestingInfrustructure\IMessagesSnapshot.cs" />
     <Compile Include="TestingInfrustructure\IMessageWithTelemetry.cs" />
     <Compile Include="TestingInfrustructure\IncomingTransportMessageTraceBehavior.cs" />

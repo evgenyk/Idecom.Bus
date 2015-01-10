@@ -7,10 +7,12 @@
     public class MessagesSnapshot : IMessagesSnapshot
     {
         readonly IList<IMessageWithTelemetry> _incomingMessages;
+        readonly IList<IBehaviorInvocation> _behaviorInvocation;
 
         public MessagesSnapshot()
         {
             _incomingMessages = new List<IMessageWithTelemetry>();
+            _behaviorInvocation = new List<IBehaviorInvocation>();
         }
 
         public void HasBeenHandled<TMessage, THandler>(int numberOfTimes = 1)
@@ -24,6 +26,11 @@
         public void Push(IMessageWithTelemetry messageInfo)
         {
             _incomingMessages.Add(messageInfo);
+        }
+
+        public void Push(IBehaviorInvocation behaviorInfo)
+        {
+            _behaviorInvocation.Add(behaviorInfo);
         }
     }
 }

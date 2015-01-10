@@ -2,6 +2,7 @@
 {
     using System;
 
+
     public class MessageWithTelemetry : IMessageWithTelemetry
     {
         public MessageWithTelemetry(Type messageType, object handler)

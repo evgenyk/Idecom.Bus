@@ -117,6 +117,7 @@
     <Compile Include="Interfaces\ITransport.cs" />
     <Compile Include="Interfaces\Logging\ILog.cs" />
     <Compile Include="Interfaces\Telemetry\IChainTelemetry.cs" />
+    <Compile Include="Interfaces\Telemetry\IHaveBehavior.cs" />
     <Compile Include="Interfaces\Telemetry\IHaveHandler.cs" />
     <Compile Include="Interfaces\Telemetry\IHaveIncomingMessageType.cs" />
     <Compile Include="Interfaces\Telemetry\ITelemetrySnap.cs" />

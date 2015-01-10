@@ -1,10 +1,13 @@
 namespace Idecom.Bus.Implementations.Telemetry.Snaps
 {
-    public class BehaviorInvocation : TelemetrySnapBase
-    {
-        public object Behavior { get; set; }
+    using Interfaces.Behaviors;
+    using Interfaces.Telemetry;
 
-        public BehaviorInvocation(object behavior)
+    public class BehaviorInvocation : TelemetrySnapBase, IHaveBehavior
+    {
+        public IBehavior Behavior { get; set; }
+
+        public BehaviorInvocation(IBehavior behavior)
         {
             Behavior = behavior;
         }

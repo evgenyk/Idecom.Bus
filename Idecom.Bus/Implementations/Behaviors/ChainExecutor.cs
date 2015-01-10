@@ -32,7 +32,7 @@ namespace Idecom.Bus.Implementations.Behaviors
         {
             var nextType = behaviorQueue.Dequeue();
 
-            var behavior = container.Resolve(nextType) as IBehavior;
+            IBehavior behavior = container.Resolve(nextType) as IBehavior;
             using (context.Telemetry.RecordStart(new BehaviorInvocation(behavior)))
             {
 

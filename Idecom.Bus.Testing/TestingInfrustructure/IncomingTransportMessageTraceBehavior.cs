@@ -2,7 +2,7 @@
 {
     using System;
     using System.Linq;
-    using Implementations.Behaviors;
+    using Castle.Core.Internal;
     using Interfaces.Behaviors;
     using Interfaces.Telemetry;
 
@@ -19,6 +19,8 @@
         {
             next();
             var handlersAndMessages = context.Telemetry.Snaps.OfType<IHaveHandler>().OfType<IHaveIncomingMessageType>();
+
+            context.Telemetry.Snaps.OfType<IHaveBehavior>().ForEach(b=>_testBus.Snapshot.Push(new BehaviorInvocation(b.Behavior)));
 
             foreach (var handlersAndMessage in handlersAndMessages)
             {

@@ -4,5 +4,6 @@
     {
         void HasBeenHandled<TMessage, THandler>(int numberOfTimes = 1);
         void Push(IMessageWithTelemetry messageInfo);
+        void Push(IBehaviorInvocation behaviorInfo);
     }
 }
