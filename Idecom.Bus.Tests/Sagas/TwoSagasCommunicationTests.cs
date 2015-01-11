@@ -18,7 +18,7 @@
         public void TwoSagasCanTalkToEachOtherWhileKeepingStateSeparateTest()
         {
             InMemorySubscriptionStorage subscriptionStorage = null;
-            var inMemoryBroker = new InMemoryBroker();
+            var inMemoryBroker = new InMemoryBroker(false);
 
             var bus1 = Configure.With()
                                 .WindsorContainer()

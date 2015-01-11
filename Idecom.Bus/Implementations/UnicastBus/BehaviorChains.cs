@@ -14,7 +14,8 @@ namespace Idecom.Bus.Implementations.UnicastBus
         Reply,
         Publish,
         TransportMessageReceive,
-        IncomingMessageHandling
+        IncomingMessageHandling,
+        SendDelayed
     }
 
     public interface IBehaviorChains
@@ -66,6 +67,12 @@ namespace Idecom.Bus.Implementations.UnicastBus
                               new BehaviorChain()
                               .WrapWith<DispachMessageToHandlerBehavior>()
                               .WrapWith<ResumeSagaBehavior>()
+                          },
+                          {
+                              ChainIntent.SendDelayed,
+                              new BehaviorChain()
+                              .WrapWith<SendPendingTransportMessagesBehavior>()
+                              .WrapWith<OutgoingMessageValidationBehavior>()
                           },
                       };
 

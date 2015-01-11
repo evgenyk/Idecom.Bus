@@ -6,7 +6,6 @@ namespace Idecom.Bus.Interfaces.Behaviors
     using System.Linq;
     using System.Reflection;
     using System.Runtime.Remoting.Messaging;
-    using Implementations.Behaviors;
     using Implementations.Telemetry;
     using Implementations.UnicastBus;
     using Telemetry;
@@ -35,6 +34,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
         readonly ChainExecutionContext _parentContext;
         IncommingMessageContext _incomingMessageContext;
         object _outgoingMessage;
+        TransportMessage _outgoingTransportMessage;
         Type _outgoingMessageType;
         SagaContext _sagaContext;
         readonly IChainTelemetry _telemetry;
