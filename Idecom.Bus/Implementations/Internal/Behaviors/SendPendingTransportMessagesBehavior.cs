@@ -15,8 +15,7 @@ namespace Idecom.Bus.Implementations.Internal.Behaviors
 
         public void Execute(Action next, IChainExecutionContext context)
         {
-            _transport.Send(context., context.IsProcessingIncomingMessage(), message => context.DelayMessage(message));
-
+            _transport.Send(context.OutgoingTransportMessage, false, null);
             next();
         }
     }

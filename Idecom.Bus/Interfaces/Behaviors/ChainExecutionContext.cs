@@ -25,6 +25,7 @@ namespace Idecom.Bus.Interfaces.Behaviors
         IEnumerable<TransportMessage> GetDelayedMessages(ChainExecutionContext context = null);
         bool IsProcessingIncomingMessage();
         IChainTelemetry Telemetry { get; }
+        TransportMessage OutgoingTransportMessage { get; set; }
     }
 
     public class ChainExecutionContext : IChainExecutionContext
@@ -70,6 +71,20 @@ namespace Idecom.Bus.Interfaces.Behaviors
         public IChainTelemetry Telemetry
         {
             get { return _telemetry; }
+        }
+
+        public TransportMessage OutgoingTransportMessage
+        {
+            get
+            {
+                if (_outgoingTransportMessage != null) { return _outgoingTransportMessage; }
+
+                if (_parentContext == null)
+                    return _outgoingTransportMessage;
+                var parentContextValue = _parentContext;
+                return parentContextValue == null ? _outgoingTransportMessage : parentContextValue.OutgoingTransportMessage;
+            }
+            set { _outgoingTransportMessage = value; }
         }
 
         public SagaContext SagaContext

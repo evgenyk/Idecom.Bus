@@ -72,7 +72,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
                               ChainIntent.SendDelayed,
                               new BehaviorChain()
                               .WrapWith<SendPendingTransportMessagesBehavior>()
-                              .WrapWith<OutgoingMessageValidationBehavior>()
+                              .WrapWith<OutgoingTransportMessageValidationBehavior>()
                           },
                       };
 

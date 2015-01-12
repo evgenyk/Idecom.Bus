@@ -57,6 +57,7 @@
     <Compile Include="Implementations\Internal\Behaviors\Incoming\ResumeSagaBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\Incoming\MultiplexIncomingTransportMessageToHandlers.cs" />
     <Compile Include="Implementations\Internal\Behaviors\Incoming\SendDelayedMessagesBehavior.cs" />
+    <Compile Include="Implementations\Internal\Behaviors\OutgoingTransportMessageValidationBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\ReplyBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\SendPendingTransportMessagesBehavior.cs" />
     <Compile Include="Implementations\Internal\Behaviors\ThrowIfBusNotStartedBehavior.cs" />

@@ -5,9 +5,13 @@
     using System.Linq;
     using Implementations;
     using Implementations.Behaviors;
+    using Interfaces;
     using Interfaces.Behaviors;
     using IoC.CastleWindsor;
     using Logging.Log4Net;
+    using Sagas.TwoSagas.FirstSaga;
+    using Sagas.TwoSagas.Messages;
+    using Sagas.TwoSagas.SecondSaga;
     using Serializer.JsonNet;
     using Testing.InMemoryInfrastructure;
     using Testing.TestingInfrustructure;
@@ -41,6 +45,49 @@
             Assert.Throws<ValidationException>(() => bus.Send(new ACommand()));
             Assert.Throws<ValidationException>(() => bus.SendLocal(new ACommand()));
             Assert.Throws<ValidationException>(() => bus.Publish<ACommand>());
+        }
+
+        [Fact]
+        public void DelayedMessagesAreValidatedAsWellTest()
+        {
+            var inMemoryBroker = new InMemoryBroker(false);
+            var bus1 = Configure.With()
+                               .WindsorContainer()
+                               .Log4Net()
+                               .ExposeConfiguration(x =>
+                                                    {
+                                                        x.Container.ConfigureInstance(inMemoryBroker);
+                                                    })
+                               .InMemoryTransport()
+                               .InMemoryPubSub()
+                               .JsonNetSerializer()
+                               .RouteMessagesFromNamespaceTo<ACommand>("app2")
+                               .DefineHandlersAs(type => false)
+                               .CreateTestBus("app1")
+                               .Start();
+            
+            var bus2 = Configure.With()
+                               .WindsorContainer()
+                               .Log4Net()
+                               .ExposeConfiguration(x => x.Container.ConfigureInstance(inMemoryBroker))
+                               .InMemoryTransport()
+                               .InMemoryPubSub()
+                               .JsonNetSerializer()
+                               .RouteMessagesFromNamespaceTo<Tests.IEvent>("app1")
+                               .CreateTestBus("app2")
+                               .Start();
+
+            Assert.Throws<ValidationException>(() => bus1.Send(new ACommand(){InvalidProperty = "blah"}));
+            
+        }
+
+        public class Bus1Replier : IHandle<ACommand>
+        {
+            public IBus Bus { get; set; }
+            public void Handle(ACommand command)
+            {
+                Bus.Reply(new ACommand());
+            }
         }
 
         public class ACommand

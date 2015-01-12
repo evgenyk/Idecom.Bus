@@ -2,6 +2,7 @@ namespace Idecom.Bus.Implementations.Internal.Behaviors.Incoming
 {
     using System;
     using Interfaces.Behaviors;
+    using Transport;
     using UnicastBus;
 
     public class SendDelayedMessagesBehavior : IBehavior
@@ -20,7 +21,7 @@ namespace Idecom.Bus.Implementations.Internal.Behaviors.Incoming
             next();
             foreach (var transportMessage in context.GetDelayedMessages())
             {
-                //we fon't cere if there's an incoming message context here, as that's the point we're sending pending messages
+                //we don't care if there's an incoming message context here, as that's the point we're sending pending messages
                 if (context.IncomingMessageContext != null)
                 {
                     foreach (var sagaHeader in context.IncomingMessageContext.GetSagaHeaders())
@@ -34,9 +35,10 @@ namespace Idecom.Bus.Implementations.Internal.Behaviors.Incoming
                 }
 
 
+                TransportMessage message = transportMessage;
                 using (var executionContext = context.Push(innerContext =>
                 {
-                    innerContext.OutgoingTransportMessage = transportMessage;
+                    innerContext.OutgoingTransportMessage = message;
                 }))
                 {
                     _executor.RunWithIt(_chains.GetChainFor(ChainIntent.SendDelayed), executionContext);
