@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>Idecom.Bus.IoC.CastleWindsor</id>
-    <version>1.0.15</version>
+    <version>1.0.16</version>
     <title>Idecom.Bus.IoC.CastleWindsor</title>
     <authors>Evgeny Komarevtsev</authors>
     <owners>Evgeny Komarevtsev</owners>
@@ -10,7 +10,7 @@
     <description>CastleWindsor container integration for Idecom.Bus</description>
     <dependencies>
       <dependency id="Idecom.Bus" />
-      <dependency id="Castle.Windsor" />
+      <dependency id="Castle.Windsor" version="3.3.0" />
     </dependencies>
   </metadata>
   <files>
