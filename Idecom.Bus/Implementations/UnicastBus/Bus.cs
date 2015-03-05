@@ -8,7 +8,6 @@
     using Behaviors;
     using Interfaces;
     using Interfaces.Addons.PubSub;
-    using Interfaces.Addons.Sagas;
     using Interfaces.Behaviors;
     using Interfaces.Logging;
     using Internal;
@@ -59,6 +58,7 @@
         [UsedImplicitly]
         public IBehaviorChains Chains { get; set; }
 
+        public IDebugView DebugView { get; set; }
 
         public IMessageContext IncomingMessageContext
         {
@@ -246,5 +246,4 @@
             messageToStartSagaMapping.ForEach(x => MessageToStartSagaMapping.RouteType(x.message, x.type));
         }
     }
-
 }

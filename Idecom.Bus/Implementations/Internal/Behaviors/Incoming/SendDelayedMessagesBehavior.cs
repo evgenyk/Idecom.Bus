@@ -1,6 +1,7 @@
 namespace Idecom.Bus.Implementations.Internal.Behaviors.Incoming
 {
     using System;
+    using Interfaces;
     using Interfaces.Behaviors;
     using Transport;
     using UnicastBus;

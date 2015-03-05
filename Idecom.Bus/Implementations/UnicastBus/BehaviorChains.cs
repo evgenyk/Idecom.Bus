@@ -3,6 +3,7 @@ namespace Idecom.Bus.Implementations.UnicastBus
     using System.Collections.Generic;
     using System.Diagnostics;
     using Behaviors;
+    using Interfaces;
     using Interfaces.Behaviors;
     using Internal.Behaviors;
     using Internal.Behaviors.Incoming;
@@ -16,12 +17,6 @@ namespace Idecom.Bus.Implementations.UnicastBus
         TransportMessageReceive,
         IncomingMessageHandling,
         SendDelayed
-    }
-
-    public interface IBehaviorChains
-    {
-        IBehaviorChain GetChainFor(ChainIntent intent);
-        void WrapWith<T>(ChainIntent intent) where T : IBehavior;
     }
 
     class BehaviorChains : IBehaviorChains

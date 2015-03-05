@@ -104,9 +104,11 @@
     <Compile Include="Interfaces\Behaviors\IChainExecutor.cs" />
     <Compile Include="Interfaces\IBeforeBusStarted.cs" />
     <Compile Include="Interfaces\IBeforeBusStopped.cs" />
+    <Compile Include="Interfaces\IBehaviorChains.cs" />
     <Compile Include="Interfaces\IBus.cs" />
     <Compile Include="Interfaces\IBusInstance.cs" />
     <Compile Include="Interfaces\IContainer.cs" />
+    <Compile Include="Interfaces\IDebugView.cs" />
     <Compile Include="Interfaces\IHandle.cs" />
     <Compile Include="Interfaces\ILogFactory.cs" />
     <Compile Include="Interfaces\IMessageToEndpointRoutingTable.cs" />

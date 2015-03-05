@@ -11,6 +11,10 @@
     using Internal;
     using UnicastBus;
 
+    public class DebugView: IDebugView
+    {
+    }
+
     public class Configure
     {
         readonly List<NamespaceToEndpointMapping> _namespaceToEndpoints;
@@ -52,6 +56,8 @@
 
                 _container.Configure<IncommingMessageContext>(ComponentLifecycle.PerUnitOfWork);
                 _container.Configure<OutgoingMessageContext>(ComponentLifecycle.PerUnitOfWork);
+                
+                _container.Configure<DebugView>(ComponentLifecycle.Singleton);
             }
         }
 
