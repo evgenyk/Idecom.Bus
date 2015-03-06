@@ -93,11 +93,16 @@
                 var commands = allTypes.Where(EffectiveConfiguration.IsCommand).ToList();
                 ApplyHandlerMapping(events, commands, allTypes);
                 var eventsWithHandlers = events.Where(e => MessageToHandlerRoutingTable.ResolveRouteFor(e).Any()).ToList();
+                DebugView.RecordEventsWithHandlers(eventsWithHandlers);
+                DebugView.RecordEventsDiscovered(events);
+                DebugView.RecordCommandsDiscovered(commands);
 
                 var behaviors = allTypes.Where(x => typeof(IBehavior).IsAssignableFrom(x) && !x.IsInterface).ToList();
                 behaviors.ForEach(x => Container.Configure(x, ComponentLifecycle.PerUnitOfWork));
 
-                foreach (var beforeBusStarted in Container.ResolveAll<IBeforeBusStarted>())
+                var beforeBusStarteds = Container.ResolveAll<IBeforeBusStarted>().ToList();
+                DebugView.RecordBeforeStarted(beforeBusStarteds);
+                foreach (var beforeBusStarted in beforeBusStarteds)
                 {
                     beforeBusStarted.BeforeBusStarted();
                     Container.Release(beforeBusStarted);

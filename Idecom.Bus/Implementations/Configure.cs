@@ -13,6 +13,30 @@
 
     public class DebugView: IDebugView
     {
+        public IList<Type> EventsDiscovered { get; set; }
+        public IList<Type> CommandsDiscovered { get; set; }
+        public IList<Type> EventsWithHandlers { get; set; }
+        public IList<IBeforeBusStarted> BeforeStartedDiscovered { get; set; }
+
+        public void RecordEventsWithHandlers(IEnumerable<Type> eventsWithHandlers)
+        {
+            EventsWithHandlers = new List<Type>(eventsWithHandlers);
+        }
+
+        public void RecordEventsDiscovered(IEnumerable<Type> events)
+        {
+            EventsDiscovered = new List<Type>(events);
+        }
+
+        public void RecordCommandsDiscovered(IEnumerable<Type> commands)
+        {
+            CommandsDiscovered = new List<Type>(commands);
+        }
+
+        public void RecordBeforeStarted(List<IBeforeBusStarted> beforeBusStarteds)
+        {
+            BeforeStartedDiscovered = new List<IBeforeBusStarted>(beforeBusStarteds);
+        }
     }
 
     public class Configure
