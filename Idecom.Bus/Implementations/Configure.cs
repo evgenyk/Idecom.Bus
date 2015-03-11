@@ -17,6 +17,14 @@
         public IList<Type> CommandsDiscovered { get; set; }
         public IList<Type> EventsWithHandlers { get; set; }
         public IList<IBeforeBusStarted> BeforeStartedDiscovered { get; set; }
+        public List<ClassToMessageInfo> Handlers { get; set; }
+        public List<ClassToMessageInfo> Sagas { get; set; }
+
+        public DebugView()
+        {
+            Handlers = new List<ClassToMessageInfo>();
+            Sagas = new List<ClassToMessageInfo>();
+        }
 
         public void RecordEventsWithHandlers(IEnumerable<Type> eventsWithHandlers)
         {
@@ -36,6 +44,32 @@
         public void RecordBeforeStarted(List<IBeforeBusStarted> beforeBusStarteds)
         {
             BeforeStartedDiscovered = new List<IBeforeBusStarted>(beforeBusStarteds);
+        }
+
+        public void RecordHandler(Type handlerType, Type messageType)
+        {
+            Handlers.Add(new ClassToMessageInfo(handlerType, messageType));
+        }
+
+        public void SagaStarts(Type sagaType, Type messageType)
+        {
+            Sagas.Add(new ClassToMessageInfo(sagaType, messageType));
+        }
+    }
+
+    public class ClassToMessageInfo
+    {
+        readonly Type _handlerType;
+        readonly Type _messageType;
+        public override string ToString()
+        {
+            return string.Format("Handler: {0}, message: {1}", _handlerType.Name, _messageType.Name);
+        }
+
+        public ClassToMessageInfo(Type handlerType, Type messageType)
+        {
+            _handlerType = handlerType;
+            _messageType = messageType;
         }
     }
 

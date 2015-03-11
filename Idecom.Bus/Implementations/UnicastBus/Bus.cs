@@ -233,6 +233,7 @@
                 if (firstParameter == null) continue;
 
                 MessageToHandlerRoutingTable.RouteTypes(new[] { firstParameter.ParameterType }, methodInfo);
+                DebugView.RecordHandler(methodInfo.DeclaringType, firstParameter.ParameterType);
 
                 var methods = MessageToHandlerRoutingTable.ResolveRouteFor(firstParameter.ParameterType);
                 foreach (var method in methods)
@@ -248,7 +249,11 @@
                                         .Where(intfs => intfs.IsGenericType && intfs.GetGenericArguments().Any())
                                         .Select(y => new { type, message = y.GenericTypeArguments.First() })).ToList();
 
-            messageToStartSagaMapping.ForEach(x => MessageToStartSagaMapping.RouteType(x.message, x.type));
+            messageToStartSagaMapping.ForEach(x =>
+                                              {
+                                                  MessageToStartSagaMapping.RouteType(x.message, x.type);
+                                                  DebugView.SagaStarts(x.type, x.message);
+                                              });
         }
     }
 }
