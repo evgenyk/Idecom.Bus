@@ -53,6 +53,7 @@
                                 .Start();
 
             bus1.Publish<IStartFirstSagaEvent>();
+            bus1.Publish<IAmRandomWhichDoesntStartASagaEvent>(); //this shoud not throw/or be able to resume a saga
 
             Assert.True(Saga1.Started);
             Assert.True(Saga2.Started);

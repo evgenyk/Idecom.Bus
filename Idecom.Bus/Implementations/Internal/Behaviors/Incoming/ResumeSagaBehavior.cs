@@ -8,6 +8,7 @@
     using Interfaces.Behaviors;
     using Interfaces.Logging;
     using UnicastBus;
+    using Utility;
 
     public class ResumeSagaBehavior : IBehavior
     {
@@ -25,7 +26,7 @@
         public void Execute(Action next, IChainExecutionContext context)
         {
             var handlerMethod = context.HandlerMethod;
-            if (IsSubclassOfRawGeneric(typeof(Saga<>), handlerMethod.DeclaringType)) //this must be a saga, whether existing or a new one is a diffirent question
+            if (ReflectionHelpers.IsSubclassOfRawGeneric(typeof(Saga<>), handlerMethod.DeclaringType)) //this must be a saga, whether existing or a new one is a diffirent question
             {
                 var sagaDataType = handlerMethod.DeclaringType.BaseType.GenericTypeArguments.First();
                 var startSagaTypes = _messageToStartSagaMapping.ResolveRouteFor(context.IncomingMessageContext.IncommingMessageType);
@@ -46,11 +47,11 @@
                     sagaInstance = _sagaManager.ResumeSaga(sagaDataType, context.IncomingMessageContext);
                     if (sagaInstance == null | (sagaInstance != null && sagaInstance.SagaData == null))
                     {
-                        var message = string.Format("This could never happen under normal circumstances. Could not find saga data for message type: {0}, sagaId: {1}",
+                        var message = string.Format("Could not find saga data for message type: {0}, sagaId: {1}. It is possible that this saga wasn't intended to be started in the first place.",
                             context.IncomingMessageContext.IncommingMessageType, sagaId);
                         
                         _log.Debug(message);
-                        throw new Exception(message);
+                        //throw new Exception(message);
                     }
                 }
 
@@ -71,18 +72,6 @@
             {
                 next();
             }
-        }
-
-
-        static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
-        {
-            while (toCheck != null && toCheck != typeof(object))
-            {
-                var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
-                if (generic == cur) { return true; }
-                toCheck = toCheck.BaseType;
-            }
-            return false;
         }
     }
 }

@@ -133,6 +133,7 @@
     <Compile Include="Utility\ApplicationIdGenerator.cs" />
     <Compile Include="Utility\InterfaceImplementor.cs" />
     <Compile Include="Utility\Reflect.cs" />
+    <Compile Include="Utility\ReflectionHelpers.cs" />
     <Compile Include="Utility\ShortGuid.cs" />
     <Compile Include="Utility\SystemHeaders.cs" />
     <Compile Include="Utility\TypeResolver.cs" />

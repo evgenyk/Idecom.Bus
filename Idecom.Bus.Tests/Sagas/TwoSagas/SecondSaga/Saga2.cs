@@ -8,7 +8,7 @@ namespace Idecom.Bus.Tests.Sagas.TwoSagas.SecondSaga
     using Messages;
     using Xunit.Should;
 
-    public class Saga2 : Saga<Saga2State>, IStartThisSagaWhenReceive<IStartSecondSagaEvent>
+    public class Saga2 : Saga<Saga2State>, IStartThisSagaWhenReceive<IStartSecondSagaEvent>, IHandle<IAmRandomWhichDoesntStartASagaEvent>
     {
         public static bool Started;
 
@@ -19,5 +19,10 @@ namespace Idecom.Bus.Tests.Sagas.TwoSagas.SecondSaga
             Bus.Publish<IRsumeFirstSagaAsEventFromSecondSaga>();
             CloseSaga();
         }
+
+        public void Handle(IAmRandomWhichDoesntStartASagaEvent command)
+        {
+        }
     }
+
 }

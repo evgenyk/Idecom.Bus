@@ -3,19 +3,21 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
-    using Implementations.Behaviors;
+    using Addressing;
     using Interfaces;
     using Interfaces.Addons.Sagas;
     using Interfaces.Behaviors;
-    using Telemetry;
+    using Interfaces.Logging;
     using Telemetry.Snaps;
 
     public class DispachMessageToHandlerBehavior : IBehavior
     {
         readonly IContainer _container;
+        readonly ILog _log;
 
-        public DispachMessageToHandlerBehavior(IContainer container)
+        public DispachMessageToHandlerBehavior(IContainer container, ILogFactory logFactory, Address address)
         {
+            _log = logFactory.GetLogger(string.Format("{0} DispachMessageToHandlerBehavior", address));
             _container = container;
         }
 
@@ -26,6 +28,15 @@
             var method = context.HandlerMethod;
             var handlerType = method.DeclaringType;
             var handler = _container.Resolve(handlerType);
+
+            var isInvalidSaga = handler is ISaga && context.SagaContext == null;
+
+            if (isInvalidSaga)
+            {
+                _log.Debug(string.Format("Handler {0} for message {1} seemd to be part of a saga, but saga data was null, so skipping", handlerType.FullName, context.IncomingMessageContext.IncommingMessageType.FullName));
+                next();
+                return;
+            }
 
             var inSaga = handler is ISaga && context.SagaContext != null;
             if (inSaga)

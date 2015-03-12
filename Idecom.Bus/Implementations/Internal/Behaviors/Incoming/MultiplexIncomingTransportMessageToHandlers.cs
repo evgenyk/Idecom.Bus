@@ -34,7 +34,10 @@
                 var chain = _chains.GetChainFor(ChainIntent.IncomingMessageHandling);
 
                 var handlerMethod = method;
-                using (context = context.Push(childContext => { childContext.HandlerMethod = handlerMethod; })) { new ChainExecutor(_container).RunWithIt(chain, context); }
+                using (context = context.Push(childContext => { childContext.HandlerMethod = handlerMethod; }))
+                {
+                    new ChainExecutor(_container).RunWithIt(chain, context);
+                }
             }
 
             next();
