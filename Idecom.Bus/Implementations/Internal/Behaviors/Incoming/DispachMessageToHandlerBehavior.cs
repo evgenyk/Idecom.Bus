@@ -29,7 +29,7 @@
             var handlerType = method.DeclaringType;
             var handler = _container.Resolve(handlerType);
 
-            var isInvalidSaga = handler is ISaga && context.SagaContext == null;
+            var isInvalidSaga = handler is ISaga && (context.SagaContext != null && context.SagaContext.SagaState != null);
 
             if (isInvalidSaga)
             {
