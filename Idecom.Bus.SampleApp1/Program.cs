@@ -17,6 +17,13 @@
     {
         static void Main()
         {
+            /*
+            var host = Host
+                .InfrustructureFolder("")
+                .HostedServiceFolder("")
+                .Start();
+                */
+
             log4net.Config.XmlConfigurator.Configure();
 
             var container = new WindsorContainer();
@@ -25,8 +32,8 @@
                                        .Log4Net()
                                        //.RabbitMqTransport("localhost")
                                        .MongoDbTransport("mongodb://localhost", "messageHub", 1)
-                                       .JsonNetSerializer()
-                                       .RouteMessagesFromNamespaceTo<SayHelloCommand>("app2")
+                                       .JsonNetSerializer() // should be automatic
+                                       .RouteMessagesFromNamespaceTo<SayHelloCommand>("app2") // must be automatic
                                        .MongoPublisher("mongodb://localhost", "messageHub")
                                        .CreateBus("app1")
                                        .Start();

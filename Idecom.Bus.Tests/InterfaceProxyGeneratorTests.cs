@@ -27,8 +27,10 @@
 
         public interface IAmAnInterface : IAnotherInterface
         {
-            // ReSharper disable once CSharpWarnings::CS0108
+#pragma warning disable CS0108 // Member hides inherited member; missing new keyword
+                              // ReSharper disable once CSharpWarnings::CS0108
             string StringProperty { get; set; } //hiding is intended here
+#pragma warning restore CS0108 // Member hides inherited member; missing new keyword
         }
 
         public interface IAnotherInterface
