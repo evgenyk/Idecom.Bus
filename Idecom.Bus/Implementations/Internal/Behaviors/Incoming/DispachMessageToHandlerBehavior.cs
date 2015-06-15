@@ -29,7 +29,9 @@
             var handlerType = method.DeclaringType;
             var handler = _container.Resolve(handlerType);
 
-            var isInvalidSaga = handler is ISaga && (context.SagaContext != null && context.SagaContext.SagaState != null);
+            var isInheritedFromISaga = handler is ISaga;
+
+            var isInvalidSaga = isInheritedFromISaga && (context.SagaContext != null && context.SagaContext.SagaState == null);
 
             if (isInvalidSaga)
             {
@@ -38,25 +40,30 @@
                 return;
             }
 
-            var inSaga = handler is ISaga && context.SagaContext != null;
+            var inSaga = isInheritedFromISaga && context.SagaContext != null;
             if (inSaga)
                 handler.GetType().GetProperty("Data").SetValue(handler, context.SagaContext.SagaState.SagaData);
 
-            var methodToCall = Expression.Parameter(typeof(object));
-            var handledMessage = Expression.Parameter(typeof(object));
-
-            var lambda = Expression.Lambda<Action<object, object>>(Expression.Call(Expression.Convert(methodToCall, handlerType), method, Expression.Convert(handledMessage, method.GetParameters().First().ParameterType)), methodToCall, handledMessage)
-                .Compile();
-
-            using (context.Telemetry.RecordStart(new HandlerInvocation(handler, context.IncomingMessageContext.IncommingMessageType)))
+            if (!(isInheritedFromISaga & !inSaga))
             {
-                lambda(handler, context.IncomingMessageContext.IncommingMessage);
+                var methodToCall = Expression.Parameter(typeof (object));
+                var handledMessage = Expression.Parameter(typeof (object));
+
+                var lambda =
+                    Expression.Lambda<Action<object, object>>(
+                        Expression.Call(Expression.Convert(methodToCall, handlerType), method, Expression.Convert(handledMessage, method.GetParameters().First().ParameterType)), methodToCall,
+                        handledMessage)
+                              .Compile();
+
+                using (context.Telemetry.RecordStart(new HandlerInvocation(handler, context.IncomingMessageContext.IncommingMessageType)))
+                {
+                    lambda(handler, context.IncomingMessageContext.IncommingMessage);
+                }
+
+
+                if (inSaga && (handler as ISaga).IsClosed)
+                    context.SagaContext.HandlerClosedSaga = true;
             }
-
-
-            if (inSaga && (handler as ISaga).IsClosed)
-                context.SagaContext.HandlerClosedSaga = true;
-
 
             next();
         }
