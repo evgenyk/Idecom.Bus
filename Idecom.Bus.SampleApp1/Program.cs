@@ -11,7 +11,6 @@
     using SampleMessages;
     using Serializer.JsonNet;
     using Transport.MongoDB;
-    using Transport.RabbitMq;
 
     class Program
     {
