@@ -36,6 +36,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Idecom.Bus.Testing", "Ideco
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Idecom.Bus.Logging.Log4Net", "Idecom.Bus.Logging.Log4Net\Idecom.Bus.Logging.Log4Net.csproj", "{365DA9C2-7754-45B3-A466-5424ADE2DBD9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Idecom.Bus.Host", "Idecom.Bus.Host\Idecom.Bus.Host.csproj", "{A806885B-4368-46CC-B9AE-773025148546}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +88,10 @@ Global
 		{365DA9C2-7754-45B3-A466-5424ADE2DBD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{365DA9C2-7754-45B3-A466-5424ADE2DBD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{365DA9C2-7754-45B3-A466-5424ADE2DBD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A806885B-4368-46CC-B9AE-773025148546}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A806885B-4368-46CC-B9AE-773025148546}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A806885B-4368-46CC-B9AE-773025148546}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A806885B-4368-46CC-B9AE-773025148546}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -103,5 +109,6 @@ Global
 		{9DD532AF-0C9B-427E-9100-02B526707105} = {6E87FB2A-FCC6-4B0B-BD1C-85DC0744C90D}
 		{A6554D03-7DF4-49C6-BA5C-DEEDFB424F9A} = {6E87FB2A-FCC6-4B0B-BD1C-85DC0744C90D}
 		{365DA9C2-7754-45B3-A466-5424ADE2DBD9} = {6E87FB2A-FCC6-4B0B-BD1C-85DC0744C90D}
+		{A806885B-4368-46CC-B9AE-773025148546} = {6E87FB2A-FCC6-4B0B-BD1C-85DC0744C90D}
 	EndGlobalSection
 EndGlobal

@@ -23,7 +23,7 @@
         [Fact]
         public void SendingASimpleMessageShouldHandleAMessage()
         {
-            var bus = Configure.With()
+            var bus = Configure.WithContainer()
                                .WindsorContainer()
                                 .Log4Net()
                                .ExposeConfiguration(x => x.Container.ConfigureInstance(new InMemoryBroker()))
@@ -40,7 +40,7 @@
         [Fact]
         public void RaisingASimpleeventShouldHandleThisEvent()
         {
-            var bus = Configure.With()
+            var bus = Configure.WithContainer()
                                .WindsorContainer()
                                 .Log4Net()
                                .ExposeConfiguration(x => x.Container.ConfigureInstance(new InMemoryBroker()))

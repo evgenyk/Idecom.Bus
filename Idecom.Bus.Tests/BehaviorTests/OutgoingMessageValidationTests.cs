@@ -32,7 +32,7 @@
         [Fact]
         public void CanValidateWhileSendingAMessageTest()
         {
-            var bus = Configure.With()
+            var bus = Configure.WithContainer()
                                .WindsorContainer()
                                .Log4Net()
                                .ExposeConfiguration(x => x.Container.ConfigureInstance(new InMemoryBroker()))
@@ -51,7 +51,7 @@
         public void DelayedMessagesAreValidatedAsWellTest()
         {
             var inMemoryBroker = new InMemoryBroker(false);
-            var bus1 = Configure.With()
+            var bus1 = Configure.WithContainer()
                                .WindsorContainer()
                                .Log4Net()
                                .ExposeConfiguration(x =>
@@ -66,7 +66,7 @@
                                .CreateTestBus("app1")
                                .Start();
             
-            var bus2 = Configure.With()
+            var bus2 = Configure.WithContainer()
                                .WindsorContainer()
                                .Log4Net()
                                .ExposeConfiguration(x => x.Container.ConfigureInstance(inMemoryBroker))

@@ -1,11 +1,11 @@
 ﻿namespace Idecom.Bus.SampleApp1
 {
     using System;
-    using System.Collections;
     using Castle.Windsor;
     using Implementations;
     using Interfaces;
     using IoC.CastleWindsor;
+    using log4net.Config;
     using Logging.Log4Net;
     using PubSub.MongoDB;
     using SampleMessages;
@@ -16,26 +16,19 @@
     {
         static void Main()
         {
-            /*
-            var host = Host
-                .InfrustructureFolder("")
-                .HostedServiceFolder("")
-                .Start();
-                */
+            XmlConfigurator.Configure();
 
-            log4net.Config.XmlConfigurator.Configure();
-
-            var container = new WindsorContainer();
-            IBusInstance busInstance = Configure.With()
-                                       .WindsorContainer(container)
+            IBusInstance busInstance = Configure.WithContainer()
+                                       .WindsorContainer()
                                        .Log4Net()
-                                       //.RabbitMqTransport("localhost")
                                        .MongoDbTransport("mongodb://localhost", "messageHub", 1)
                                        .JsonNetSerializer() // should be automatic
                                        .RouteMessagesFromNamespaceTo<SayHelloCommand>("app2") // must be automatic
                                        .MongoPublisher("mongodb://localhost", "messageHub")
-                                       .CreateBus("app1")
+                                       .CreateInstance()
                                        .Start();
+
+            //Auto.Configure().Start();
 
             var sayHelloCommand = new SayHelloCommand("Blah");
             busInstance.SendLocal(sayHelloCommand);

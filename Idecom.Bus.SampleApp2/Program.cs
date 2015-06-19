@@ -18,14 +18,14 @@
             log4net.Config.XmlConfigurator.Configure();
 
             var container = new WindsorContainer();
-            var busInstance = Configure.With()
+            var busInstance = Configure.WithContainer()
                                        .WindsorContainer(container)
                                        .Log4Net()
                                        .MongoDbTransport("mongodb://localhost", "messageHub", 4)
                                        .JsonNetSerializer()
                                        .RouteMessagesFromNamespaceTo<SayHelloCommand>("app1")
                                        .MongoPublisher("mongodb://localhost", "messageHub")
-                                       .CreateBus("app2");
+                                       .CreateInstance("app2");
 
             var bus = busInstance.Start();
 

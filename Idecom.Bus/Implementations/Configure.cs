@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
     using Addons.PubSub;
     using Addressing;
@@ -10,6 +11,7 @@
     using Interfaces.Logging;
     using Internal;
     using UnicastBus;
+    using Utility;
 
     public class DebugView: IDebugView
     {
@@ -119,17 +121,29 @@
             }
         }
 
-        public List<NamespaceToEndpointMapping> NamespaceToEndpoints
-        {
-            get { return _namespaceToEndpoints; }
-        }
+        public List<NamespaceToEndpointMapping> NamespaceToEndpoints => _namespaceToEndpoints;
 
-        public static ConfigureContainer With()
+        public static ConfigureContainer WithContainer()
         {
             return new ConfigureContainer(new Configure());
         }
 
-        public IBusInstance CreateBus(string queueName = null)
+        public IBusInstance CreateInstance()
+        {
+            var nameFromAssemblyInfo = AssemblyScanner.GetScannableAssemblies().Where(x =>
+                                                                                      {
+                                                                                          var assemblyMetadataAttribute = x.GetCustomAttributes<AssemblyMetadataAttribute>();
+                                                                                          return assemblyMetadataAttribute.Any() && assemblyMetadataAttribute.Select(y=>y.Key).Contains("idecom.endpoint.id");
+                                                                                      }).ToList();
+            if (nameFromAssemblyInfo.Count > 1)
+                throw new Exception($"Found more than one AssemblyInfoAttributes with key idecom.endpoint.id in scanned assemblies: {nameFromAssemblyInfo.Select(x => x.FullName).Aggregate((a, b) => $"{a}, {b}")}");
+
+            var name = nameFromAssemblyInfo.First().GetCustomAttributes<AssemblyMetadataAttribute>().First(attribute => attribute.Key.Equals("idecom.endpoint.id")).Value;
+
+            return CreateInstance(name);
+        }
+
+        public IBusInstance CreateInstance(string queueName)
         {
             Container.ConfigureInstance(new Address(queueName));
             Container.Configure<RoutingAwareSubscriptionDistributor>(ComponentLifecycle.Singleton);

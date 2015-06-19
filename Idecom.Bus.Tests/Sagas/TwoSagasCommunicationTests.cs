@@ -20,7 +20,7 @@
             InMemorySubscriptionStorage subscriptionStorage = null;
             var inMemoryBroker = new InMemoryBroker(false);
 
-            var bus1 = Configure.With()
+            var bus1 = Configure.WithContainer()
                                 .WindsorContainer()
                                 .Log4Net()
                                 .InMemoryTransport()
@@ -36,7 +36,7 @@
                                 .CreateTestBus("app1")
                                 .Start();
 
-            var bus2 = Configure.With()
+            var bus2 = Configure.WithContainer()
                                 .WindsorContainer()
                                 .Log4Net()
                                 .ExposeConfiguration(x =>

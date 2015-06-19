@@ -17,7 +17,7 @@
         [Fact]
         public void CanStartAndFinishSagaTest()
         {
-            TestBus bus = Configure.With()
+            TestBus bus = Configure.WithContainer()
                                .WindsorContainer()
                                 .Log4Net()
                                .InMemoryTransport()
@@ -39,7 +39,7 @@
         public void StartTenSagasCloseTenSagas()
         {
             InMemorySagaStorage inMemorySagaStorage = null;
-            var bus = Configure.With()
+            var bus = Configure.WithContainer()
                                .WindsorContainer()
                                .Log4Net()
                                .InMemoryTransport()

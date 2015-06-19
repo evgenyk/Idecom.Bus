@@ -32,7 +32,7 @@ namespace Idecom.Bus.Utility
                     ResolutionCache[name] = resolvedType;
 
             if (resolvedType == null)
-                throw new Exception(string.Format("Can not resolve type {0} for the purpose of deserialization.", name));
+                throw new Exception($"Can not resolve type {name} for the purpose of deserialization.");
 
             return resolvedType;
         }
